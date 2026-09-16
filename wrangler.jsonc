@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "galena",
+  "compatibility_date": "2026-09-15",
+  // Worker de solo assets: no hay script, Cloudflare sirve ./dist tal cual.
+  "assets": {
+    "directory": "./dist"
+  }
+}

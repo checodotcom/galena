@@ -5,5 +5,9 @@
   // Worker de solo assets: no hay script, Cloudflare sirve ./dist tal cual.
   "assets": {
     "directory": "./dist"
-  }
+  },
+  // El dominio se conecta como Custom Domain desde el dashboard; el token de
+  // wrangler no tiene permisos de DNS. Al agregarlo, anótalo aquí en "routes"
+  // para que la config no se desincronice.
+  "workers_dev": true
 }

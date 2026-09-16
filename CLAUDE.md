@@ -54,8 +54,7 @@ altura de la "G" en los cuatro lados.
 Son reglas duras. Si una petición las contradice, dilo antes de implementar.
 
 1. **Nada de gradientes**, en especial morados o violetas. Nada de glassmorphism,
-   sombras difusas, brillos ni bordes redondeados grandes. El radio máximo en
-   cualquier elemento es 2px.
+   sombras difusas ni brillos.
 2. **Sin sombras.** La jerarquía se construye con escala, peso y espacio.
 3. **Sin iconos decorativos**, sin emoji, sin ilustraciones de stock, sin blobs.
 4. **Tipografía única.** Solo Urbanist. La variedad sale de peso, tamaño y

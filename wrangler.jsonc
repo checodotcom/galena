@@ -9,6 +9,7 @@
   // El Custom Domain se creó desde el dashboard (el token de wrangler no tiene
   // permisos de DNS). Queda anotado aquí para que un deploy futuro no lo pierda.
   "routes": [{ "pattern": "galena.agency", "custom_domain": true }],
-  // Temporal: workers.dev sigue vivo mientras se limpia la caché DNS negativa.
-  "workers_dev": true
+  // Un solo host: galena.agency. workers.dev apagado para no servir el mismo
+  // contenido en dos dominios.
+  "workers_dev": false
 }

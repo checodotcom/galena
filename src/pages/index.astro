@@ -1,0 +1,59 @@
+---
+import '../styles/global.css';
+
+const title = 'Galena — Agencia digital';
+const description =
+  'Galena es una agencia digital: diseño web, CRO, automatizaciones, agentes de IA y ecommerce.';
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#e4dfd6" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link
+      rel="preload"
+      href="/fonts/urbanist-200.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Galena" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+  </head>
+
+  <body>
+    <header class="site-header">
+      <img
+        class="site-header__logo"
+        src="/galena-logo-negro.svg"
+        alt="Galena"
+        width="159"
+        height="22"
+      />
+
+      <a class="contact" href="mailto:REEMPLAZAR@galena.agency">Contact</a>
+    </header>
+
+    <main class="hero">
+      <h1 class="hero__title">Titular provisional de Galena</h1>
+      <p class="hero__support">
+        Línea de apoyo provisional. El mensaje definitivo se define en la
+        siguiente sesión.
+      </p>
+    </main>
+  </body>
+</html>

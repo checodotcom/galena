@@ -1,0 +1,168 @@
+/* Urbanist — solo los dos pesos en uso, servidos desde este dominio. */
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/fonts/urbanist-200.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/fonts/urbanist-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bone: #e4dfd6;
+  --ink: #141414;
+  --ink-soft: rgba(20, 20, 20, 0.55);
+  --hairline: rgba(20, 20, 20, 0.14);
+
+  /* Ritmo de espaciado: múltiplos de 8px. */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-12: 96px;
+
+  /* Margen lateral de la columna. Header y hero comparten esta variable
+     para que logo y titular caigan sobre la misma línea vertical. */
+  --gutter: var(--space-3);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bone);
+  color: var(--ink);
+  font-family: 'Urbanist', system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--gutter);
+  background-color: var(--bone);
+}
+
+.site-header__logo {
+  display: block;
+  width: auto;
+  height: 22px;
+}
+
+.contact {
+  display: inline-flex;
+  align-items: center;
+  /* 44px de alto = área táctil mínima sin recurrir a un pseudo-elemento. */
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--ink);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.contact:hover,
+.contact:focus-visible {
+  border-color: var(--ink);
+  background-color: var(--ink);
+  color: var(--bone);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  /* svh y no vh: vh cuenta la barra del navegador móvil y genera scroll. */
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  /* El bloque se ancla a la parte baja del hero, no al centro óptico. */
+  justify-content: flex-end;
+  padding: 0 var(--gutter) var(--space-8);
+}
+
+.hero__title {
+  /* ~16 caracteres reales por línea: la unidad ch mide el ancho del "0",
+     bastante más ancho que la media de Urbanist, así que 16ch daría ~22. */
+  max-width: 12ch;
+  margin: 0;
+  font-size: clamp(2.75rem, 9vw, 7.5rem);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.hero__support {
+  max-width: 34ch;
+  margin: var(--space-3) 0 0;
+  color: var(--ink-soft);
+  font-size: clamp(0.875rem, 1.1vw, 1rem);
+  line-height: 1.5;
+}
+
+/* ---------- Desktop ---------- */
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: var(--space-6);
+  }
+
+  .site-header {
+    padding: var(--space-3) var(--gutter);
+  }
+
+  .site-header__logo {
+    height: 26px;
+  }
+
+  .hero {
+    padding-bottom: var(--space-12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact {
+    transition-duration: 0.01ms;
+  }
+}

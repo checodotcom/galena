@@ -6,8 +6,9 @@
   "assets": {
     "directory": "./dist"
   },
-  // El dominio se conecta como Custom Domain desde el dashboard; el token de
-  // wrangler no tiene permisos de DNS. Al agregarlo, anótalo aquí en "routes"
-  // para que la config no se desincronice.
+  // El Custom Domain se creó desde el dashboard (el token de wrangler no tiene
+  // permisos de DNS). Queda anotado aquí para que un deploy futuro no lo pierda.
+  "routes": [{ "pattern": "galena.agency", "custom_domain": true }],
+  // Temporal: workers.dev sigue vivo mientras se limpia la caché DNS negativa.
   "workers_dev": true
 }

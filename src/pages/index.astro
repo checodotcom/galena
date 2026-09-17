@@ -5,6 +5,10 @@ const title = 'Galena — Agencia digital';
 const description =
   'Galena es una agencia digital: diseño web, CRO, automatizaciones, agentes de IA y ecommerce.';
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// Persianas de la transición hueso → plata. El CSS usa 15 en móvil y 10 en
+// desktop; se renderizan todas y las sobrantes se ocultan por breakpoint.
+const blinds = 15;
 ---
 
 <!doctype html>
@@ -45,15 +49,23 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
         height="22"
       />
 
-      <a class="contact" href="mailto:REEMPLAZAR@galena.agency">Contact</a>
+      <a class="contact" href="mailto:hola@galena.agency">Contact</a>
     </header>
 
-    <main class="hero">
-      <h1 class="hero__title">Titular provisional de Galena</h1>
-      <p class="hero__support">
-        Línea de apoyo provisional. El mensaje definitivo se define en la
-        siguiente sesión.
-      </p>
+    <main>
+      <div class="intro">
+        <div class="blinds" aria-hidden="true">
+          {Array.from({ length: blinds }, (_, i) => <span style={`--i: ${i}`} />)}
+        </div>
+      </div>
+
+      <section class="hero">
+        <h1 class="hero__title">Titular provisional de Galena</h1>
+        <p class="hero__support">
+          Línea de apoyo provisional. El mensaje definitivo se define en la
+          siguiente sesión.
+        </p>
+      </section>
     </main>
   </body>
 </html>

@@ -1,7 +1,8 @@
 # Galena — sitio web
 
-Landing de una sola pantalla para Galena, agencia digital (diseño web, CRO,
-automatizaciones, agentes de IA, ecommerce). Dominio: galena.agency.
+Sitio de Galena, agencia digital (diseño web, CRO, automatizaciones, agentes de
+IA, ecommerce). Dominio: galena.agency. No está limitado al alto de la pantalla:
+es una página de varias secciones que se irán agregando poco a poco.
 
 ## Stack
 
@@ -29,7 +30,8 @@ startup. El espacio en blanco es el elemento de diseño principal, no un sobrant
 
 | Token | Valor | Uso |
 |---|---|---|
-| `--bone` | `#E4DFD6` | Fondo de toda la página |
+| `--bone` | `#E4DFD6` | Fondo base de la página |
+| `--silver` | `#C4C0B9` | Fondo de la sección plata y de sus persianas |
 | `--ink` | `#141414` | Texto principal y logo |
 | `--ink-soft` | `#141414` al 55% | Texto secundario |
 | `--hairline` | `#141414` al 14% | Bordes de 1px |

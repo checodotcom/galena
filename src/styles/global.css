@@ -17,6 +17,7 @@
 
 :root {
   --bone: #e4dfd6;
+  --silver: #c4c0b9;
   --ink: #141414;
   --ink-soft: rgba(20, 20, 20, 0.55);
   --hairline: rgba(20, 20, 20, 0.14);
@@ -30,9 +31,10 @@
   --space-8: 64px;
   --space-12: 96px;
 
-  /* Margen lateral de la columna. Header y hero comparten esta variable
+  /* Margen lateral de la columna. Header y secciones comparten esta variable
      para que logo y titular caigan sobre la misma línea vertical. */
   --gutter: var(--space-3);
+  --header-pad: var(--space-2);
 }
 
 *,
@@ -66,13 +68,15 @@ body {
   top: 0;
   right: 0;
   left: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  padding: var(--space-2) var(--gutter);
-  background-color: var(--bone);
+  padding: var(--header-pad) var(--gutter);
+  /* Transparente: sin esto, la franja vacía bloquearía clics sobre el
+     contenido que pase por debajo. */
+  pointer-events: none;
 }
 
 .site-header__logo {
@@ -97,6 +101,7 @@ body {
   text-decoration: none;
   text-transform: uppercase;
   white-space: nowrap;
+  pointer-events: auto;
   transition:
     background-color 200ms ease,
     border-color 200ms ease,
@@ -110,16 +115,44 @@ body {
   color: var(--bone);
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Intro: pantalla hueso con las persianas ---------- */
+
+.intro {
+  position: relative;
+  height: 100svh;
+}
+
+.blinds {
+  --blinds: 15;
+  /* Parámetros de pxpush (GSAP: duración 0.5, stagger 0.04, recorrido 80vh)
+     traducidos a scroll: separación entre barras y recorrido de cada una. */
+  --blind-step: 3.02svh;
+  --blind-length: 37.74svh;
+
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: repeat(var(--blinds), 1fr);
+  pointer-events: none;
+}
+
+.blinds span {
+  background-color: var(--silver);
+  transform: scaleY(0);
+  /* Cada franja crece hacia arriba desde su borde inferior. */
+  transform-origin: 50% 100%;
+}
+
+/* ---------- Sección plata ---------- */
 
 .hero {
-  /* svh y no vh: vh cuenta la barra del navegador móvil y genera scroll. */
   height: 100svh;
   display: flex;
   flex-direction: column;
-  /* El bloque se ancla a la parte baja del hero, no al centro óptico. */
+  /* El bloque se ancla a la parte baja, no al centro óptico. */
   justify-content: flex-end;
   padding: 0 var(--gutter) var(--space-8);
+  background-color: var(--silver);
 }
 
 .hero__title {
@@ -146,18 +179,92 @@ body {
 @media (min-width: 768px) {
   :root {
     --gutter: var(--space-6);
-  }
-
-  .site-header {
-    padding: var(--space-3) var(--gutter);
+    --header-pad: var(--space-3);
   }
 
   .site-header__logo {
     height: 26px;
   }
 
+  .blinds {
+    --blinds: 10;
+    --blind-step: 3.72svh;
+    --blind-length: 46.51svh;
+  }
+
+  .blinds span:nth-child(n + 11) {
+    display: none;
+  }
+
   .hero {
     padding-bottom: var(--space-12);
+  }
+}
+
+/* ---------- Animaciones ligadas al scroll ----------
+   Todo depende del scroll desde arriba: el intro mide 100svh y está al inicio,
+   así que los rangos en svh equivalen a "cuánto ha salido el intro".
+   Sin soporte (Firefox) o con movimiento reducido, se ve el estado final:
+   logo en el header, CONTACT visible y corte directo entre secciones. */
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .blinds span {
+      /* --k cuenta las barras desde abajo: la de abajo arranca primero. */
+      --k: calc(var(--blinds) - 1 - var(--i));
+      animation-name: blind-close;
+      animation-fill-mode: both;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-timeline: scroll(root);
+      animation-range:
+        calc(var(--k) * var(--blind-step))
+        calc(var(--k) * var(--blind-step) + var(--blind-length));
+    }
+
+    /* El logo arranca centrado y sube al header desde el primer píxel de
+       scroll. Curva ease-out: se mueve de inmediato y se asienta suave.
+       El desplazamiento no depende de la altura del logo:
+       50svh − padding del header − mitad del botón. */
+    .site-header__logo {
+      animation-name: logo-dock;
+      animation-fill-mode: both;
+      animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+      animation-timeline: scroll(root);
+      animation-range: 0svh 75svh;
+    }
+
+    /* visibility además de opacity: oculto no recibe foco ni clics. */
+    .contact {
+      animation-name: contact-in;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: scroll(root);
+      animation-range: 70svh 80svh;
+    }
+  }
+}
+
+@keyframes blind-close {
+  to {
+    /* 1.01 y no 1: el solape tapa las rendijas de subpíxel entre barras. */
+    transform: scaleY(1.01);
+  }
+}
+
+@keyframes logo-dock {
+  from {
+    transform: translateY(calc(50svh - var(--header-pad) - 22px));
+  }
+}
+
+@keyframes contact-in {
+  from {
+    opacity: 0;
+    visibility: hidden;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
   }
 }
 

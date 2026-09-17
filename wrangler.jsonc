@@ -12,6 +12,8 @@
   // no va aquí porque el repo es público: vive en el secreto CONTACT_TO
   // (en local, en .dev.vars).
   "send_email": [{ "name": "CONTACT_EMAIL" }],
+  // Registros del Worker guardados en Cloudflare (sin datos personales).
+  "observability": { "enabled": true },
   // El Custom Domain se creó desde el dashboard (el token de wrangler no tiene
   // permisos de DNS). Queda anotado aquí para que un deploy futuro no lo pierda.
   "routes": [{ "pattern": "galena.agency", "custom_domain": true }],

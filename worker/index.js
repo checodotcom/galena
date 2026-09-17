@@ -44,17 +44,25 @@ async function handleContact(request, env) {
   const message = field('message');
 
   // Campo trampa: solo un bot lo llena. Se le responde éxito sin enviar nada.
-  if (field('website')) return reply(true, 200);
+  // Los registros nunca incluyen nombre, correo ni mensaje.
+  if (field('website')) {
+    console.log('contact: campo trampa lleno, no se envía');
+    return reply(true, 200);
+  }
 
   const valid =
     name.length > 0 && name.length <= MAX.name &&
     email.length <= MAX.email && EMAIL_PATTERN.test(email) &&
     message.length > 0 && message.length <= MAX.message;
-  if (!valid) return reply(false, 400);
+  if (!valid) {
+    console.log('contact: datos inválidos');
+    return reply(false, 400);
+  }
 
   try {
     const raw = buildMessage({ to: env.CONTACT_TO, name, email, message });
-    await env.CONTACT_EMAIL.send(new EmailMessage(FROM, env.CONTACT_TO, raw));
+    const result = await env.CONTACT_EMAIL.send(new EmailMessage(FROM, env.CONTACT_TO, raw));
+    console.log('contact: send() aceptado', JSON.stringify(result ?? null));
     return reply(true, 200);
   } catch (error) {
     console.error('contact: envío fallido', error);

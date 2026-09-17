@@ -259,11 +259,14 @@ html:has(.contact-dialog[open]) {
 }
 
 .contact-dialog {
+  /* Margen interior: arriba igual que a los lados, sin franja extra. */
+  --dialog-pad: var(--space-3);
+
   width: min(100% - 2 * var(--gutter), 560px);
   max-width: none;
   max-height: calc(100svh - 2 * var(--gutter));
   margin: auto;
-  padding: var(--space-2) var(--space-3) var(--space-4);
+  padding: var(--dialog-pad) var(--dialog-pad) var(--space-4);
   border: 0;
   border-radius: var(--space-3);
   background-color: var(--bone);
@@ -278,16 +281,23 @@ html:has(.contact-dialog[open]) {
 .contact-form {
   display: grid;
   gap: var(--space-4);
+  /* Baja el contenido lo justo para que la X tenga el mismo espacio arriba,
+     a la derecha y abajo (hasta el primer campo): etiqueta de 16px + 8px de
+     separación ya ocupan parte de ese hueco. */
+  padding-top: calc(var(--dialog-pad) - var(--space-1));
 }
 
 .contact-dialog__close {
+  /* Fuera del flujo, en la esquina: la X (16px dentro de un botón de 44px)
+     queda a --dialog-pad del borde superior y del derecho, alineada con el
+     borde de los campos. */
+  position: absolute;
+  top: calc(var(--dialog-pad) - 14px);
+  right: calc(var(--dialog-pad) - 14px);
   display: grid;
-  justify-self: end;
   place-items: center;
   width: 44px;
   height: 44px;
-  /* La X queda alineada al borde derecho de los campos, no al del botón. */
-  margin-right: calc(-1 * (44px - 16px) / 2);
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -321,6 +331,7 @@ html:has(.contact-dialog[open]) {
 
 .field__label {
   font-size: 0.6875rem;
+  line-height: 16px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -596,7 +607,9 @@ textarea.field__input {
   }
 
   .contact-dialog {
-    padding: var(--space-3) var(--space-6) var(--space-6);
+    --dialog-pad: var(--space-6);
+
+    padding: var(--dialog-pad);
   }
 }
 

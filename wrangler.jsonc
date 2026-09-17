@@ -2,10 +2,16 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "galena",
   "compatibility_date": "2026-09-15",
-  // Worker de solo assets: no hay script, Cloudflare sirve ./dist tal cual.
+  // Sirve ./dist y atiende /api/contact (formulario de contacto).
+  "main": "worker/index.js",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS"
   },
+  // Envío por Email Routing, que ya está activo en galena.agency. El destino
+  // no va aquí porque el repo es público: vive en el secreto CONTACT_TO
+  // (en local, en .dev.vars).
+  "send_email": [{ "name": "CONTACT_EMAIL" }],
   // El Custom Domain se creó desde el dashboard (el token de wrangler no tiene
   // permisos de DNS). Queda anotado aquí para que un deploy futuro no lo pierda.
   "routes": [{ "pattern": "galena.agency", "custom_domain": true }],

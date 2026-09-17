@@ -9,8 +9,9 @@ es una página de varias secciones que se irán agregando poco a poco.
 - **Astro** (sitio estático, sin adaptador SSR).
 - **CSS plano** en un único archivo global. Sin Tailwind, sin CSS-in-JS, sin
   librerías de componentes.
-- **Cero JavaScript en el cliente.** Si una funcionalidad requiere JS, proponla
-  antes de implementarla.
+- **Cero JavaScript por defecto.** Primero se resuelve con HTML y CSS de la
+  plataforma. JS solo dentro de islas (ver "Navegación, prefetch e islas"), y
+  toda isla nueva se propone antes de implementarla.
 - Deploy: **Cloudflare Workers** con assets estáticos (`wrangler.jsonc` apuntando
   a `./dist`).
 
@@ -20,6 +21,54 @@ npm run dev                              # desarrollo
 npx astro build && npx wrangler dev      # preview del build
 npx astro build && npx wrangler deploy   # producción
 ```
+
+## Navegación, prefetch e islas
+
+**Transiciones entre páginas: suaves, nunca un parpadeo en blanco.** Se usan las
+view transitions nativas entre documentos, solo con CSS en el archivo global:
+
+```css
+@view-transition { navigation: auto; }
+```
+
+- No usar `<ClientRouter />` de Astro: convierte el sitio en SPA y agrega JS.
+- Sin soporte (Firefox) la navegación es normal. El fondo `--bone` va en `html`
+  además de `body`, para que ningún cuadro intermedio se pinte blanco.
+- Con `prefers-reduced-motion: reduce`, la transición se desactiva.
+
+**Prefetch:** con Speculation Rules en el `<head>` del layout, no con el
+`prefetch` de Astro (ese inyecta un script):
+
+```html
+<script is:inline type="speculationrules">
+  { "prefetch": [{
+    "where": { "and": [{ "href_matches": "/*" }, { "not": { "href_matches": "/api/*" } }] },
+    "eagerness": "moderate"
+  }] }
+</script>
+```
+
+Es JSON declarativo: el navegador no ejecuta JS. `is:inline` evita que Astro lo
+procese. Solo lo aplica Chromium; el resto navega normal.
+
+**Islas para componentes interactivos:**
+
+1. Primero la plataforma: `<dialog>`, `popover`, `commandfor`/`command`,
+   `<details>`, validación nativa de formularios y animaciones CSS ligadas al
+   scroll. Si se resuelve sin JS, no hay isla.
+2. Una isla es un componente `.astro` con su propio `<script>` en JS vanilla.
+   Astro lo empaqueta y lo carga solo en las páginas que lo usan. Nada de
+   frameworks (React, Preact, Svelte) sin proponerlo y justificarlo antes.
+3. El JS de la isla hace solo lo que la plataforma no puede. Ejemplo: el modal
+   de contacto se abre y se cierra con `<dialog>` + `commandfor` (sin JS); la
+   isla es únicamente el envío del formulario y los estados del botón.
+4. Sin JS, el componente sigue siendo usable o degrada a algo honesto. Nunca se
+   muestra éxito si el envío no se confirmó.
+5. El CSS de la isla vive en el archivo global, como el resto.
+
+**Sitemap:** con `@astrojs/sitemap` (integración oficial, corre en el build,
+cero JS en el cliente). Genera `sitemap-index.xml` a partir de `site` en
+`astro.config.mjs`, y `public/robots.txt` apunta a él.
 
 ## Marca
 
@@ -33,8 +82,12 @@ startup. El espacio en blanco es el elemento de diseño principal, no un sobrant
 | `--bone` | `#E4DFD6` | Fondo base de la página |
 | `--silver` | `#C4C0B9` | Fondo de la sección plata y de sus persianas |
 | `--ink` | `#141414` | Texto principal y logo |
-| `--ink-soft` | `#141414` al 55% | Texto secundario |
+| `--ink-soft` | `#141414` al 70% | Texto secundario (AA sobre hueso y plata) |
+| `--ink-line` | `#141414` al 55% | Borde de campos de formulario (3:1 mínimo) |
+| `--ink-faint` | `#141414` al 40% | Placeholders de formularios |
+| `--ink-ghost` | `#141414` al 25% | Flecha de scroll del intro (decorativa, `aria-hidden`) |
 | `--hairline` | `#141414` al 14% | Bordes de 1px |
+| `--scrim` | `#141414` al 40% | Fondo oscurecido detrás de diálogos |
 
 **Tipografía:** Urbanist, servida localmente en `woff2` desde `/public/fonts`.
 Nunca por CDN ni Google Fonts (bloquea el render y agrega un tercer host).

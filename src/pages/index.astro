@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import ContactDialog from '../components/ContactDialog.astro';
 
 const title = 'Galena — Agencia digital';
 const description =
@@ -9,6 +10,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 // Persianas de la transición hueso → plata. El CSS usa 15 en móvil y 10 en
 // desktop; se renderizan todas y las sobrantes se ocultan por breakpoint.
 const blinds = 15;
+const ogImage = new URL('/og-image.png', Astro.site).href;
+const year = new Date().getFullYear();
 ---
 
 <!doctype html>
@@ -36,7 +39,23 @@ const blinds = 15;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Logotipo de Galena sobre fondo hueso" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Prefetch declarativo: es JSON, el navegador no ejecuta JS. -->
+    <script is:inline type="speculationrules">
+      {
+        "prefetch": [
+          {
+            "where": { "and": [{ "href_matches": "/*" }, { "not": { "href_matches": "/api/*" } }] },
+            "eagerness": "moderate"
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>
@@ -49,11 +68,18 @@ const blinds = 15;
         height="22"
       />
 
-      <a class="contact" href="mailto:hola@galena.agency">Contact</a>
+      <button class="contact" type="button" commandfor="contact-dialog" command="show-modal">
+        Contact
+      </button>
     </header>
 
     <main>
       <div class="intro">
+        <!-- Antes que las persianas en el DOM: las barras la tapan al cerrarse. -->
+        <svg class="intro__hint" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+
         <div class="blinds" aria-hidden="true">
           {Array.from({ length: blinds }, (_, i) => <span style={`--i: ${i}`} />)}
         </div>
@@ -67,5 +93,12 @@ const blinds = 15;
         </p>
       </section>
     </main>
+
+    <footer class="site-footer">
+      <a class="site-footer__email" href="mailto:hola@galena.agency">hola@galena.agency</a>
+      <p class="site-footer__legal">© {year} Galena</p>
+    </footer>
+
+    <ContactDialog />
   </body>
 </html>

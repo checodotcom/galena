@@ -1,0 +1,171 @@
+---
+// Diálogo de contacto. Abrir y cerrar es HTML de la plataforma: el botón
+// CONTACT del header usa commandfor="contact-dialog" command="show-modal".
+// La isla (el <script> de abajo) envía el formulario, muestra los errores junto
+// a cada campo y cambia estados. Sin JS, la validación nativa sigue funcionando.
+---
+
+<dialog id="contact-dialog" class="contact-dialog" aria-label="Contacto">
+  <form class="contact-form" action="/api/contact" method="post" data-state="idle">
+    <button
+      class="contact-dialog__close"
+      type="button"
+      commandfor="contact-dialog"
+      command="close"
+      aria-label="Cerrar"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
+
+    <fieldset class="contact-form__fields">
+      <div class="field">
+        <label class="field__label" for="contact-name">Nombre</label>
+        <input
+          class="field__input"
+          id="contact-name"
+          name="name"
+          autocomplete="name"
+          maxlength="120"
+          placeholder="Ana López"
+          aria-describedby="contact-name-error"
+          required
+        />
+        <p class="field__error" id="contact-name-error">Escribe tu nombre.</p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="contact-email">Correo</label>
+        <input
+          class="field__input"
+          id="contact-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          maxlength="200"
+          placeholder="correo@ejemplo.com"
+          aria-describedby="contact-email-error"
+          required
+        />
+        <p class="field__error" id="contact-email-error">Escribe un correo válido.</p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="contact-message">Mensaje</label>
+        <textarea
+          class="field__input"
+          id="contact-message"
+          name="message"
+          rows="5"
+          maxlength="5000"
+          placeholder="Platícanos tu idea"
+          aria-describedby="contact-message-error"
+          required></textarea>
+        <p class="field__error" id="contact-message-error">Escribe tu mensaje.</p>
+      </div>
+
+      <!-- Campo trampa para bots: fuera de pantalla y fuera del orden de tabulación. -->
+      <label class="field--trap" aria-hidden="true">
+        No llenar
+        <input name="website" tabindex="-1" autocomplete="off" />
+      </label>
+    </fieldset>
+
+    <div class="contact-form__footer">
+      <button class="send" type="submit">
+        <span class="send__label">Enviar</span>
+        <span class="send__spinner" aria-hidden="true"></span>
+        <svg class="send__check" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"></path>
+        </svg>
+      </button>
+      <p class="contact-form__status" role="status"></p>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  const MIN_LOADING_MS = 2000;
+  const CONTACT_EMAIL = 'hola@galena.agency';
+  const MESSAGES = {
+    idle: '',
+    sending: 'Enviando…',
+    sent: 'Mensaje enviado.',
+  };
+
+  const dialog = document.getElementById('contact-dialog');
+  const form = dialog.querySelector('.contact-form');
+  const fields = form.querySelector('.contact-form__fields');
+  const status = form.querySelector('.contact-form__status');
+
+  // Con JS, los errores se muestran junto a cada campo (CSS) en lugar del globo
+  // del navegador. Sin JS esta línea no corre y la validación nativa sigue.
+  form.noValidate = true;
+
+  // Safari en iOS solo aplica :active si la página escucha touchstart. Sin esto,
+  // CONTACT y ENVIAR no cambiarían de color al tocarlos.
+  document.addEventListener('touchstart', () => {}, { passive: true });
+
+  // Respaldo para navegadores sin commandfor (Safari < 26.2, Firefox < 144).
+  if (!('commandForElement' in HTMLButtonElement.prototype)) {
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('button[commandfor="contact-dialog"]');
+      if (!button) return;
+      if (button.getAttribute('command') === 'show-modal') dialog.showModal();
+      if (button.getAttribute('command') === 'close') dialog.close();
+    });
+  }
+
+  const setState = (state) => {
+    form.dataset.state = state;
+    fields.disabled = state === 'sending' || state === 'sent';
+
+    if (state === 'error') {
+      const link = document.createElement('a');
+      link.href = `mailto:${CONTACT_EMAIL}`;
+      link.textContent = CONTACT_EMAIL;
+      status.replaceChildren('No se pudo enviar. Escríbenos a ', link, '.');
+    } else {
+      status.textContent = MESSAGES[state];
+    }
+  };
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (form.dataset.state === 'sending' || form.dataset.state === 'sent') return;
+
+    // Campos sin tocar también muestran su error tras el primer intento.
+    if (!form.checkValidity()) {
+      form.dataset.checked = '';
+      form.querySelector('.field__input:invalid')?.focus();
+      return;
+    }
+
+    // Se lee antes de deshabilitar: los campos deshabilitados no se envían.
+    const body = new FormData(form);
+    setState('sending');
+
+    const minimumWait = new Promise((resolve) => setTimeout(resolve, MIN_LOADING_MS));
+    let ok = false;
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body,
+        headers: { Accept: 'application/json' },
+      });
+      ok = response.ok && (await response.json()).ok === true;
+    } catch {
+      ok = false;
+    }
+
+    await minimumWait;
+    setState(ok ? 'sent' : 'error');
+  });
+
+  // Tras un envío exitoso, cerrar deja el formulario listo para otro mensaje.
+  dialog.addEventListener('close', () => {
+    if (form.dataset.state !== 'sent') return;
+    form.reset();
+    delete form.dataset.checked;
+    setState('idle');
+  });
+</script>

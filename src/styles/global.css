@@ -19,8 +19,12 @@
   --bone: #e4dfd6;
   --silver: #c4c0b9;
   --ink: #141414;
-  --ink-soft: rgba(20, 20, 20, 0.55);
+  --ink-soft: rgba(20, 20, 20, 0.7);
+  --ink-line: rgba(20, 20, 20, 0.55);
+  --ink-faint: rgba(20, 20, 20, 0.4);
+  --ink-ghost: rgba(20, 20, 20, 0.25);
   --hairline: rgba(20, 20, 20, 0.14);
+  --scrim: rgba(20, 20, 20, 0.4);
 
   /* Ritmo de espaciado: múltiplos de 8px. */
   --space-1: 8px;
@@ -44,7 +48,17 @@
 }
 
 html {
+  /* Fondo también en html: ningún cuadro intermedio de una navegación
+     se pinta blanco. */
+  background-color: var(--bone);
   -webkit-text-size-adjust: 100%;
+}
+
+/* Transiciones entre páginas nativas, sin JS. Sin soporte, navegación normal. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
 }
 
 body {
@@ -57,7 +71,7 @@ body {
 }
 
 :focus-visible {
-  outline: 1px solid var(--ink);
+  outline: 2px solid var(--ink);
   outline-offset: 4px;
 }
 
@@ -95,24 +109,41 @@ body {
   border-radius: 999px;
   background-color: transparent;
   color: var(--ink);
+  font: inherit;
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
   white-space: nowrap;
+  cursor: pointer;
   pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background-color 200ms ease,
     border-color 200ms ease,
     color 200ms ease;
 }
 
-.contact:hover,
-.contact:focus-visible {
+/* Hover solo con mouse: en pantallas táctiles se quedaba pegado tras tocar.
+   Al tocar, :active invierte el color al instante. */
+@media (hover: hover) {
+  .contact:hover {
+    border-color: var(--ink);
+    background-color: var(--ink);
+    color: var(--bone);
+  }
+}
+
+.contact:focus-visible,
+.contact:active {
   border-color: var(--ink);
   background-color: var(--ink);
   color: var(--bone);
+}
+
+.contact:active {
+  transition-duration: 0s;
 }
 
 /* ---------- Intro: pantalla hueso con las persianas ---------- */
@@ -120,6 +151,21 @@ body {
 .intro {
   position: relative;
   height: 100svh;
+}
+
+.intro__hint {
+  position: absolute;
+  right: 0;
+  bottom: var(--space-4);
+  left: 0;
+  width: 24px;
+  height: 24px;
+  margin-inline: auto;
+  fill: none;
+  stroke: var(--ink-ghost);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .blinds {
@@ -146,12 +192,15 @@ body {
 /* ---------- Sección plata ---------- */
 
 .hero {
-  height: 100svh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   /* El bloque se ancla a la parte baja, no al centro óptico. */
   justify-content: flex-end;
-  padding: 0 var(--gutter) var(--space-8);
+  /* Arriba se reserva el alto del header (botón de 44px + su padding) más aire:
+     en pantallas bajas el título no se mete debajo del logo; si no cabe, la
+     sección crece en vez de encimarse. */
+  padding: calc(44px + 2 * var(--header-pad) + var(--space-3)) var(--gutter) var(--space-8);
   background-color: var(--silver);
 }
 
@@ -160,7 +209,8 @@ body {
      bastante más ancho que la media de Urbanist, así que 16ch daría ~22. */
   max-width: 12ch;
   margin: 0;
-  font-size: clamp(2.75rem, 9vw, 7.5rem);
+  /* El término en svh solo gana en pantallas bajas (móvil horizontal). */
+  font-size: clamp(2.75rem, min(9vw, 14svh), 7.5rem);
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
@@ -172,6 +222,347 @@ body {
   color: var(--ink-soft);
   font-size: clamp(0.875rem, 1.1vw, 1rem);
   line-height: 1.5;
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-3) var(--gutter);
+  border-top: 1px solid var(--hairline);
+  background-color: var(--silver);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.site-footer__email {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+  text-underline-offset: 3px;
+}
+
+.site-footer__legal {
+  margin: 0;
+}
+
+/* ---------- Diálogo de contacto ---------- */
+
+html:has(.contact-dialog[open]) {
+  overflow: hidden;
+}
+
+.contact-dialog {
+  width: min(100% - 2 * var(--gutter), 560px);
+  max-width: none;
+  max-height: calc(100svh - 2 * var(--gutter));
+  margin: auto;
+  padding: var(--space-2) var(--space-3) var(--space-4);
+  border: 0;
+  border-radius: var(--space-3);
+  background-color: var(--bone);
+  color: var(--ink);
+  overflow-y: auto;
+}
+
+.contact-dialog::backdrop {
+  background-color: var(--scrim);
+}
+
+.contact-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.contact-dialog__close {
+  display: grid;
+  justify-self: end;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  /* La X queda alineada al borde derecho de los campos, no al del botón. */
+  margin-right: calc(-1 * (44px - 16px) / 2);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.contact-dialog__close svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.contact-form__fields {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.field__label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.field__input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  /* --ink-line y no --hairline: el borde que delimita un campo necesita 3:1. */
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  /* 16px: con menos, iOS hace zoom al enfocar el campo. */
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.field__input::placeholder {
+  /* Firefox atenúa el placeholder con opacity por defecto; el tono lo da el token. */
+  color: var(--ink-faint);
+  opacity: 1;
+}
+
+.field__input:focus-visible {
+  border-color: var(--ink);
+}
+
+/* Error por campo, sin JS: :user-invalid se activa cuando la persona ya tocó
+   el campo. data-checked lo pone la isla tras un intento de envío, para que
+   también se marquen los campos que nunca se tocaron. */
+.field__error {
+  display: none;
+  margin: 0;
+  padding-left: var(--space-3);
+  font-size: 0.875rem;
+}
+
+.field:has(.field__input:user-invalid) .field__error,
+.contact-form[data-checked] .field:has(.field__input:invalid) .field__error {
+  display: block;
+}
+
+.field__input:user-invalid,
+.contact-form[data-checked] .field__input:invalid {
+  border-color: var(--ink);
+}
+
+/* Un área de varias líneas no puede ser cápsula completa: el radio igual a la
+   mitad de un campo de una línea mantiene las esquinas idénticas.
+   Sin tirador (quedaba fuera de la curva): crece sola con el contenido donde
+   hay soporte; si no, se queda en sus 5 líneas. */
+textarea.field__input {
+  min-height: calc(5lh + 2 * var(--space-1) + 2px);
+  max-height: 40svh;
+  border-radius: 22px;
+  resize: none;
+  field-sizing: content;
+}
+
+.contact-form__fields:disabled .field__input {
+  color: var(--ink-soft);
+}
+
+.field--trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-form__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.contact-form__status {
+  margin: 0;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.contact-form__status a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+/* Éxito y error se leen en pantalla; "Enviando…" lo cuenta el botón y queda
+   solo para lectores de pantalla. */
+.contact-form:not([data-state='error'], [data-state='sent']) .contact-form__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.send {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 144px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    width 300ms cubic-bezier(0.65, 0, 0.35, 1),
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+/* Etiqueta, círculo de carga y palomita comparten la misma celda. */
+.send > * {
+  grid-area: 1 / 1;
+}
+
+@media (hover: hover) {
+  .contact-form:is([data-state='idle'], [data-state='error']) .send:hover {
+    border-color: var(--ink);
+    background-color: var(--ink);
+    color: var(--bone);
+  }
+
+  .contact-dialog__close:hover {
+    background-color: var(--hairline);
+  }
+}
+
+.contact-form:is([data-state='idle'], [data-state='error']) .send:is(:focus-visible, :active) {
+  border-color: var(--ink);
+  background-color: var(--ink);
+  color: var(--bone);
+}
+
+.send:active {
+  transition-duration: 0s;
+}
+
+.contact-dialog__close:active {
+  background-color: var(--hairline);
+}
+
+.contact-form:is([data-state='sending'], [data-state='sent']) .send {
+  width: 44px;
+  cursor: default;
+}
+
+.send__label {
+  transition: opacity 150ms ease;
+}
+
+.contact-form:is([data-state='sending'], [data-state='sent']) .send__label {
+  opacity: 0;
+}
+
+.send__spinner {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--hairline);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.contact-form[data-state='sending'] .send__spinner {
+  opacity: 1;
+  animation: send-spin 800ms linear infinite;
+  /* Aparece cuando el botón ya terminó de encogerse. */
+  transition: opacity 150ms ease 250ms;
+}
+
+.send__check {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.contact-form[data-state='sent'] .send__check {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 400ms ease-out;
+}
+
+@keyframes send-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contact-dialog,
+  .contact-dialog::backdrop {
+    opacity: 0;
+    transition:
+      opacity 200ms ease,
+      translate 200ms ease,
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
+  }
+
+  .contact-dialog {
+    translate: 0 var(--space-1);
+  }
+
+  .contact-dialog[open],
+  .contact-dialog[open]::backdrop {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .contact-dialog[open],
+    .contact-dialog[open]::backdrop {
+      opacity: 0;
+    }
+
+    .contact-dialog[open] {
+      translate: 0 var(--space-1);
+    }
+  }
 }
 
 /* ---------- Desktop ---------- */
@@ -196,8 +587,16 @@ body {
     display: none;
   }
 
+  .intro__hint {
+    bottom: var(--space-6);
+  }
+
   .hero {
     padding-bottom: var(--space-12);
+  }
+
+  .contact-dialog {
+    padding: var(--space-3) var(--space-6) var(--space-6);
   }
 }
 
@@ -233,13 +632,29 @@ body {
       animation-range: 0svh 75svh;
     }
 
-    /* visibility además de opacity: oculto no recibe foco ni clics. */
+    /* La flecha de scroll se desvanece con los primeros píxeles de scroll. */
+    .intro__hint {
+      animation-name: hint-out;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: scroll(root);
+      animation-range: 0svh 8svh;
+    }
+
+    /* Oculto solo a la vista: sigue en el árbol de accesibilidad y con Tab.
+       Sin pointer-events mientras no se ve, para no atrapar clics invisibles. */
     .contact {
       animation-name: contact-in;
       animation-fill-mode: both;
       animation-timing-function: linear;
       animation-timeline: scroll(root);
       animation-range: 70svh 80svh;
+    }
+
+    /* Al llegar con teclado se muestra aunque no se haya hecho scroll.
+       !important porque una animación le gana a cualquier regla normal. */
+    .contact:focus-visible {
+      opacity: 1 !important;
     }
   }
 }
@@ -248,6 +663,12 @@ body {
   to {
     /* 1.01 y no 1: el solape tapa las rendijas de subpíxel entre barras. */
     transform: scaleY(1.01);
+  }
+}
+
+@keyframes hint-out {
+  to {
+    opacity: 0;
   }
 }
 
@@ -260,16 +681,22 @@ body {
 @keyframes contact-in {
   from {
     opacity: 0;
-    visibility: hidden;
+    pointer-events: none;
   }
   to {
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
   }
 }
 
+/* El círculo de carga sigue girando: es el indicador de progreso, no adorno. */
 @media (prefers-reduced-motion: reduce) {
-  .contact {
+  .contact,
+  .contact-dialog__close,
+  .send,
+  .send__label,
+  .send__spinner,
+  .send__check {
     transition-duration: 0.01ms;
   }
 }

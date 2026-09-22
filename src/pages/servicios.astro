@@ -1,0 +1,156 @@
+---
+// Sección "Columnas": tabla de precios de 3 planes con periodo mensual/anual.
+// El toggle es HTML+CSS puro (radios + :has()), sin isla ni JavaScript: ver
+// "Islas para componentes interactivos" en CLAUDE.md.
+import Layout from '../layouts/Layout.astro';
+
+const title = 'Servicios y precios — Galena';
+const description =
+  'Elige el plan de Galena para tu negocio: sitio web, automatizaciones y agentes de IA. Sin contratos forzosos, sin cargos escondidos.';
+
+const plans = [
+  {
+    index: '01',
+    name: 'Sitio Inteligente',
+    tagline: 'Para empezar a captar en línea',
+    monthly: '$127',
+    annual: '$1,270',
+    savings: '$254',
+    setup: '$297 USD',
+    cta: 'Quiero este plan',
+    featured: false,
+    includesLabel: 'Incluye',
+    includes: [
+      'Sitio web profesional (hasta 5 secciones)',
+      'Dominio, hosting y mantenimiento',
+      'Formularios con seguimiento automático',
+      'Chat en el sitio conectado a WhatsApp',
+      'Bandeja única de mensajes',
+    ],
+  },
+  {
+    index: '02',
+    name: 'Crecimiento',
+    tagline: 'Para llenar la agenda y subir reseñas',
+    monthly: '$297',
+    annual: '$2,970',
+    savings: '$594',
+    setup: '$597 USD',
+    cta: 'Quiero este plan →',
+    featured: true,
+    badge: 'Más elegido',
+    includesLabel: 'Todo lo de Sitio Inteligente, más',
+    includes: [
+      'Agenda de citas con recordatorios',
+      'Reseñas de Google en automático',
+      'Optimización de tu ficha de Google Business',
+      'Pipeline de ventas y CRM',
+      'Reporte mensual de resultados',
+    ],
+  },
+  {
+    index: '03',
+    name: 'IA Total',
+    tagline: 'Para atender 24/7 sin contratar',
+    monthly: '$497',
+    annual: '$4,970',
+    savings: '$994',
+    setup: '$997 USD',
+    cta: 'Quiero este plan',
+    featured: false,
+    includesLabel: 'Todo lo de Crecimiento, más',
+    includes: [
+      'Chatbot con IA en WhatsApp, Instagram, Facebook y sitio',
+      'Rescate de llamadas perdidas',
+      'Respuesta a reseñas con IA',
+      'Campañas por WhatsApp a tu base de clientes',
+      'Soporte prioritario y optimización mensual',
+    ],
+  },
+];
+---
+
+<Layout title={title} description={description}>
+  <div class="pricing-page">
+    <div class="pricing-page__intro">
+      <p class="eyebrow">Planes y modalidades</p>
+      <h1 class="pricing-page__title">
+        Elige el plan para tu <br class="pricing-page__title-break" />negocio
+      </h1>
+      <p class="pricing-page__lede">
+        Sin contratos forzosos. Sin cargos escondidos. Sube de plan cuando quieras.
+      </p>
+    </div>
+
+    <section class="pricing">
+      <div class="pricing__toggle">
+        <div class="period">
+          <span class="period__label">Mensual</span>
+          <label class="period__switch">
+            <input type="checkbox" id="period-annual" role="switch" aria-label="Cambiar a periodo anual" />
+            <span class="period__track" aria-hidden="true"></span>
+          </label>
+          <span class="period__label">Anual</span>
+        </div>
+        <p class="period__note">Obtén 2 meses gratis en la modalidad anual</p>
+      </div>
+
+      <div class="plans">
+        {
+          plans.map((plan) => (
+            <article class:list={['plan', { 'plan--featured': plan.featured }]}>
+              <div class="plan__head">
+                {plan.badge ? (
+                  <div class="plan__head-top">
+                    <span class="plan__index">{plan.index}</span>
+                    <span class="plan__badge">{plan.badge}</span>
+                  </div>
+                ) : (
+                  <span class="plan__index">{plan.index}</span>
+                )}
+                <h2 class="plan__name">{plan.name}</h2>
+                <p class="plan__tagline">{plan.tagline}</p>
+              </div>
+
+              <div class="plan__pricing">
+                <p class="plan__price">
+                  <span class="plan__amount plan__amount--monthly">{plan.monthly}</span>
+                  <span class="plan__amount plan__amount--annual">{plan.annual}</span>
+                  <span class="plan__unit plan__unit--monthly">USD / mes</span>
+                  <span class="plan__unit plan__unit--annual">USD / año</span>
+                </p>
+                <p class="plan__savings">Ahorras {plan.savings} USD al año</p>
+                <p class="plan__setup">
+                  Implementación única: <span class="plan__setup-amount">{plan.setup}</span>
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class:list={['plan-cta', { 'plan-cta--filled': plan.featured }]}
+                commandfor="contact-dialog"
+                command="show-modal"
+              >
+                {plan.cta}
+              </button>
+
+              <div class="plan__includes">
+                <p class="plan__includes-label">{plan.includesLabel}</p>
+                <ul class="plan__list">
+                  {plan.includes.map((item) => <li>{item}</li>)}
+                </ul>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <p class="pricing-page__note">
+      Precios en USD. En México se cotiza con IVA. ¿Necesitas algo a la medida?{' '}
+      <button type="button" class="text-link" commandfor="contact-dialog" command="show-modal">
+        Escríbenos
+      </button>.
+    </p>
+  </div>
+</Layout>

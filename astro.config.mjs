@@ -5,7 +5,9 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://galena.agency',
   integrations: [sitemap()],
-  // Una sola página: el CSS va dentro del HTML y se ahorra una petición que
-  // bloquea el render. Reevaluar cuando haya varias páginas (caché compartida).
-  build: { inlineStylesheets: 'always' },
+  // Con dos o más páginas conviene un archivo de CSS enlazado y no incrustado:
+  // el navegador lo descarga una vez y lo reutiliza en cada navegación en vez
+  // de bajar el mismo CSS otra vez por página. 'auto' igual incrusta el CSS
+  // si en algún momento vuelve a ser muy pequeño.
+  build: { inlineStylesheets: 'auto' },
 });

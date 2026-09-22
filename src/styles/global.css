@@ -31,6 +31,7 @@
   --space-2: 16px;
   --space-3: 24px;
   --space-4: 32px;
+  --space-5: 40px;
   --space-6: 48px;
   --space-8: 64px;
   --space-12: 96px;
@@ -39,6 +40,10 @@
      para que logo y titular caigan sobre la misma línea vertical. */
   --gutter: var(--space-3);
   --header-pad: var(--space-2);
+
+  /* Espacio que cualquier sección debe reservar arriba para no meterse
+     debajo del header fijo (botón de 44px + su padding, más aire). */
+  --header-clearance: calc(44px + 2 * var(--header-pad) + var(--space-3));
 }
 
 *,
@@ -75,6 +80,16 @@ body {
   outline-offset: 4px;
 }
 
+/* Visible solo para lectores de pantalla (leyendas de grupo, etc.). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* ---------- Header ---------- */
 
 .site-header {
@@ -88,9 +103,27 @@ body {
   justify-content: space-between;
   gap: var(--space-2);
   padding: var(--header-pad) var(--gutter);
-  /* Transparente: sin esto, la franja vacía bloquearía clics sobre el
-     contenido que pase por debajo. */
+  background-color: var(--bone);
+  border-bottom: 1px solid var(--hairline);
+  /* pointer-events:none en el contenedor: sin esto, la franja bloquearía
+     clics sobre el contenido que pase por debajo; logo y CONTACT recuperan
+     sus propios clics con pointer-events:auto. */
   pointer-events: none;
+}
+
+/* En el home la intro es una pantalla hueso lisa: el header se funde con
+   ella, sin barra ni borde, como se diseñó desde el inicio. En el resto de
+   las páginas queda opaco, como cualquier header fijo normal — si no, el
+   contenido que pasa por debajo se ve atravesando el logo y CONTACT. */
+body:has(.intro) .site-header {
+  background-color: transparent;
+  border-bottom-color: transparent;
+}
+
+.site-header__home {
+  display: block;
+  line-height: 0;
+  pointer-events: auto;
 }
 
 .site-header__logo {
@@ -197,10 +230,9 @@ body {
   flex-direction: column;
   /* El bloque se ancla a la parte baja, no al centro óptico. */
   justify-content: flex-end;
-  /* Arriba se reserva el alto del header (botón de 44px + su padding) más aire:
-     en pantallas bajas el título no se mete debajo del logo; si no cabe, la
+  /* En pantallas bajas el título no se mete debajo del logo; si no cabe, la
      sección crece en vez de encimarse. */
-  padding: calc(44px + 2 * var(--header-pad) + var(--space-3)) var(--gutter) var(--space-8);
+  padding: var(--header-clearance) var(--gutter) var(--space-8);
   background-color: var(--silver);
 }
 
@@ -222,6 +254,426 @@ body {
   color: var(--ink-soft);
   font-size: clamp(0.875rem, 1.1vw, 1rem);
   line-height: 1.5;
+}
+
+/* El color, el subrayado y el hover vienen de .text-link; aquí solo la
+   separación respecto al párrafo de apoyo. */
+.hero__link {
+  display: inline-block;
+  margin-top: var(--space-3);
+}
+
+/* ---------- Página: Servicios (precios) ---------- */
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.pricing-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--header-clearance) var(--gutter) var(--space-8);
+}
+
+.pricing-page__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pricing-page__title {
+  margin: 0;
+  /* 96px en el mockup de referencia; nunca tan protagonista como el titular
+     del home (7.5rem), pero igual de dramático frente al resto de la página. */
+  font-size: clamp(2.25rem, 7vw, 6rem);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+/* En móvil el título envuelve solo: sin corte forzado. Desde "Desktop" (abajo)
+   se fuerza el salto después de "tu" para que "negocio" caiga en su propia
+   línea, como se pidió específicamente para esa medida. */
+.pricing-page__title-break {
+  display: none;
+}
+
+.pricing-page__lede {
+  max-width: 42ch;
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.pricing-page__note {
+  max-width: 60ch;
+  /* .pricing-page reparte --space-12 (96px) entre sus hijos; para esta nota
+     es demasiado, así que se resta para dejar --space-6 (48px) reales. */
+  margin: calc(-1 * var(--space-6)) 0 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.text-link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .text-link:hover {
+    color: var(--ink-soft);
+  }
+}
+
+/* ---- Periodo de pago: mensual / anual, sin JS ----
+   Switch en lugar de dos botones: un solo checkbox (marcado = anual) entre
+   las dos etiquetas. La lógica que muestra precio/unidad/ahorro según el
+   periodo (más abajo, con :has(#period-annual:checked)) no cambia: sigue
+   leyendo el mismo id, y :checked funciona igual en checkbox que en radio. */
+
+.pricing {
+  display: flex;
+  flex-direction: column;
+  /* Más aire entre el periodo de pago y las tarjetas que entre el switch y
+     su nota (--space-2, más abajo). */
+  gap: var(--space-8);
+}
+
+.pricing__toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.period {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.period__label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.period__switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Área táctil de 44×44 aunque el riel visual sea más pequeño. */
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* El input real cubre todo el botón: recibe el foco y el clic, y el anillo
+   de :focus-visible queda alineado con el área táctil, no con el riel. */
+.period__switch input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.period__track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  pointer-events: none;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.period__track::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--ink-line);
+  transition:
+    transform 200ms ease,
+    background-color 200ms ease;
+}
+
+/* Anual: el riel se pone negro y la bolita cruza al otro lado. */
+.period__switch:has(input:checked) .period__track {
+  border-color: var(--ink);
+  background-color: var(--ink);
+}
+
+.period__switch:has(input:checked) .period__track::before {
+  transform: translateX(18px);
+  background-color: var(--bone);
+}
+
+.period__note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+/* ---- Tarjetas de plan ----
+   Cada tarjeta es su propia caja con borde y radio (mismo radio que la caja
+   del diálogo de contacto) en cualquier tamaño de pantalla — no solo en
+   móvil. En móvil además son un carrusel deslizable con scroll-snap, sin
+   JavaScript: cada tarjeta queda centrada al soltar, con un asomo simétrico
+   de la vecina a los dos lados. El padding-inline en % (no --gutter) deja
+   sitio para centrar también la primera y la última tarjeta, no solo las
+   del medio. */
+
+.plans {
+  display: flex;
+  gap: var(--space-3);
+  margin-inline: calc(-1 * var(--gutter));
+  padding-inline: 10%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 10%;
+  scrollbar-width: none;
+}
+
+.plans::-webkit-scrollbar {
+  display: none;
+}
+
+.plan {
+  /* El ancho se deriva del padding-inline del contenedor (arriba) en vez de
+     ser un % suelto: así el asomo de la tarjeta vecina, al descansar sin
+     haber deslizado, mide lo mismo que el margen del lado contrario —
+     ambos terminan siendo ese mismo 10%. */
+  flex: 0 0 calc(100% - var(--space-3));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid var(--hairline);
+  border-radius: var(--space-3);
+  scroll-snap-align: center;
+}
+
+.plan--featured {
+  /* El fondo plata ya distingue la tarjeta; un hairline encima se vería de más. */
+  border-color: transparent;
+  background-color: var(--silver);
+}
+
+.plan__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.plan__head-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.plan__index {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+
+.plan__badge {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.plan__name {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.plan__tagline {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.plan__pricing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.plan__price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.plan__amount {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.plan__unit {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Precio, unidad y ahorro anual: el periodo activo se decide en .pricing-page
+   con :has(), sin JavaScript. El estado por defecto es mensual. */
+.plan__amount--annual,
+.plan__unit--annual,
+.plan__savings {
+  display: none;
+}
+
+.pricing-page:has(#period-annual:checked) .plan__amount--monthly,
+.pricing-page:has(#period-annual:checked) .plan__unit--monthly {
+  display: none;
+}
+
+.pricing-page:has(#period-annual:checked) .plan__amount--annual,
+.pricing-page:has(#period-annual:checked) .plan__unit--annual {
+  display: inline;
+}
+
+.pricing-page:has(#period-annual:checked) .plan__savings {
+  display: block;
+}
+
+.plan__savings {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink);
+}
+
+.plan__setup {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.plan__setup-amount {
+  color: var(--ink);
+}
+
+.plan-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    opacity 200ms ease;
+}
+
+@media (hover: hover) {
+  .plan-cta:not(.plan-cta--filled):hover {
+    border-color: var(--ink);
+    background-color: var(--ink);
+    color: var(--bone);
+  }
+
+  /* El de "Crecimiento" parte oscuro (destacado): al pasar el mouse se
+     invierte igual que los otros dos, en vez de solo atenuarse. */
+  .plan-cta--filled:hover {
+    border-color: var(--ink);
+    background-color: transparent;
+    color: var(--ink);
+  }
+}
+
+.plan-cta:not(.plan-cta--filled):is(:focus-visible, :active) {
+  border-color: var(--ink);
+  background-color: var(--ink);
+  color: var(--bone);
+}
+
+.plan-cta--filled {
+  border-color: var(--ink);
+  background-color: var(--ink);
+  color: var(--bone);
+}
+
+.plan-cta--filled:active {
+  border-color: var(--ink);
+  background-color: transparent;
+  color: var(--ink);
+}
+
+.plan-cta:active {
+  transition-duration: 0s;
+}
+
+.plan__includes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.plan__includes-label {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.plan__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.plan__list li {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--hairline);
 }
 
 /* ---------- Footer ---------- */
@@ -611,6 +1063,36 @@ textarea.field__input {
 
     padding: var(--dialog-pad);
   }
+
+  .pricing-page__title-break {
+    display: block;
+  }
+
+  /* De carrusel a lista apilada: sin scroll horizontal. Las tarjetas
+     conservan su borde y su radio (--space-3) en todos los tamaños; el gap
+     entre ellas ya viene de la regla base de .plans. */
+  .plans {
+    flex-direction: column;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+
+  .plan {
+    flex-basis: auto;
+    scroll-snap-align: none;
+  }
+}
+
+/* Cuadrícula de 3 columnas para las tarjetas de plan: a 768px cada columna
+   mediría ~200px, muy justo para el texto de "Incluye". 1024px es donde
+   empieza a caber con comodidad. */
+@media (min-width: 1024px) {
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 /* ---------- Animaciones ligadas al scroll ----------
@@ -636,8 +1118,11 @@ textarea.field__input {
     /* El logo arranca centrado y sube al header desde el primer píxel de
        scroll. Curva ease-out: se mueve de inmediato y se asienta suave.
        El desplazamiento no depende de la altura del logo:
-       50svh − padding del header − mitad del botón. */
-    .site-header__logo {
+       50svh − padding del header − mitad del botón.
+       Solo en el home: body:has(.intro) detecta la pantalla hueso inicial,
+       que es lo único que justifica este recorrido. En el resto de las
+       páginas el logo se queda quieto en el header, como es normal. */
+    body:has(.intro) .site-header__logo {
       animation-name: logo-dock;
       animation-fill-mode: both;
       animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
@@ -655,8 +1140,10 @@ textarea.field__input {
     }
 
     /* Oculto solo a la vista: sigue en el árbol de accesibilidad y con Tab.
-       Sin pointer-events mientras no se ve, para no atrapar clics invisibles. */
-    .contact {
+       Sin pointer-events mientras no se ve, para no atrapar clics invisibles.
+       Solo en el home (ver nota en .site-header__logo): en el resto de las
+       páginas CONTACT está visible desde el primer momento. */
+    body:has(.intro) .contact {
       animation-name: contact-in;
       animation-fill-mode: both;
       animation-timing-function: linear;
@@ -668,6 +1155,41 @@ textarea.field__input {
        !important porque una animación le gana a cualquier regla normal. */
     .contact:focus-visible {
       opacity: 1 !important;
+    }
+
+    /* En /servicios, el logo y CONTACT del header se achican un poco apenas
+       empieza el scroll, en cualquier tamaño de pantalla — el título de la
+       página se queda en su tamaño completo, solo el header se compacta.
+       body:has(.pricing-page) detecta esa página igual que body:has(.intro)
+       detecta el home. */
+    body:has(.pricing-page) .site-header__logo {
+      animation-name: pricing-header-shrink;
+      animation-fill-mode: both;
+      animation-timing-function: ease-out;
+      animation-timeline: scroll(root);
+      animation-range: 0svh 16svh;
+    }
+
+    body:has(.pricing-page) .contact {
+      animation-name: pricing-header-shrink;
+      animation-fill-mode: both;
+      animation-timing-function: ease-out;
+      animation-timeline: scroll(root);
+      animation-range: 0svh 16svh;
+    }
+
+    /* En móvil, además, la barra del header en sí se compacta (menos
+       padding vertical) en el mismo rango: no solo se ven más chicos el
+       logo y CONTACT, el header realmente ocupa menos alto. En desktop hay
+       aire de sobra y no hace falta. */
+    @media (max-width: 767px) {
+      body:has(.pricing-page) .site-header {
+        animation-name: pricing-header-compact;
+        animation-fill-mode: both;
+        animation-timing-function: ease-out;
+        animation-timeline: scroll(root);
+        animation-range: 0svh 16svh;
+      }
     }
   }
 }
@@ -682,6 +1204,20 @@ textarea.field__input {
 @keyframes hint-out {
   to {
     opacity: 0;
+  }
+}
+
+@keyframes pricing-header-shrink {
+  to {
+    transform: scale(0.86);
+  }
+}
+
+@keyframes pricing-header-compact {
+  to {
+    /* Solo el padding vertical: el horizontal lo sigue dando --gutter, así
+       que el logo no se corre de su columna al compactarse. */
+    padding-block: var(--space-1);
   }
 }
 

@@ -1,0 +1,82 @@
+---
+// Timeline de proceso. El avance (línea que se llena, pasos que se encienden)
+// es CSS ligado al scroll, sin JS. La isla (el <script> de abajo) solo hace lo
+// que CSS no puede: la entrada de los textos una sola vez, la primera vez que
+// aparecen. Sin JS, los textos se ven normales desde el inicio.
+const steps = [
+  {
+    name: 'Descubrimiento',
+    text: 'Conocemos tu negocio, a tus clientes y lo que hoy te frena. Una sesión de arranque define qué vamos a construir y cómo sabremos que funciona.',
+  },
+  {
+    name: 'Estrategia',
+    text: 'Convertimos lo que aprendimos en un plan: estructura del sitio, mensajes, embudos y automatizaciones, con prioridades claras.',
+  },
+  {
+    name: 'Diseño',
+    text: 'Damos forma a la experiencia: lenguaje visual, pantallas y los detalles que hacen que tus clientes entiendan y actúen.',
+  },
+  {
+    name: 'Desarrollo',
+    text: 'Construimos el sitio y conectamos todo: formularios, gestión de clientes, WhatsApp y agentes de IA, probado en cada dispositivo.',
+  },
+  {
+    name: 'Lanzamiento',
+    text: 'Revisamos cada detalle y publicamos. Recibes los accesos y todo lo necesario para operar desde el primer día.',
+  },
+  {
+    name: 'Acompañamiento',
+    text: 'Después del lanzamiento seguimos contigo: medimos resultados y ajustamos lo que haga falta para que siga funcionando.',
+  },
+];
+---
+
+<section class="process" aria-labelledby="process-title">
+  <div class="process__intro" data-reveal-group>
+    <p class="eyebrow">Proceso</p>
+    <h2 class="process__title" id="process-title">Cómo trabajamos</h2>
+  </div>
+
+  <ol class="process__steps">
+    {
+      steps.map((step, i) => (
+        <li class="step">
+          <span class="step__marker" aria-hidden="true">
+            {String(i + 1).padStart(2, '0')}
+          </span>
+          {i < steps.length - 1 && <span class="step__line" aria-hidden="true" />}
+          <div class="step__body" data-reveal-group>
+            <h3 class="step__name">{step.name}</h3>
+            <p class="step__text">{step.text}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<script>
+  const section = document.querySelector('.process');
+  const groups = section?.querySelectorAll('[data-reveal-group]') ?? [];
+  const motionOk = matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+  if (section && motionOk && 'IntersectionObserver' in window) {
+    // El estado oculto solo existe desde aquí: si el script no corre, nada
+    // queda invisible.
+    section.dataset.reveal = '';
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.dataset.revealed = '';
+          observer.unobserve(entry.target);
+        }
+      },
+      // Entra cuando ya asomó un poco, no en el primer píxel del borde.
+      { rootMargin: '0px 0px -12% 0px' },
+    );
+
+    groups.forEach((group) => observer.observe(group));
+  }
+</script>

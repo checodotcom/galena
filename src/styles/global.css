@@ -44,6 +44,7 @@
   /* Espacio que cualquier sección debe reservar arriba para no meterse
      debajo del header fijo (botón de 44px + su padding, más aire). */
   --header-clearance: calc(44px + 2 * var(--header-pad) + var(--space-3));
+  --header-height: calc(44px + 2 * var(--header-pad));
 }
 
 *,
@@ -109,15 +110,6 @@ body {
      clics sobre el contenido que pase por debajo; logo y CONTACT recuperan
      sus propios clics con pointer-events:auto. */
   pointer-events: none;
-}
-
-/* En el home la intro es una pantalla hueso lisa: el header se funde con
-   ella, sin barra ni borde, como se diseñó desde el inicio. En el resto de
-   las páginas queda opaco, como cualquier header fijo normal — si no, el
-   contenido que pasa por debajo se ve atravesando el logo y CONTACT. */
-body:has(.intro) .site-header {
-  background-color: transparent;
-  border-bottom-color: transparent;
 }
 
 .site-header__home {
@@ -261,6 +253,152 @@ body:has(.intro) .site-header {
 .hero__link {
   display: inline-block;
   margin-top: var(--space-3);
+}
+
+/* ---------- Proceso: timeline ligado al scroll ----------
+   El estado base es el final (todo encendido, línea completa): es lo que se
+   ve sin soporte o con movimiento reducido. La animación, más abajo, parte
+   del estado apagado y enciende cada paso cuando su círculo cruza la mitad
+   de la pantalla. */
+
+/* Mismo aire arriba (hasta "Proceso") que abajo (después del último
+   texto). --process-pad cambia en desktop. */
+.process {
+  --process-pad: var(--space-12);
+
+  padding: var(--process-pad) var(--gutter);
+}
+
+.process__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.process__title {
+  margin: 0;
+  font-size: clamp(2.25rem, 7vw, 6rem);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.process__steps {
+  max-width: 44rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  --marker: 40px;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--marker) minmax(0, 1fr);
+  column-gap: var(--space-3);
+  /* Espacio entre pasos dentro del <li>, no con gap: así cada tramo de línea
+     mide exactamente de un círculo al siguiente (ver .step__line). */
+  padding-bottom: var(--space-8);
+}
+
+.step:last-child {
+  padding-bottom: 0;
+}
+
+/* Capas: tramo de línea (0) < anillo (1) < círculo (2). Los <li> no crean
+   contexto de apilamiento, así que el tramo del paso anterior, que entra
+   en este <li> hasta el centro del círculo, también queda debajo. */
+.step__marker {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: var(--marker);
+  height: var(--marker);
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background-color: var(--ink);
+  color: var(--bone);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  /* El tracking deja aire solo a la derecha; esto recentra los dígitos. */
+  padding-left: 0.12em;
+}
+
+/* Anillo del paso en curso: un aro sólido de 1px, no un halo difuso. El
+   fondo hueso tapa la línea en el hueco entre el aro y el círculo. */
+.step::before {
+  --ring-gap: 7px;
+
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: calc(-1 * var(--ring-gap));
+  left: calc(-1 * var(--ring-gap));
+  width: calc(var(--marker) + 2 * var(--ring-gap));
+  height: calc(var(--marker) + 2 * var(--ring-gap));
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background-color: var(--bone);
+  opacity: 0;
+}
+
+/* Un tramo por paso (menos el último): del centro de su círculo al centro
+   del siguiente. El riel es --hairline; el relleno --ink crece encima. */
+.step__line {
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--marker) / 2);
+  left: calc(var(--marker) / 2 - 0.5px);
+  width: 1px;
+  height: 100%;
+  background-color: var(--hairline);
+}
+
+.step__line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--ink);
+  transform-origin: 50% 0;
+}
+
+.step__name {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.step__text {
+  max-width: 42ch;
+  margin: var(--space-2) 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Entrada de los textos, una sola vez. data-reveal lo pone la isla de
+   ProcessTimeline solo si hay JS y no se pidió movimiento reducido, y
+   data-revealed marca cada grupo en su primera entrada. Solo opacidad y
+   transform: no mueve el layout. El segundo texto del grupo entra un poco
+   después que el primero. */
+.process[data-reveal] [data-reveal-group] > * {
+  transition:
+    opacity 600ms ease-out,
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.process[data-reveal] [data-reveal-group] > * + * {
+  transition-delay: 120ms;
+}
+
+.process[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
+  opacity: 0;
+  transform: translateY(var(--space-2));
 }
 
 /* ---------- Página: Servicios (precios) ---------- */
@@ -1091,6 +1229,19 @@ textarea.field__input {
     padding-bottom: var(--space-12);
   }
 
+  .process {
+    --process-pad: calc(var(--space-12) + var(--space-8));
+  }
+
+  .process__intro {
+    margin-bottom: var(--space-12);
+  }
+
+  .step {
+    column-gap: var(--space-5);
+    padding-bottom: var(--space-12);
+  }
+
   .contact-dialog {
     --dialog-pad: var(--space-6);
 
@@ -1224,6 +1375,230 @@ textarea.field__input {
         animation-range: 0svh 16svh;
       }
     }
+
+    /* Timeline de proceso. Todo se mide contra una línea imaginaria a la
+       mitad de la pantalla (50svh): en rangos "cover", el 0% es cuando el
+       borde superior del elemento asoma por abajo, así que "cover 50svh" es
+       cuando ese borde llega a la mitad. */
+    .step {
+      view-timeline: --step;
+    }
+
+    /* Cada elemento lleva dos animaciones:
+       1. La normal, ligada a su paso (--step o --segment).
+       2. Un cierre ligado al final de la página (scroll(root), últimos
+          --space-8 de scroll). En pantallas altas el último círculo no
+          alcanza a subir hasta la mitad antes de que se acabe el scroll;
+          este cierre lleva todo al estado final al llegar abajo. Solo
+          rellena hacia adelante y sus keyframes no tienen "from", así que
+          parte de donde se haya quedado la animación normal y, en lo que ya
+          estaba completo, no cambia nada. */
+    .step {
+      --end-range: calc(100% - var(--space-8)) 100%;
+    }
+
+    /* El paso se enciende cuando el centro de su círculo cruza la mitad. */
+    .step__marker,
+    .step__name,
+    .step__text {
+      animation-fill-mode: both, forwards;
+      animation-timing-function: linear;
+      animation-timeline: --step, scroll(root);
+      animation-range:
+        cover calc(50svh + var(--marker) / 2)
+          cover calc(50svh + var(--marker) / 2 + var(--space-2)),
+        var(--end-range);
+    }
+
+    .step__marker {
+      animation-name: step-marker-on, step-marker-end;
+    }
+
+    .step__name,
+    .step__text {
+      animation-name: step-text-on, step-text-end;
+    }
+
+    /* El anillo marca solo el paso en curso: aparece al encenderse y se va
+       cuando el centro del círculo siguiente cruza la mitad, que es cuando
+       el borde inferior del <li> queda a medio círculo de ella. */
+    .step::before {
+      animation-name: step-ring-current, step-ring-end-off;
+      animation-fill-mode: both, forwards;
+      animation-timing-function: linear;
+      animation-timeline: --step, scroll(root);
+      animation-range:
+        cover calc(50svh + var(--marker) / 2)
+          cover calc(100% - 50svh + var(--marker) / 2),
+        var(--end-range);
+    }
+
+    /* El último no tiene siguiente: su anillo se queda. */
+    .step:last-child::before {
+      animation-name: step-ring-last, step-ring-end-on;
+      animation-range:
+        cover calc(50svh + var(--marker) / 2)
+          cover calc(50svh + var(--marker) / 2 + var(--space-2)),
+        var(--end-range);
+    }
+
+    /* El tramo se llena mientras recorre la mitad de la pantalla: empieza
+       cuando su borde de arriba (centro del círculo) la cruza y termina
+       cuando la cruza el de abajo (centro del siguiente círculo). */
+    .step__line {
+      view-timeline: --segment;
+    }
+
+    .step__line::after {
+      animation-name: step-line-fill, step-line-end;
+      animation-fill-mode: both, forwards;
+      animation-timing-function: linear;
+      animation-timeline: --segment, scroll(root);
+      animation-range:
+        cover 50svh cover calc(100% - 50svh),
+        var(--end-range);
+    }
+  }
+}
+
+/* Header del home: transparente sobre la intro (se funde con ella, como se
+   diseñó desde el inicio). Cuando el hero llega arriba se vuelve plata, el
+   mismo color del hero, así no se nota pero el titular ya no pasa por
+   debajo del logo; y cuando llega la sección de proceso se vuelve hueso.
+   Cambiar de color no es movimiento, así que no depende de
+   prefers-reduced-motion. Sin soporte de timelines con nombre, el header
+   queda opaco todo el tiempo, como en /servicios. */
+@supports (animation-timeline: view()) and (timeline-scope: none) {
+  body:has(.process) {
+    timeline-scope: --hero, --process;
+  }
+
+  .hero {
+    view-timeline: --hero;
+  }
+
+  .process {
+    view-timeline: --process;
+  }
+
+  /* header-solid solo rellena hacia adelante: antes de su rango manda
+     header-silver; después, header-solid le gana por ir segunda. */
+  body:has(.intro) .site-header {
+    background-color: transparent;
+    border-bottom-color: transparent;
+    animation-name: header-silver, header-solid;
+    animation-fill-mode: both, forwards;
+    animation-timing-function: linear;
+    animation-timeline: --hero, --process;
+    animation-range:
+      cover calc(100svh - var(--space-3)) cover 100svh,
+      cover calc(100svh - var(--header-height) - var(--space-3))
+        cover calc(100svh - var(--header-height));
+  }
+}
+
+@keyframes header-silver {
+  from {
+    background-color: transparent;
+    border-bottom-color: transparent;
+  }
+  to {
+    background-color: var(--silver);
+    border-bottom-color: var(--hairline);
+  }
+}
+
+@keyframes header-solid {
+  from {
+    background-color: var(--silver);
+    border-bottom-color: var(--hairline);
+  }
+  to {
+    background-color: var(--bone);
+    border-bottom-color: var(--hairline);
+  }
+}
+
+/* El número cambia de tinta a hueso de golpe a la mitad: si se fundiera
+   junto con el fondo, a medio camino ambos serían el mismo gris. */
+@keyframes step-marker-on {
+  0% {
+    border-color: var(--ink-line);
+    background-color: var(--bone);
+    color: var(--ink);
+  }
+  50% {
+    color: var(--ink);
+  }
+  50.1% {
+    color: var(--bone);
+  }
+}
+
+@keyframes step-text-on {
+  from {
+    /* --ink-soft y no más tenue: apagado, el texto sigue pasando AA. */
+    color: var(--ink-soft);
+  }
+}
+
+@keyframes step-ring-current {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+}
+
+@keyframes step-ring-last {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes step-line-fill {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/* Cierres al final de la página: sin "from" a propósito (ver nota en las
+   animaciones del timeline). */
+@keyframes step-marker-end {
+  to {
+    border-color: var(--ink);
+    background-color: var(--ink);
+    color: var(--bone);
+  }
+}
+
+@keyframes step-text-end {
+  to {
+    color: var(--ink);
+  }
+}
+
+@keyframes step-ring-end-off {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes step-ring-end-on {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes step-line-end {
+  to {
+    transform: scaleY(1);
   }
 }
 

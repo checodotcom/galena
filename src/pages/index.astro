@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ProcessTimeline from '../components/ProcessTimeline.astro';
 
 const title = 'Galena — Agencia digital';
 const description =
@@ -23,11 +24,13 @@ const blinds = 15;
   </div>
 
   <section class="hero">
-    <h1 class="hero__title">Titular provisional de Galena</h1>
+    <h1 class="hero__title">Tu negocio, atendiendo aunque no estés.</h1>
     <p class="hero__support">
-      Línea de apoyo provisional. El mensaje definitivo se define en la
-      siguiente sesión.
+      Sitio web, automatizaciones y agentes que responden, agendan y dan
+      seguimiento a tus clientes por ti.
     </p>
     <a class="hero__link text-link" href="/servicios">Explora nuestros servicios →</a>
   </section>
+
+  <ProcessTimeline />
 </Layout>

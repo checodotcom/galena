@@ -45,6 +45,11 @@
      debajo del header fijo (botón de 44px + su padding, más aire). */
   --header-clearance: calc(44px + 2 * var(--header-pad) + var(--space-3));
   --header-height: calc(44px + 2 * var(--header-pad));
+
+  /* Curvas compartidas. ease-out: entradas y salidas (arranca rápido y se
+     asienta). ease-in-out: algo que cambia de forma en pantalla. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 *,
@@ -58,6 +63,10 @@ html {
      se pinta blanco. */
   background-color: var(--bone);
   -webkit-text-size-adjust: 100%;
+  /* Reserva siempre el hueco de la barra de scroll: al abrir el diálogo el
+     scroll se bloquea y, sin esto, con barras clásicas (Windows) la página
+     y el header brincarían a lo ancho de la barra. */
+  scrollbar-gutter: stable;
 }
 
 /* Transiciones entre páginas nativas, sin JS. Sin soporte, navegación normal. */
@@ -389,7 +398,7 @@ body {
 .process[data-reveal] [data-reveal-group] > * {
   transition:
     opacity 600ms ease-out,
-    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 600ms var(--ease-out);
 }
 
 .process[data-reveal] [data-reveal-group] > * + * {
@@ -1075,7 +1084,7 @@ textarea.field__input {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    width 300ms cubic-bezier(0.65, 0, 0.35, 1),
+    width 300ms var(--ease-in-out),
     background-color 200ms ease,
     border-color 200ms ease,
     color 200ms ease;
@@ -1166,36 +1175,59 @@ textarea.field__input {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .contact-dialog,
-  .contact-dialog::backdrop {
-    opacity: 0;
-    transition:
-      opacity 200ms ease,
-      translate 200ms ease,
-      display 200ms allow-discrete,
-      overlay 200ms allow-discrete;
-  }
+/* Abrir y cerrar el diálogo, sin JS (@starting-style + allow-discrete).
+   La duración la pone el estado de destino: abrir toma 200ms y cerrar
+   150ms, un poco más rápido para que cerrar se sienta inmediato.
+   El fundido se queda aun con movimiento reducido: no desplaza nada y
+   evita que el diálogo aparezca de golpe. Solo el desplazamiento de 8px
+   depende de prefers-reduced-motion. */
+.contact-dialog,
+.contact-dialog::backdrop {
+  opacity: 0;
+  transition:
+    opacity 150ms var(--ease-out),
+    translate 150ms var(--ease-out),
+    display 150ms allow-discrete,
+    overlay 150ms allow-discrete;
+}
 
+.contact-dialog[open],
+.contact-dialog[open]::backdrop {
+  opacity: 1;
+  transition-duration: 200ms;
+}
+
+@starting-style {
+  .contact-dialog[open],
+  .contact-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
   .contact-dialog {
     translate: 0 var(--space-1);
   }
 
-  .contact-dialog[open],
-  .contact-dialog[open]::backdrop {
-    opacity: 1;
+  .contact-dialog[open] {
     translate: 0 0;
   }
 
   @starting-style {
-    .contact-dialog[open],
-    .contact-dialog[open]::backdrop {
-      opacity: 0;
-    }
-
     .contact-dialog[open] {
       translate: 0 var(--space-1);
     }
+  }
+}
+
+/* Sin la transición de "overlay" (Safari, Firefox), el diálogo sale de la
+   capa superior en el instante de cerrar: el fondo oscuro desaparece de
+   golpe y el panel, ya sin su posición de modal, podría verse un momento
+   fuera de lugar mientras se desvanece. Ahí se cierra sin transición. */
+@supports not (overlay: auto) {
+  .contact-dialog:not([open]),
+  .contact-dialog:not([open])::backdrop {
+    transition: none;
   }
 }
 
@@ -1292,7 +1324,7 @@ textarea.field__input {
       --k: calc(var(--blinds) - 1 - var(--i));
       animation-name: blind-close;
       animation-fill-mode: both;
-      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-timing-function: var(--ease-out);
       animation-timeline: scroll(root);
       animation-range:
         calc(var(--k) * var(--blind-step))

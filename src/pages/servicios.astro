@@ -21,7 +21,7 @@ const plans = [
     featured: false,
     includesLabel: 'Incluye',
     includes: [
-      'Sitio web profesional (hasta 5 secciones)',
+      'Sitio web profesional de 3 páginas',
       'Dominio, hosting y mantenimiento',
       'Formularios con seguimiento automático',
       'Chat en el sitio conectado a WhatsApp',
@@ -35,16 +35,15 @@ const plans = [
     monthly: '$297',
     annual: '$2,970',
     savings: '$594',
-    setup: '$597 USD',
+    setup: '$497 USD',
     cta: 'Quiero este plan →',
     featured: true,
     badge: 'Más elegido',
     includesLabel: 'Todo lo de Sitio Inteligente, más',
     includes: [
       'Agenda de citas con recordatorios',
-      'Reseñas de Google en automático',
-      'Optimización de tu ficha de Google Business',
-      'Pipeline de ventas y CRM',
+      'Manejo de reputación en Google',
+      'Embudos de ventas y Gestión de clientes',
       'Reporte mensual de resultados',
     ],
   },
@@ -55,12 +54,12 @@ const plans = [
     monthly: '$497',
     annual: '$4,970',
     savings: '$994',
-    setup: '$997 USD',
+    setup: '$797 USD',
     cta: 'Quiero este plan',
     featured: false,
     includesLabel: 'Todo lo de Crecimiento, más',
     includes: [
-      'Chatbot con IA en WhatsApp, Instagram, Facebook y sitio',
+      'Chatbot con IA en WhatsApp, Instagram, Facebook y sitio web',
       'Rescate de llamadas perdidas',
       'Respuesta a reseñas con IA',
       'Campañas por WhatsApp a tu base de clientes',
@@ -128,6 +127,7 @@ const plans = [
               <button
                 type="button"
                 class:list={['plan-cta', { 'plan-cta--filled': plan.featured }]}
+                data-plan={plan.index}
                 commandfor="contact-dialog"
                 command="show-modal"
               >
@@ -147,10 +147,7 @@ const plans = [
     </section>
 
     <p class="pricing-page__note">
-      Precios en USD. En México se cotiza con IVA. ¿Necesitas algo a la medida?{' '}
-      <button type="button" class="text-link" commandfor="contact-dialog" command="show-modal">
-        Escríbenos
-      </button>.
+      Precios en USD. En México se cotiza con IVA. ¿Necesitas algo a la <span class="pricing-page__note-glue">medida? <button type="button" class="text-link" commandfor="contact-dialog" command="show-modal">Escríbenos</button>.</span>
     </p>
   </div>
 </Layout>

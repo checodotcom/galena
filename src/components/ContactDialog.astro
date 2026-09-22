@@ -50,6 +50,21 @@
       </div>
 
       <div class="field">
+        <label class="field__label" for="contact-plan">Plan</label>
+        <div class="select-wrap">
+          <select class="field__input" id="contact-plan" name="plan">
+            <option value="">Por definir</option>
+            <option value="01">01 Sitio Inteligente</option>
+            <option value="02">02 Crecimiento</option>
+            <option value="03">03 IA Total</option>
+          </select>
+          <svg class="select-wrap__chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div class="field">
         <label class="field__label" for="contact-message">Mensaje</label>
         <textarea
           class="field__input"
@@ -96,6 +111,7 @@
   const form = dialog.querySelector('.contact-form');
   const fields = form.querySelector('.contact-form__fields');
   const status = form.querySelector('.contact-form__status');
+  const planField = form.querySelector('#contact-plan');
 
   // Con JS, los errores se muestran junto a cada campo (CSS) en lugar del globo
   // del navegador. Sin JS esta línea no corre y la validación nativa sigue.
@@ -105,12 +121,26 @@
   // CONTACT y ENVIAR no cambiarían de color al tocarlos.
   document.addEventListener('touchstart', () => {}, { passive: true });
 
+  // El botón "Quiero este plan" de cada tarjeta trae data-plan; el resto
+  // (CONTACT del header, "Escríbenos") no, y dejan el plan en "Por definir".
+  const applyPlanFromSource = (source) => {
+    planField.value = source?.dataset.plan ?? '';
+  };
+
+  // Invoker Commands API: el diálogo recibe este evento antes de abrirse.
+  dialog.addEventListener('command', (event) => {
+    if (event.command === 'show-modal') applyPlanFromSource(event.source);
+  });
+
   // Respaldo para navegadores sin commandfor (Safari < 26.2, Firefox < 144).
   if (!('commandForElement' in HTMLButtonElement.prototype)) {
     document.addEventListener('click', (event) => {
       const button = event.target.closest('button[commandfor="contact-dialog"]');
       if (!button) return;
-      if (button.getAttribute('command') === 'show-modal') dialog.showModal();
+      if (button.getAttribute('command') === 'show-modal') {
+        applyPlanFromSource(button);
+        dialog.showModal();
+      }
       if (button.getAttribute('command') === 'close') dialog.close();
     });
   }

@@ -321,6 +321,14 @@ body:has(.intro) .site-header {
   color: var(--ink-soft);
 }
 
+/* Un <button> nunca calcula display:inline (el navegador lo trata como
+   inline-block sí o sí), así que puede envolver la línea justo antes y dejar
+   "Escríbenos" solo. Este span evita ese punto de corte: "medida?" y el
+   enlace se quedan juntos, en la misma línea o los dos en la siguiente. */
+.pricing-page__note-glue {
+  white-space: nowrap;
+}
+
 .text-link {
   border: 0;
   padding: 0;
@@ -811,6 +819,31 @@ html:has(.contact-dialog[open]) {
 
 .field__input:focus-visible {
   border-color: var(--ink);
+}
+
+.select-wrap {
+  position: relative;
+}
+
+select.field__input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: calc(var(--space-3) + 20px);
+}
+
+.select-wrap__chevron {
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  fill: none;
+  stroke: var(--ink-line);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* Error por campo, sin JS: :user-invalid se activa cuando la persona ya tocó

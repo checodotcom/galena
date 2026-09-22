@@ -5,6 +5,7 @@ import { EmailMessage } from 'cloudflare:email';
 
 const FROM = 'formulario@galena.agency';
 const MAX = { name: 120, email: 200, message: 5000 };
+const PLAN_LABELS = { '01': '01 Sitio Inteligente', '02': '02 Crecimiento', '03': '03 IA Total' };
 // Sin espacios, saltos de línea ni < > ": seguro para usarlo en Reply-To.
 const EMAIL_PATTERN = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 
@@ -42,6 +43,7 @@ async function handleContact(request, env) {
   const name = field('name');
   const email = field('email');
   const message = field('message');
+  const plan = PLAN_LABELS[field('plan')] ?? 'Por definir';
 
   // Campo trampa: solo un bot lo llena. Se le responde éxito sin enviar nada.
   // Los registros nunca incluyen nombre, correo ni mensaje.
@@ -60,7 +62,7 @@ async function handleContact(request, env) {
   }
 
   try {
-    const raw = buildMessage({ to: env.CONTACT_TO, name, email, message });
+    const raw = buildMessage({ to: env.CONTACT_TO, name, email, plan, message });
     const result = await env.CONTACT_EMAIL.send(new EmailMessage(FROM, env.CONTACT_TO, raw));
     console.log('contact: send() aceptado', JSON.stringify(result ?? null));
     return reply(true, 200);
@@ -70,7 +72,7 @@ async function handleContact(request, env) {
   }
 }
 
-function buildMessage({ to, name, email, message }) {
+function buildMessage({ to, name, email, plan, message }) {
   const singleLine = (text) => text.replace(/[\r\n]+/g, ' ');
   const headers = [
     `From: ${encodeWord('Formulario Galena')} <${FROM}>`,
@@ -83,7 +85,7 @@ function buildMessage({ to, name, email, message }) {
     'Content-Type: text/plain; charset=utf-8',
     'Content-Transfer-Encoding: base64',
   ];
-  const body = `Nombre: ${name}\nCorreo: ${email}\n\n${message}\n`;
+  const body = `Nombre: ${name}\nCorreo: ${email}\nPlan: ${plan}\n\n${message}\n`;
   return `${headers.join('\r\n')}\r\n\r\n${base64(body).replace(/.{76}/g, '$&\r\n')}\r\n`;
 }
 

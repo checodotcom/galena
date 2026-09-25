@@ -1,0 +1,45 @@
+---
+// El header toma el color de la sección que tiene justo debajo (transparente
+// sobre la intro del home, plata sobre el hero, el cierre y el footer, hueso
+// en el resto), con una transición de 400ms definida en global.css. Cada
+// sección lo declara con data-header-tone="clear|silver"; sin atributo es
+// hueso. Sin JS, el header queda hueso.
+---
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header');
+
+  if (header) {
+    let queued = false;
+
+    const update = () => {
+      queued = false;
+      // Con un diálogo abierto, el punto de abajo cae sobre el diálogo.
+      if (document.querySelector('dialog[open]')) return;
+
+      // El centro del header no recibe clics (pointer-events: none), así que
+      // elementFromPoint devuelve lo que pasa por debajo de su borde inferior.
+      const y = header.getBoundingClientRect().bottom + 1;
+      const below = document.elementFromPoint(innerWidth / 2, y);
+      const tone =
+        below?.closest<HTMLElement>('[data-header-tone]')?.dataset.headerTone ?? 'bone';
+
+      if (header.dataset.tone !== tone) header.dataset.tone = tone;
+    };
+
+    const queue = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    };
+
+    update();
+    // Un cuadro después del primer tono: al cargar no se ve la transición.
+    requestAnimationFrame(() => {
+      header.dataset.toneReady = '';
+    });
+
+    addEventListener('scroll', queue, { passive: true });
+    addEventListener('resize', queue);
+  }
+</script>

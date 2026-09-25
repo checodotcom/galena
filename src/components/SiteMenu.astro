@@ -1,0 +1,65 @@
+---
+// Menú principal. Es un <dialog> que se abre y cierra sin JS con
+// commandfor/command (botón de menú del header y la X de adentro), igual que
+// el diálogo de contacto: atrapa el foco, cierra con Esc y Lenis se pausa
+// solo (data-lenis-prevent). Entra de derecha a izquierda (CSS en global.css).
+interface Props {
+  current: string;
+}
+
+const { current } = Astro.props;
+// "/servicios/" y "/servicios" son la misma página.
+const path = current.length > 1 ? current.replace(/\/$/, '') : current;
+
+const links = [
+  { href: '/', label: 'Inicio' },
+  { href: '/servicios', label: 'Servicios' },
+  { href: '/contacto', label: 'Contacto' },
+  // "Galena" en el texto (un lector de pantalla no lo deletrea letra por
+  // letra) y en mayúsculas solo a la vista, con .site-menu__link--caps.
+  { href: '/galena', label: 'Galena', caps: true },
+];
+---
+
+<dialog id="site-menu" class="site-menu" aria-label="Menú" closedby="any" data-lenis-prevent>
+  <div class="site-menu__top">
+    <a class="site-menu__home" href="/" aria-label="Galena, inicio">
+      <img class="site-menu__logo" src="/galena-logo-negro.svg" alt="Galena" width="159" height="22" />
+    </a>
+    <button
+      class="menu-button"
+      type="button"
+      commandfor="site-menu"
+      command="close"
+      aria-label="Cerrar menú"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
+  </div>
+
+  <nav class="site-menu__nav" aria-label="Principal">
+    <ol class="site-menu__list">
+      {
+        links.map((link, i) => (
+          <li>
+            <a
+              class:list={['site-menu__link', { 'site-menu__link--caps': link.caps }]}
+              href={link.href}
+              aria-current={link.href === path ? 'page' : undefined}
+            >
+              <span class="site-menu__index" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+
+  <div class="site-menu__bottom">
+    <a class="site-menu__email" href="mailto:hola@galena.agency">hola@galena.agency</a>
+    <p class="site-menu__legal">© {new Date().getFullYear()} Galena</p>
+  </div>
+</dialog>

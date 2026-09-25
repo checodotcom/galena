@@ -1,0 +1,28 @@
+---
+// Casilla del aviso de privacidad, obligatoria. La usan el diálogo de
+// contacto y la página /contacto; el id la distingue en cada formulario.
+// El aviso abre en otra pestaña para no perder lo que ya se escribió.
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<div class="field consent-field">
+  <label class="consent">
+    <span class="consent__box">
+      <input type="checkbox" name="privacy" aria-describedby={`${id}-error`} required />
+      <span class="consent__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+      </span>
+    </span>
+    <span class="consent__text">
+      Acepto la recopilación de mis datos personales y el
+      <a class="text-link" href="/privacidad" target="_blank" rel="noopener"
+        >Aviso de privacidad<span class="sr-only"> (abre en otra pestaña)</span></a
+      >.
+    </span>
+  </label>
+  <p class="field__error" id={`${id}-error`}>Necesitamos tu aceptación para responderte.</p>
+</div>

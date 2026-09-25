@@ -1,6 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ProcessTimeline from '../components/ProcessTimeline.astro';
+import Reveal from '../components/Reveal.astro';
+import Services from '../components/Services.astro';
+import Audience from '../components/Audience.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import Faq from '../components/Faq.astro';
 
 const title = 'Galena — Agencia digital';
 const description =
@@ -12,7 +17,7 @@ const blinds = 15;
 ---
 
 <Layout title={title} description={description}>
-  <div class="intro">
+  <div class="intro" data-header-tone="clear">
     <!-- Antes que las persianas en el DOM: las barras la tapan al cerrarse. -->
     <svg class="intro__hint" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 9l6 6 6-6"></path>
@@ -23,7 +28,7 @@ const blinds = 15;
     </div>
   </div>
 
-  <section class="hero">
+  <section class="hero" data-header-tone="silver">
     <h1 class="hero__title">Tu negocio, atendiendo aunque no estés.</h1>
     <p class="hero__support">
       Sitio web, automatizaciones y agentes que responden, agendan y dan
@@ -32,5 +37,18 @@ const blinds = 15;
     <a class="hero__link text-link" href="/servicios">Explora nuestros servicios →</a>
   </section>
 
+  <Services />
+
+  <Audience />
+
   <ProcessTimeline />
+
+  <ClosingCta />
+
+  <!-- Nosotros (components/About.astro) va aquí, entre el cierre y las
+       preguntas frecuentes, en cuanto Galena comparta el texto. -->
+
+  <Faq />
+
+  <Reveal />
 </Layout>

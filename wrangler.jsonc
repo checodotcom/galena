@@ -6,7 +6,9 @@
   "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Rutas que no existen: responde con dist/404.html y estado 404.
+    "not_found_handling": "404-page"
   },
   // Envío por Email Routing, que ya está activo en galena.agency. El destino
   // no va aquí porque el repo es público: vive en el secreto CONTACT_TO

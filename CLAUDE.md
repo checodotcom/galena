@@ -66,6 +66,29 @@ procese. Solo lo aplica Chromium; el resto navega normal.
    muestra éxito si el envío no se confirmó.
 5. El CSS de la isla vive en el archivo global, como el resto.
 
+**Islas globales (en el layout, todas las páginas).** Son excepciones
+aprobadas a "cero JS por defecto"; no se agrega otro JS global sin proponerlo.
+
+- `HeaderTone.astro`: el header toma el tono de la sección que tiene debajo,
+  con transición de 400ms. Cada sección lo declara con
+  `data-header-tone="clear|silver"`; sin atributo es hueso. Sin JS, hueso.
+- `SmoothScroll.astro`: scroll suave con Lenis (detalles abajo).
+
+**Scroll suave (Lenis).** `SmoothScroll.astro` carga `lenis` en todas las
+páginas.
+
+- Solo suaviza rueda y trackpad; en táctil el scroll queda nativo. Con
+  `prefers-reduced-motion: reduce` no se inicializa.
+- Mueve el scroll nativo, así que las animaciones CSS ligadas al scroll
+  (`scroll()`, `view()`) siguen funcionando sin integrarlas con Lenis.
+- Con un `<dialog>` abierto se pausa (`lenis.stop()`), observando el atributo
+  `open`. Todo `<dialog>` lleva `data-lenis-prevent` para que su contenido
+  scrollee de forma nativa. No usar `autoToggle`: en las pruebas no detectó el
+  diálogo de forma confiable.
+- Su CSS recomendado está en `global.css`, con `overflow: hidden` en vez de
+  `clip` al pausar, para respetar `scrollbar-gutter: stable`.
+- No usar `scroll-behavior: smooth` en CSS: choca con Lenis.
+
 **Sitemap:** con `@astrojs/sitemap` (integración oficial, corre en el build,
 cero JS en el cliente). Genera `sitemap-index.xml` a partir de `site` en
 `astro.config.mjs`, y `public/robots.txt` apunta a él.
@@ -88,6 +111,7 @@ startup. El espacio en blanco es el elemento de diseño principal, no un sobrant
 | `--ink-ghost` | `#141414` al 25% | Flecha de scroll del intro (decorativa, `aria-hidden`) |
 | `--hairline` | `#141414` al 14% | Bordes de 1px |
 | `--scrim` | `#141414` al 40% | Fondo oscurecido detrás de diálogos |
+| `--scrim-strong` | `#141414` al 75% | Fondo oscurecido detrás del menú |
 
 **Tipografía:** Urbanist, servida localmente en `woff2` desde `/public/fonts`.
 Nunca por CDN ni Google Fonts (bloquea el render y agrega un tercer host).

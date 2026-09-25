@@ -1,0 +1,38 @@
+---
+// Entrada suave de los textos del home, una sola vez: la primera vez que cada
+// [data-reveal-group] aparece en pantalla. Es lo único que CSS no puede hacer
+// (una animación ligada al scroll se revertiría al subir). Sin JS, o con
+// movimiento reducido, los textos se ven normales desde el inicio.
+---
+
+<script>
+  const groups = document.querySelectorAll('[data-reveal-group]');
+  const motionOk = matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+  if (groups.length && motionOk && 'IntersectionObserver' in window) {
+    // Si la página se recarga a media altura, lo que ya está en pantalla se
+    // queda visible: sin esto, desaparecería un instante y volvería a entrar.
+    for (const group of groups) {
+      const { top, bottom } = group.getBoundingClientRect();
+      if (top < innerHeight && bottom > 0) group.dataset.revealed = '';
+    }
+
+    // El estado oculto solo existe desde aquí: si el script no corre, nada
+    // queda invisible.
+    document.documentElement.dataset.reveal = '';
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.dataset.revealed = '';
+          observer.unobserve(entry.target);
+        }
+      },
+      // Entra cuando ya asomó un poco, no en el primer píxel del borde.
+      { rootMargin: '0px 0px -12% 0px' },
+    );
+
+    groups.forEach((group) => observer.observe(group));
+  }
+</script>

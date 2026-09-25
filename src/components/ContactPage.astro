@@ -1,0 +1,140 @@
+---
+// Página de contacto: presentación arriba y formulario abajo. Mismos campos,
+// servidor y estados de envío que el diálogo de contacto (lógica compartida
+// en src/scripts/contact-form.js), más empresa y el aviso de privacidad.
+// Las etiquetas son solo para lectores de pantalla: a la vista, cada campo
+// se presenta con su placeholder, como en la referencia de diseño.
+import ConsentField from './ConsentField.astro';
+---
+
+<div class="contact-page">
+  <div class="contact-page__intro">
+    <h1 class="section-title">Hablemos</h1>
+    <p class="contact-page__lede">
+      Contáctanos para ver cómo GALENA puede transformar tus procesos y mejorar
+      tu eficiencia.
+    </p>
+  </div>
+
+  <section class="contact-page__form" aria-labelledby="contact-page-form-title">
+    <h2 class="contact-page__form-title" id="contact-page-form-title">
+      Llena el formulario a continuación.
+    </h2>
+
+    <!-- Solo para envíos sin JS: el servidor regresa aquí con #enviado o
+         #error y el aviso correspondiente aparece con :target. -->
+    <p class="contact-page__notice" id="enviado">Mensaje enviado.</p>
+    <p class="contact-page__notice" id="error">
+      No se pudo enviar. Escríbenos a
+      <a class="text-link" href="mailto:hola@galena.agency">hola@galena.agency</a>.
+    </p>
+
+    <form
+      class="contact-form contact-form--line contact-form--page"
+      action="/api/contact"
+      method="post"
+      data-state="idle"
+    >
+      <fieldset class="contact-form__fields">
+        <div class="field">
+          <label class="sr-only" for="page-name">Nombre</label>
+          <input
+            class="field__input"
+            id="page-name"
+            name="name"
+            autocomplete="name"
+            maxlength="120"
+            placeholder="Tu nombre"
+            aria-describedby="page-name-error"
+            required
+          />
+          <p class="field__error" id="page-name-error">Escribe tu nombre.</p>
+        </div>
+
+        <div class="field">
+          <label class="sr-only" for="page-email">Correo</label>
+          <input
+            class="field__input"
+            id="page-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            maxlength="200"
+            placeholder="Tu correo"
+            aria-describedby="page-email-error"
+            required
+          />
+          <p class="field__error" id="page-email-error">Escribe un correo válido.</p>
+        </div>
+
+        <div class="field">
+          <label class="sr-only" for="page-company">Empresa (opcional)</label>
+          <input
+            class="field__input"
+            id="page-company"
+            name="company"
+            autocomplete="organization"
+            maxlength="120"
+            placeholder="Tu empresa"
+          />
+        </div>
+
+        <div class="field">
+          <label class="sr-only" for="page-plan">Plan</label>
+          <div class="select-wrap">
+            <select class="field__input" id="page-plan" name="plan">
+              <option value="">Plan: por definir</option>
+              <option value="01">01 Sitio Inteligente</option>
+              <option value="02">02 Crecimiento</option>
+              <option value="03">03 IA Total</option>
+            </select>
+            <svg class="select-wrap__chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="field field--full">
+          <label class="sr-only" for="page-message">Mensaje</label>
+          <textarea
+            class="field__input"
+            id="page-message"
+            name="message"
+            rows="3"
+            maxlength="5000"
+            placeholder="Platícanos tu idea"
+            aria-describedby="page-message-error"
+            required></textarea>
+          <p class="field__error" id="page-message-error">Escribe tu mensaje.</p>
+        </div>
+
+        <!-- Campo trampa para bots: fuera de pantalla y fuera del orden de tabulación. -->
+        <label class="field--trap" aria-hidden="true">
+          No llenar
+          <input name="website" tabindex="-1" autocomplete="off" />
+        </label>
+      </fieldset>
+
+      <!-- Aviso de privacidad y Enviar en la misma fila, como en la referencia. -->
+      <div class="contact-form__footer">
+        <ConsentField id="page-privacy" />
+
+        <p class="contact-form__status" role="status"></p>
+        <button class="send" type="submit">
+          <span class="send__label">Enviar</span>
+          <span class="send__spinner" aria-hidden="true"></span>
+          <svg class="send__check" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"></path>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script>
+  import { enhanceContactForm } from '../scripts/contact-form.js';
+
+  const form = document.querySelector('.contact-form--page');
+  if (form) enhanceContactForm(form);
+</script>

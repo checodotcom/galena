@@ -1,0 +1,52 @@
+---
+// Preguntas frecuentes con <details> nativos: sin JS, y name="faq" hace que
+// solo una respuesta esté abierta a la vez. Copy en borrador, pendiente de
+// aprobación.
+const questions = [
+  {
+    q: '¿Cuánto tardan en tener listo mi proyecto?',
+    a: 'Entre 1 y 2 semanas. Nuestras soluciones no necesitan meses de implementación, así que tu negocio empieza a aprovecharlas cuanto antes.',
+  },
+  {
+    q: '¿Tengo que firmar un contrato forzoso?',
+    a: 'No. Pagas mes a mes o por año, y puedes cambiar de plan cuando quieras.',
+  },
+  {
+    q: '¿Necesito saber de tecnología?',
+    a: 'No. Configuramos todo por ti y recibes los accesos y lo necesario para operar desde el primer día.',
+  },
+  {
+    q: '¿Qué es la implementación única?',
+    a: 'Un pago al inicio que incluye tu sitio web y la configuración inicial.',
+  },
+  {
+    q: '¿Puedo tener un chatbot con inteligencia artificial?',
+    a: 'Sí. Viene incluido en IA Total y está disponible como servicio adicional en los otros planes.',
+  },
+  {
+    q: '¿Los precios incluyen IVA?',
+    a: 'Los precios están en dólares. En México se cotiza con IVA.',
+  },
+];
+---
+
+<section class="faq" aria-labelledby="faq-title">
+  <div class="section-intro" data-reveal-group>
+    <p class="eyebrow">Preguntas frecuentes</p>
+    <h2 class="section-title" id="faq-title">Lo que suelen preguntarnos</h2>
+  </div>
+
+  <div class="faq__list" data-reveal-group>
+    {
+      questions.map((item) => (
+        <details class="faq__item" name="faq">
+          <summary class="faq__question">
+            <span>{item.q}</span>
+            <span class="faq__sign" aria-hidden="true" />
+          </summary>
+          <p class="faq__answer">{item.a}</p>
+        </details>
+      ))
+    }
+  </div>
+</section>

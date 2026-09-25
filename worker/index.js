@@ -4,7 +4,7 @@
 import { EmailMessage } from 'cloudflare:email';
 
 const FROM = 'formulario@galena.agency';
-const MAX = { name: 120, email: 200, message: 5000 };
+const MAX = { name: 120, email: 200, company: 120, message: 5000 };
 const PLAN_LABELS = { '01': '01 Sitio Inteligente', '02': '02 Crecimiento', '03': '03 IA Total' };
 // Sin espacios, saltos de línea ni < > ": seguro para usarlo en Reply-To.
 const EMAIL_PATTERN = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
@@ -22,15 +22,14 @@ async function handleContact(request, env) {
     return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST' } });
   }
 
-  // La isla pide JSON. Un envío sin JS (formulario nativo) recibe texto plano.
+  // La isla pide JSON. Un envío sin JS (formulario nativo) vuelve a
+  // /contacto con #enviado o #error: la página muestra el aviso con :target,
+  // sin JS.
   const wantsJson = request.headers.get('Accept')?.includes('application/json');
   const reply = (ok, status) =>
     wantsJson
       ? Response.json({ ok }, { status })
-      : new Response(ok ? 'Mensaje enviado.' : 'No se pudo enviar el mensaje.', {
-          status,
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-        });
+      : Response.redirect(new URL(ok ? '/contacto#enviado' : '/contacto#error', request.url), 303);
 
   let data;
   try {
@@ -44,6 +43,10 @@ async function handleContact(request, env) {
   const email = field('email');
   const message = field('message');
   const plan = PLAN_LABELS[field('plan')] ?? 'Por definir';
+  // Empresa solo la envía la página /contacto. La casilla del aviso de
+  // privacidad está en ambos formularios y es obligatoria.
+  const company = field('company');
+  const privacy = data.has('privacy');
 
   // Campo trampa: solo un bot lo llena. Se le responde éxito sin enviar nada.
   // Los registros nunca incluyen nombre, correo ni mensaje.
@@ -55,6 +58,8 @@ async function handleContact(request, env) {
   const valid =
     name.length > 0 && name.length <= MAX.name &&
     email.length <= MAX.email && EMAIL_PATTERN.test(email) &&
+    company.length <= MAX.company &&
+    privacy &&
     message.length > 0 && message.length <= MAX.message;
   if (!valid) {
     console.log('contact: datos inválidos');
@@ -62,7 +67,7 @@ async function handleContact(request, env) {
   }
 
   try {
-    const raw = buildMessage({ to: env.CONTACT_TO, name, email, plan, message });
+    const raw = buildMessage({ to: env.CONTACT_TO, name, email, company, plan, privacy, message });
     const result = await env.CONTACT_EMAIL.send(new EmailMessage(FROM, env.CONTACT_TO, raw));
     console.log('contact: send() aceptado', JSON.stringify(result ?? null));
     return reply(true, 200);
@@ -72,7 +77,7 @@ async function handleContact(request, env) {
   }
 }
 
-function buildMessage({ to, name, email, plan, message }) {
+function buildMessage({ to, name, email, company, plan, privacy, message }) {
   const singleLine = (text) => text.replace(/[\r\n]+/g, ' ');
   const headers = [
     `From: ${encodeWord('Formulario Galena')} <${FROM}>`,
@@ -85,7 +90,11 @@ function buildMessage({ to, name, email, plan, message }) {
     'Content-Type: text/plain; charset=utf-8',
     'Content-Transfer-Encoding: base64',
   ];
-  const body = `Nombre: ${name}\nCorreo: ${email}\nPlan: ${plan}\n\n${message}\n`;
+  const lines = [`Nombre: ${name}`, `Correo: ${email}`];
+  if (company) lines.push(`Empresa: ${company}`);
+  lines.push(`Plan: ${plan}`);
+  lines.push(`Aviso de privacidad: ${privacy ? 'aceptado' : 'no aceptado'}`);
+  const body = `${lines.join('\n')}\n\n${message}\n`;
   return `${headers.join('\r\n')}\r\n\r\n${base64(body).replace(/.{76}/g, '$&\r\n')}\r\n`;
 }
 

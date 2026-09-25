@@ -1,8 +1,7 @@
 ---
 // Timeline de proceso. El avance (línea que se llena, pasos que se encienden)
-// es CSS ligado al scroll, sin JS. La isla (el <script> de abajo) solo hace lo
-// que CSS no puede: la entrada de los textos una sola vez, la primera vez que
-// aparecen. Sin JS, los textos se ven normales desde el inicio.
+// es CSS ligado al scroll, sin JS. La entrada de los textos la hace la isla
+// Reveal.astro, a través de los data-reveal-group.
 const steps = [
   {
     name: 'Descubrimiento',
@@ -32,9 +31,9 @@ const steps = [
 ---
 
 <section class="process" aria-labelledby="process-title">
-  <div class="process__intro" data-reveal-group>
+  <div class="section-intro" data-reveal-group>
     <p class="eyebrow">Proceso</p>
-    <h2 class="process__title" id="process-title">Cómo trabajamos</h2>
+    <h2 class="section-title" id="process-title">Cómo trabajamos</h2>
   </div>
 
   <ol class="process__steps">
@@ -54,29 +53,3 @@ const steps = [
     }
   </ol>
 </section>
-
-<script>
-  const section = document.querySelector('.process');
-  const groups = section?.querySelectorAll('[data-reveal-group]') ?? [];
-  const motionOk = matchMedia('(prefers-reduced-motion: no-preference)').matches;
-
-  if (section && motionOk && 'IntersectionObserver' in window) {
-    // El estado oculto solo existe desde aquí: si el script no corre, nada
-    // queda invisible.
-    section.dataset.reveal = '';
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          entry.target.dataset.revealed = '';
-          observer.unobserve(entry.target);
-        }
-      },
-      // Entra cuando ya asomó un poco, no en el primer píxel del borde.
-      { rootMargin: '0px 0px -12% 0px' },
-    );
-
-    groups.forEach((group) => observer.observe(group));
-  }
-</script>

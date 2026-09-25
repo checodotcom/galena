@@ -1,0 +1,34 @@
+---
+// Scroll suave con Lenis para rueda de mouse y trackpad. Lenis mueve el
+// scroll nativo de la página, así que las animaciones CSS ligadas al scroll
+// siguen funcionando igual. En pantallas táctiles el scroll queda nativo.
+// Sin JS, o con movimiento reducido, el scroll es el normal del navegador.
+// El CSS que Lenis recomienda vive en global.css.
+---
+
+<script>
+  import Lenis from 'lenis';
+
+  if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    const lenis = new Lenis({
+      autoRaf: true,
+      anchors: true,
+      stopInertiaOnNavigate: true,
+    });
+
+    // Con un <dialog> abierto (el de contacto), la rueda no debe mover la
+    // página de fondo. El diálogo lleva data-lenis-prevent, así que su propio
+    // contenido sigue scrolleando de forma nativa mientras Lenis está pausado.
+    // Se observa el atributo open porque showModal() y close() lo cambian
+    // igual si se abren con commandfor o con el respaldo en JS.
+    const dialogs = document.querySelectorAll('dialog');
+    const sync = () => {
+      if ([...dialogs].some((dialog) => dialog.open)) lenis.stop();
+      else lenis.start();
+    };
+    const observer = new MutationObserver(sync);
+    dialogs.forEach((dialog) =>
+      observer.observe(dialog, { attributes: true, attributeFilter: ['open'] }),
+    );
+  }
+</script>

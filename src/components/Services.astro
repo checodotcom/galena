@@ -1,0 +1,49 @@
+---
+// Servicios principales, en tarjetas. Cada tarjeta entera lleva a
+// /servicios: el enlace está en el nombre y se estira sobre la tarjeta con
+// CSS, así un lector de pantalla anuncia solo el nombre y no todo el texto.
+// Copy en borrador, pendiente de aprobación.
+const services = [
+  {
+    name: 'Sitios web',
+    text: 'Modernos, rápidos y con el estilo de tu marca. Pensados para que cada visita termine en un mensaje, una cita o una venta.',
+  },
+  {
+    name: 'Automatizaciones',
+    text: 'Correos y mensajes de WhatsApp que se envían solos: confirmaciones, recordatorios y seguimiento, sin que escribas cada uno.',
+  },
+  {
+    name: 'Gestión de clientes',
+    text: 'Todos tus contactos y conversaciones en un solo lugar, con el historial de cada cliente y en qué etapa va.',
+  },
+  {
+    name: 'Agenda de citas',
+    text: 'Tus clientes reservan desde tu sitio en los horarios que tú defines, y tu calendario se actualiza solo.',
+  },
+  {
+    name: 'Chat en tu sitio',
+    text: 'Un chat conectado a WhatsApp para responder desde un solo lugar. Y si lo necesitas, un chatbot con inteligencia artificial: incluido en IA Total o como servicio adicional.',
+  },
+];
+---
+
+<section class="services" aria-labelledby="services-title">
+  <div class="section-intro" data-reveal-group>
+    <p class="eyebrow">Servicios</p>
+    <h2 class="section-title" id="services-title">Lo que hacemos por tu negocio</h2>
+  </div>
+
+  <div class="services__grid" data-reveal-group>
+    {
+      services.map((service, i) => (
+        <article class="service">
+          <span class="service__index">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="service__name">
+            <a class="service__link" href="/servicios">{service.name}</a>
+          </h3>
+          <p class="service__text">{service.text}</p>
+        </article>
+      ))
+    }
+  </div>
+</section>

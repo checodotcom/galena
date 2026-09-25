@@ -1,0 +1,27 @@
+---
+// Cierre con llamado a contacto. El botón abre el diálogo de contacto con
+// commandfor (sin JS); sin data-plan, el plan queda en "Por definir".
+// Copy en borrador, pendiente de aprobación.
+---
+
+<section class="closing" aria-labelledby="closing-title" data-header-tone="silver">
+  <!-- Las acciones van dentro de un <div> hijo del grupo: la entrada anima
+       ese <div> y los botones conservan sus propias transiciones. -->
+  <div class="section-intro" data-reveal-group>
+    <h2 class="section-title" id="closing-title">Hablemos de tu negocio.</h2>
+    <p class="closing__text">
+      Cuéntanos qué necesitas y te respondemos con una propuesta a la medida.
+    </p>
+    <div class="closing__actions">
+      <button
+        type="button"
+        class="plan-cta plan-cta--filled"
+        commandfor="contact-dialog"
+        command="show-modal"
+      >
+        Escríbenos
+      </button>
+      <a class="text-link" href="/servicios">Ver planes y precios →</a>
+    </div>
+  </div>
+</section>

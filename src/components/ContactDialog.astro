@@ -1,12 +1,20 @@
 ---
 // Diálogo de contacto. Abrir y cerrar es HTML de la plataforma: el botón
-// CONTACT del header usa commandfor="contact-dialog" command="show-modal".
-// La isla (el <script> de abajo) envía el formulario, muestra los errores junto
-// a cada campo y cambia estados. Sin JS, la validación nativa sigue funcionando.
+// CONTACTO del header usa commandfor="contact-dialog" command="show-modal", y
+// closedby="any" lo cierra al dar clic afuera. La isla (el <script> de abajo)
+// envía el formulario, muestra los errores junto a cada campo y cambia
+// estados. Sin JS, la validación nativa sigue funcionando.
+import ConsentField from './ConsentField.astro';
 ---
 
-<dialog id="contact-dialog" class="contact-dialog" aria-label="Contacto">
-  <form class="contact-form" action="/api/contact" method="post" data-state="idle">
+<dialog
+  id="contact-dialog"
+  class="contact-dialog"
+  aria-labelledby="contact-dialog-title"
+  closedby="any"
+  data-lenis-prevent
+>
+  <form class="contact-form contact-form--line" action="/api/contact" method="post" data-state="idle">
     <button
       class="contact-dialog__close"
       type="button"
@@ -17,16 +25,18 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
     </button>
 
+    <h2 class="section-title contact-dialog__title" id="contact-dialog-title">Hablemos</h2>
+
     <fieldset class="contact-form__fields">
       <div class="field">
-        <label class="field__label" for="contact-name">Nombre</label>
+        <label class="sr-only" for="contact-name">Nombre</label>
         <input
           class="field__input"
           id="contact-name"
           name="name"
           autocomplete="name"
           maxlength="120"
-          placeholder="Ana López"
+          placeholder="Tu nombre"
           aria-describedby="contact-name-error"
           autofocus
           required
@@ -35,7 +45,7 @@
       </div>
 
       <div class="field">
-        <label class="field__label" for="contact-email">Correo</label>
+        <label class="sr-only" for="contact-email">Correo</label>
         <input
           class="field__input"
           id="contact-email"
@@ -43,18 +53,18 @@
           type="email"
           autocomplete="email"
           maxlength="200"
-          placeholder="correo@ejemplo.com"
+          placeholder="Tu correo"
           aria-describedby="contact-email-error"
           required
         />
         <p class="field__error" id="contact-email-error">Escribe un correo válido.</p>
       </div>
 
-      <div class="field">
-        <label class="field__label" for="contact-plan">Plan</label>
+      <div class="field field--full">
+        <label class="sr-only" for="contact-plan">Plan</label>
         <div class="select-wrap">
           <select class="field__input" id="contact-plan" name="plan">
-            <option value="">Por definir</option>
+            <option value="">Plan: por definir</option>
             <option value="01">01 Sitio Inteligente</option>
             <option value="02">02 Crecimiento</option>
             <option value="03">03 IA Total</option>
@@ -65,13 +75,13 @@
         </div>
       </div>
 
-      <div class="field">
-        <label class="field__label" for="contact-message">Mensaje</label>
+      <div class="field field--full">
+        <label class="sr-only" for="contact-message">Mensaje</label>
         <textarea
           class="field__input"
           id="contact-message"
           name="message"
-          rows="5"
+          rows="3"
           maxlength="5000"
           placeholder="Platícanos tu idea"
           aria-describedby="contact-message-error"
@@ -86,7 +96,10 @@
       </label>
     </fieldset>
 
+    <!-- Aviso de privacidad y Enviar en la misma fila, como en /contacto. -->
     <div class="contact-form__footer">
+      <ConsentField id="dialog-privacy" />
+      <p class="contact-form__status" role="status"></p>
       <button class="send" type="submit">
         <span class="send__label">Enviar</span>
         <span class="send__spinner" aria-hidden="true"></span>
@@ -94,29 +107,17 @@
           <path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"></path>
         </svg>
       </button>
-      <p class="contact-form__status" role="status"></p>
     </div>
   </form>
 </dialog>
 
 <script>
-  const MIN_LOADING_MS = 2000;
-  const CONTACT_EMAIL = 'hola@galena.agency';
-  const MESSAGES = {
-    idle: '',
-    sending: 'Enviando…',
-    sent: 'Mensaje enviado.',
-  };
+  import { enhanceContactForm } from '../scripts/contact-form.js';
 
   const dialog = document.getElementById('contact-dialog');
   const form = dialog.querySelector('.contact-form');
-  const fields = form.querySelector('.contact-form__fields');
-  const status = form.querySelector('.contact-form__status');
   const planField = form.querySelector('#contact-plan');
-
-  // Con JS, los errores se muestran junto a cada campo (CSS) en lugar del globo
-  // del navegador. Sin JS esta línea no corre y la validación nativa sigue.
-  form.noValidate = true;
+  const { reset } = enhanceContactForm(form);
 
   // Safari en iOS solo aplica :active si la página escucha touchstart. Sin esto,
   // CONTACT y ENVIAR no cambiarían de color al tocarlos.
@@ -134,69 +135,42 @@
   });
 
   // Respaldo para navegadores sin commandfor (Safari < 26.2, Firefox < 144).
+  // Cubre todos los <dialog> del sitio (contacto y menú): este script carga
+  // en todas las páginas.
   if (!('commandForElement' in HTMLButtonElement.prototype)) {
     document.addEventListener('click', (event) => {
-      const button = event.target.closest('button[commandfor="contact-dialog"]');
-      if (!button) return;
+      const button = event.target.closest('button[commandfor]');
+      const target = button && document.getElementById(button.getAttribute('commandfor'));
+      if (!(target instanceof HTMLDialogElement)) return;
       if (button.getAttribute('command') === 'show-modal') {
-        applyPlanFromSource(button);
-        dialog.showModal();
+        if (target === dialog) applyPlanFromSource(button);
+        target.showModal();
       }
-      if (button.getAttribute('command') === 'close') dialog.close();
+      if (button.getAttribute('command') === 'close') target.close();
     });
   }
 
-  const setState = (state) => {
-    form.dataset.state = state;
-    fields.disabled = state === 'sending' || state === 'sent';
-
-    if (state === 'error') {
-      const link = document.createElement('a');
-      link.href = `mailto:${CONTACT_EMAIL}`;
-      link.textContent = CONTACT_EMAIL;
-      status.replaceChildren('No se pudo enviar. Escríbenos a ', link, '.');
-    } else {
-      status.textContent = MESSAGES[state];
-    }
-  };
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (form.dataset.state === 'sending' || form.dataset.state === 'sent') return;
-
-    // Campos sin tocar también muestran su error tras el primer intento.
-    if (!form.checkValidity()) {
-      form.dataset.checked = '';
-      form.querySelector('.field__input:invalid')?.focus();
-      return;
-    }
-
-    // Se lee antes de deshabilitar: los campos deshabilitados no se envían.
-    const body = new FormData(form);
-    setState('sending');
-
-    const minimumWait = new Promise((resolve) => setTimeout(resolve, MIN_LOADING_MS));
-    let ok = false;
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body,
-        headers: { Accept: 'application/json' },
-      });
-      ok = response.ok && (await response.json()).ok === true;
-    } catch {
-      ok = false;
-    }
-
-    await minimumWait;
-    setState(ok ? 'sent' : 'error');
-  });
+  // Respaldo de closedby="any" (Safari aún no lo soporta) para todos los
+  // <dialog> del sitio que lo piden (contacto y menú): un clic en el fondo
+  // oscurecido llega al propio <dialog>, pero también uno en su padding;
+  // solo se cierra si el clic cayó fuera de la caja.
+  if (!('closedBy' in HTMLDialogElement.prototype)) {
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLDialogElement) || !target.open) return;
+      if (target.getAttribute('closedby') !== 'any') return;
+      const box = target.getBoundingClientRect();
+      const inside =
+        event.clientX >= box.left &&
+        event.clientX <= box.right &&
+        event.clientY >= box.top &&
+        event.clientY <= box.bottom;
+      if (!inside) target.close();
+    });
+  }
 
   // Tras un envío exitoso, cerrar deja el formulario listo para otro mensaje.
   dialog.addEventListener('close', () => {
-    if (form.dataset.state !== 'sent') return;
-    form.reset();
-    delete form.dataset.checked;
-    setState('idle');
+    if (form.dataset.state === 'sent') reset();
   });
 </script>

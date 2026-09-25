@@ -1,0 +1,83 @@
+---
+// Página 404: "Algo" fijo y, en gris, una frase que se escribe y se borra
+// letra por letra (salió mal → falta → se rompió), con cursor. Da dos
+// vueltas y se queda en "salió mal" (nada se mueve sin fin sin poder
+// pausarse, WCAG 2.2.2). La máquina de escribir es la isla de abajo, con
+// GSAP, y solo carga en esta página.
+// Sin JS o con movimiento reducido se queda "Algo salió mal", sin animar.
+// Lectores de pantalla: el <h1> dice "Algo salió mal" una sola vez; la línea
+// animada está oculta para ellos, para que no lean cada letra que cambia.
+const phrases = ['salió mal', 'falta', 'se rompió'];
+---
+
+<section class="not-found">
+  <p class="eyebrow">404</p>
+
+  <h1 class="not-found__title">
+    <span class="sr-only">Algo salió mal</span>
+    <span class="not-found__line" aria-hidden="true">
+      Algo <span class="not-found__phrase" data-phrases={JSON.stringify(phrases)}>{phrases[0]}</span><span class="not-found__cursor"></span>
+    </span>
+  </h1>
+
+  <a class="not-found__home" href="/">
+    <span class="not-found__home-label">Volver a Inicio</span>
+    <span class="not-found__home-arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+    </span>
+  </a>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const phraseEl = document.querySelector<HTMLElement>('.not-found__phrase');
+  const motionOk = matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+  if (phraseEl && motionOk) {
+    const phrases: string[] = JSON.parse(phraseEl.dataset.phrases ?? '[]');
+    const TYPE = 0.07; // segundos por letra al escribir
+    const ERASE = 0.04; // y al borrar, un poco más rápido
+    const HOLD = 1.6; // tiempo que la frase se queda completa
+
+    // Un contador de letras visibles; GSAP lo mueve en pasos enteros y cada
+    // paso recorta el texto. Así la línea centrada se reacomoda sola.
+    const state = { count: phrases[0].length };
+    let current = phrases[0];
+    const render = () => {
+      phraseEl.textContent = current.slice(0, Math.round(state.count));
+    };
+
+    // Cada vuelta termina de nuevo en la primera frase; al acabar la
+    // segunda, el cursor se desvanece (clase is-done en el título).
+    const title = phraseEl.closest('.not-found__title');
+    const tl = gsap.timeline({
+      repeat: 1,
+      delay: HOLD,
+      onComplete: () => title?.classList.add('is-done'),
+    });
+    phrases.forEach((phrase, i) => {
+      const next = phrases[(i + 1) % phrases.length];
+      tl.to(state, {
+        count: 0,
+        duration: phrase.length * ERASE,
+        ease: `steps(${phrase.length})`,
+        onStart: () => {
+          current = phrase;
+        },
+        onUpdate: render,
+      })
+        .to(state, {
+          count: next.length,
+          duration: next.length * TYPE,
+          ease: `steps(${next.length})`,
+          delay: 0.3,
+          onStart: () => {
+            current = next;
+          },
+          onUpdate: render,
+        })
+        .to({}, { duration: HOLD });
+    });
+  }
+</script>

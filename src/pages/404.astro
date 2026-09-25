@@ -1,0 +1,14 @@
+---
+// Página de error 404. Cloudflare la sirve para cualquier ruta que no exista
+// (not_found_handling en wrangler.jsonc). Astro la deja fuera del sitemap.
+import Layout from '../layouts/Layout.astro';
+import NotFound from '../components/NotFound.astro';
+---
+
+<Layout
+  title="Página no encontrada — Galena"
+  description="La página que buscas no existe o cambió de lugar."
+  noindex
+>
+  <NotFound />
+</Layout>

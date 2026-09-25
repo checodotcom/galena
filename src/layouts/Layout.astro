@@ -4,13 +4,18 @@
 // de <main> vía slot.
 import '../styles/global.css';
 import ContactDialog from '../components/ContactDialog.astro';
+import SmoothScroll from '../components/SmoothScroll.astro';
+import HeaderTone from '../components/HeaderTone.astro';
+import SiteMenu from '../components/SiteMenu.astro';
 
 interface Props {
   title: string;
   description: string;
+  // Para páginas aún vacías: que los buscadores no las indexen.
+  noindex?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL('/og-image.png', Astro.site).href;
 const year = new Date().getFullYear();
@@ -23,6 +28,7 @@ const year = new Date().getFullYear();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#e4dfd6" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -72,20 +78,34 @@ const year = new Date().getFullYear();
         />
       </a>
 
-      <button class="contact" type="button" commandfor="contact-dialog" command="show-modal">
-        Contact
-      </button>
+      <div class="site-header__actions">
+        <button class="contact" type="button" commandfor="contact-dialog" command="show-modal">
+          Contacto
+        </button>
+        <button
+          class="menu-button"
+          type="button"
+          commandfor="site-menu"
+          command="show-modal"
+          aria-label="Abrir menú"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h14M5 15h14"></path></svg>
+        </button>
+      </div>
     </header>
 
     <main>
       <slot />
     </main>
 
-    <footer class="site-footer">
+    <footer class="site-footer" data-header-tone="silver">
       <a class="site-footer__email" href="mailto:hola@galena.agency">hola@galena.agency</a>
       <p class="site-footer__legal">© {year} Galena</p>
     </footer>
 
+    <SiteMenu current={Astro.url.pathname} />
     <ContactDialog />
+    <SmoothScroll />
+    <HeaderTone />
   </body>
 </html>

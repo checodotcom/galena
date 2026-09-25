@@ -138,6 +138,12 @@ html.lenis body {
   white-space: nowrap;
 }
 
+/* La marca en mayúsculas dentro de un texto: en el HTML va "Galena" (un
+   lector de pantalla no lo deletrea) y se muestra como "GALENA". */
+.brand-caps {
+  text-transform: uppercase;
+}
+
 /* ---------- Header ---------- */
 
 .site-header {
@@ -362,6 +368,9 @@ html.lenis body {
    separación respecto al párrafo de apoyo. */
 .hero__link {
   display: inline-block;
+  /* El hero es una columna flex: sin esto el enlace se estira a todo el
+     ancho y su línea de hover también. */
+  align-self: flex-start;
   margin-top: var(--space-3);
 }
 
@@ -502,8 +511,13 @@ html.lenis body {
   margin-bottom: 0;
 }
 
-.audience .section-title {
+.audience .section-title,
+.about .section-title {
   max-width: 16ch;
+}
+
+.about__more {
+  margin: var(--space-1) 0 0;
 }
 
 .audience__text,
@@ -855,10 +869,6 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   text-decoration: none;
 }
 
-.not-found__home-label {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 
 .not-found__home-arrow {
   display: grid;
@@ -891,7 +901,7 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   }
 }
 
-/* ---------- Páginas en construcción (/contacto, /galena) ---------- */
+/* ---------- Páginas en construcción (/nosotros, /privacidad) ---------- */
 
 .page-stub {
   min-height: 60svh;
@@ -1159,12 +1169,11 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   color: var(--ink-soft);
 }
 
-/* Un <button> nunca calcula display:inline (el navegador lo trata como
-   inline-block sí o sí), así que puede envolver la línea justo antes y dejar
-   "Escríbenos" solo. Este span evita ese punto de corte: "medida?" y el
-   enlace se quedan juntos, en la misma línea o los dos en la siguiente. */
+/* La pregunta y su enlace van siempre en su propia línea, debajo de los
+   datos de precio: el corte cae entre las dos ideas y nunca a media
+   pregunta (ni deja "Escríbenos" solo). */
 .pricing-page__note-glue {
-  white-space: nowrap;
+  display: block;
 }
 
 .text-link {
@@ -1173,14 +1182,65 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   background: none;
   color: var(--ink);
   font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Enlace dentro de un párrafo: subrayado siempre. Sin él solo se
+   distinguiría del texto por un gris muy parecido (WCAG 1.4.1). */
+.text-link--inline {
   text-decoration: underline;
   text-underline-offset: 3px;
-  cursor: pointer;
+}
+
+/* Enlaces sueltos ("Explora nuestros servicios", "Ver planes y precios",
+   "Más sobre GALENA", "Escríbenos →" de /servicios, el correo del footer y
+   del menú, "Volver a Inicio"). Llevan flecha o van solos en su línea, así
+   que no dependen solo del color para reconocerse como enlace:
+   sin subrayado en reposo; con hover o foco de teclado, una línea que se
+   dibuja de izquierda a derecha. El top relativo al centro funciona igual
+   en enlaces de línea y en los de 44px de alto (correos). */
+.text-link:not(.text-link--inline),
+.site-footer__email,
+.site-menu__email,
+.not-found__home-label {
+  position: relative;
+  text-decoration: none;
+}
+
+.text-link:not(.text-link--inline)::after,
+.site-footer__email::after,
+.site-menu__email::after,
+.not-found__home-label::after {
+  content: '';
+  position: absolute;
+  top: calc(50% + 0.7em);
+  right: 0;
+  left: 0;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 300ms var(--ease-out);
+}
+
+.text-link:not(.text-link--inline):focus-visible::after,
+.site-footer__email:focus-visible::after,
+.site-menu__email:focus-visible::after,
+.not-found__home:focus-visible .not-found__home-label::after {
+  transform: scaleX(1);
 }
 
 @media (hover: hover) {
   .text-link:hover {
     color: var(--ink-soft);
+  }
+
+  .text-link:not(.text-link--inline):hover::after,
+  .site-footer__email:hover::after,
+  .site-menu__email:hover::after,
+  .not-found__home:hover .not-found__home-label::after {
+    transform: scaleX(1);
   }
 }
 
@@ -2637,6 +2697,10 @@ body:has(.site-menu[open]) .site-header__home {
   .menu-button,
   .site-menu__index::after,
   .service__index::after,
+  .text-link::after,
+  .site-footer__email::after,
+  .site-menu__email::after,
+  .not-found__home-label::after,
   .not-found__home-arrow,
   .period__track,
   .period__track::before,

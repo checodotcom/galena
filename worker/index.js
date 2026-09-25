@@ -13,6 +13,10 @@ export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
     if (pathname === '/api/contact') return handleContact(request, env);
+    // La página de la agencia se llamaba /galena; ahora es /nosotros.
+    if (pathname === '/galena' || pathname === '/galena/') {
+      return Response.redirect(new URL('/nosotros', request.url), 301);
+    }
     return env.ASSETS.fetch(request);
   },
 };

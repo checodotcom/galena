@@ -158,6 +158,80 @@ Son reglas duras. Si una petición las contradice, dilo antes de implementar.
 - Metadatos completos: `<title>`, `description`, Open Graph, `lang="es"`,
   favicon y `theme-color` en `--bone`.
 
+## Estado del sitio
+
+Resumen de lo construido y de las decisiones ya tomadas. Respétalas salvo que
+se pida cambiarlas.
+
+**Páginas**
+- `/` (home), en este orden: intro con persianas → hero → Servicios → Para
+  quién → Proceso (timeline) → Cierre plata ("Hablemos de tu negocio") →
+  Nosotros → Preguntas frecuentes. Cada sección es un componente en
+  `src/components/`.
+- `/servicios`: 3 planes, interruptor mensual/anual sin JS (`:has()`),
+  carrusel con scroll-snap en móvil.
+- `/contacto`: "Hablemos" + formulario.
+- `/nosotros` y `/privacidad`: vacías, con `noindex` y fuera del sitemap
+  (filtro en `astro.config.mjs`). Al construirlas, quitar ambas cosas.
+- `/galena` redirige 301 a `/nosotros` (en `worker/index.js`).
+- `404`: Cloudflare la sirve (`not_found_handling` en `wrangler.jsonc`).
+  Máquina de escribir con GSAP, dos vueltas y se detiene; es la única página
+  que carga GSAP.
+
+**Patrones de maquetación**
+- Secciones del home: `.section-intro` (eyebrow + `.section-title`,
+  `clamp(2rem, 5.5vw, 4.5rem)`, un escalón debajo del titular del hero) y
+  aire `--section-pad` arriba y abajo. Páginas internas: `--page-top`.
+- En desktop (≥1024px), Proceso y Preguntas frecuentes van a dos columnas con
+  el título fijo (`sticky`) a la izquierda.
+- Entrada suave, una sola vez: `Reveal.astro` + `data-reveal-group`; los
+  hijos del grupo entran en cascada. Un grupo no debe tener como hijo directo
+  un botón o enlace con transición propia (se envuelve en un `<div>`).
+- Tarjetas (servicios y planes): radio `--space-3`; menos relleno en móvil.
+  Las de servicios son plata y enlazan a `/servicios` con un enlace estirado.
+
+**Interacción**
+- Todo botón es redondeado (píldora o círculo). Versalitas de interfaz a
+  0.75rem.
+- Enlaces `.text-link`: sin subrayado; con hover o foco, una línea que se
+  dibuja de izquierda a derecha. Si el enlace va dentro de un párrafo, usa
+  `.text-link--inline` (subrayado fijo, WCAG 1.4.1). Los enlaces sueltos
+  llevan flecha "→".
+- El mismo subrayado animado aparece bajo el número (01, 02…) al pasar el
+  mouse en el menú y en las tarjetas de servicios.
+- "GALENA" dentro de un texto: se escribe "Galena" y se muestra con
+  `.brand-caps` (así un lector de pantalla no lo deletrea).
+- Curvas compartidas: `--ease-out`, `--ease-in-out` y `--ease-drawer`. Las
+  duraciones de la interfaz rondan 300–400ms.
+- El header va en `z-index: 10`. En `/servicios` solo se achica el logo al
+  hacer scroll (CONTACTO y el menú conservan sus 44px). En pantallas
+  angostas el logo baja hasta 19px para que todo quepa a 360px.
+- `html` lleva `scrollbar-gutter: stable`: al bloquear el scroll con un
+  diálogo abierto, la página no brinca.
+
+**Menú y contacto**
+- Menú (`SiteMenu.astro`): `<dialog>` que entra desde la derecha, con
+  `--scrim-strong` detrás y `closedby="any"` (clic afuera cierra). Mientras
+  está abierto, el logo del header se oculta. Sus enlaces usan la misma
+  escala que `.section-title`.
+- El diálogo de contacto (botón CONTACTO) y `/contacto` comparten:
+  - el estilo de campos de línea (`.contact-form--line`);
+  - la lógica de envío en `src/scripts/contact-form.js` (errores con
+    `aria-invalid`, animación de Enviar);
+  - la casilla obligatoria del aviso de privacidad (`ConsentField.astro`).
+- "Quiero este plan" preselecciona el plan en el diálogo (`data-plan`).
+- Sin JS, el Worker responde con 303 a `/contacto#enviado` o `#error`, y el
+  aviso aparece con `:target`. El Worker exige la casilla de privacidad; el
+  destinatario vive en el secreto `CONTACT_TO`.
+
+**Pendientes**
+- Copy en borrador por aprobar: Servicios, Para quién, Cierre y Preguntas
+  frecuentes.
+- Construir `/nosotros` y el aviso de privacidad (`/privacidad`).
+- GSAP está instalado para componentes futuros: cada uno es una isla que se
+  carga solo en su página. Si usa ScrollTrigger, debe compartir el reloj de
+  animación con Lenis.
+
 ## Cómo quiero que trabajes
 
 - Antes de escribir código para algo ambiguo, **pregunta**. No inventes copy,

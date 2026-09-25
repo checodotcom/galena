@@ -7,7 +7,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       // Páginas aún vacías: fuera del sitemap hasta que se construyan.
-      filter: (page) => !page.endsWith('/galena/') && !page.endsWith('/privacidad/'),
+      filter: (page) => !page.endsWith('/nosotros/') && !page.endsWith('/privacidad/'),
     }),
   ],
   // Con dos o más páginas conviene un archivo de CSS enlazado y no incrustado:

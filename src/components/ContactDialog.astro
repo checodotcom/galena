@@ -60,7 +60,19 @@ import ConsentField from './ConsentField.astro';
         <p class="field__error" id="contact-email-error">Escribe un correo válido.</p>
       </div>
 
-      <div class="field field--full">
+      <div class="field">
+        <label class="sr-only" for="contact-company">Empresa (opcional)</label>
+        <input
+          class="field__input"
+          id="contact-company"
+          name="company"
+          autocomplete="organization"
+          maxlength="120"
+          placeholder="Tu empresa"
+        />
+      </div>
+
+      <div class="field">
         <label class="sr-only" for="contact-plan">Plan</label>
         <div class="select-wrap">
           <select class="field__input" id="contact-plan" name="plan">

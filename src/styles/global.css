@@ -2392,6 +2392,15 @@ body:has(.site-menu[open]) .site-header__home {
     align-items: start;
   }
 
+  /* Nosotros: título a la izquierda y texto a la derecha, con la misma
+     proporción que Proceso y Preguntas frecuentes. */
+  .about-page {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--space-8);
+    align-items: start;
+  }
+
   .process .section-intro,
   .faq .section-intro {
     position: sticky;

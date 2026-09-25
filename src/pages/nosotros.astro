@@ -1,17 +1,22 @@
 ---
-// Página sobre la agencia: pendiente de construir. El menú (GALENA) y el
-// enlace "Más sobre GALENA" del home llevan aquí; /galena redirige aquí
-// (worker/index.js). Mientras esté vacía, noindex y fuera del sitemap
-// (astro.config.mjs).
+// Página sobre la agencia. El menú (GALENA) y el enlace "Más sobre GALENA"
+// del home llevan aquí; /galena redirige aquí (worker/index.js).
 import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout
   title="Nosotros — Galena"
   description="Conoce a Galena, agencia digital."
-  noindex
 >
   <section class="page-stub">
     <h1 class="section-title">Nosotros</h1>
+    <p class="page-stub__lede">
+      <span class="brand-caps">Galena</span> se fundó en 2026, pero el oficio que hay detrás es más
+      viejo. Llevamos años haciendo sitios, tiendas y sistemas para negocios que necesitaban que algo
+      funcionara, no que se viera nuevo. Trabajamos igual hoy: primero entendemos dónde se está yendo
+      el resultado, después construimos. Usamos lo que la industria ya probó y probamos nosotros lo
+      que apenas aparece — en tecnología la ventaja dura poco y hay que ir por ella cada semana. Lo
+      que no mueve tu negocio, no lo construimos.
+    </p>
   </section>
 </Layout>

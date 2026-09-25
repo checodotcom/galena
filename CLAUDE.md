@@ -171,8 +171,9 @@ se pida cambiarlas.
 - `/servicios`: 3 planes, interruptor mensual/anual sin JS (`:has()`),
   carrusel con scroll-snap en móvil.
 - `/contacto`: "Hablemos" + formulario.
-- `/nosotros` y `/privacidad`: vacías, con `noindex` y fuera del sitemap
-  (filtro en `astro.config.mjs`). Al construirlas, quitar ambas cosas.
+- `/nosotros`: título y texto de presentación; indexada y en el sitemap.
+- `/privacidad`: vacía, con `noindex` y fuera del sitemap (filtro en
+  `astro.config.mjs`). Al construirla, quitar ambas cosas.
 - `/galena` redirige 301 a `/nosotros` (en `worker/index.js`).
 - `404`: Cloudflare la sirve (`not_found_handling` en `wrangler.jsonc`).
   Máquina de escribir con GSAP, dos vueltas y se detiene; es la única página
@@ -227,7 +228,7 @@ se pida cambiarlas.
 **Pendientes**
 - Copy en borrador por aprobar: Servicios, Para quién, Cierre y Preguntas
   frecuentes.
-- Construir `/nosotros` y el aviso de privacidad (`/privacidad`).
+- Construir el aviso de privacidad (`/privacidad`).
 - GSAP está instalado para componentes futuros: cada uno es una isla que se
   carga solo en su página. Si usa ScrollTrigger, debe compartir el reloj de
   animación con Lenis.

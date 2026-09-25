@@ -904,8 +904,19 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
 /* ---------- Páginas en construcción (/nosotros, /privacidad) ---------- */
 
 .page-stub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   min-height: 60svh;
   padding: var(--page-top) var(--gutter) var(--section-pad);
+}
+
+.page-stub__lede {
+  max-width: 56ch;
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
 }
 
 /* ---------- Página: Contacto ----------

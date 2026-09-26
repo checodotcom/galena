@@ -189,6 +189,29 @@ html.lenis body {
     border-color 400ms var(--ease-out);
 }
 
+/* Vidrio esmerilado (excepción aprobada a "nada de glassmorphism"): el
+   mismo tono del header, hueso o plata, al 80% y con desenfoque detrás, así
+   el contenido que pasa por debajo se intuye sin encimarse. Sin soporte de
+   backdrop-filter, el header se queda sólido. Sobre la intro (clear) no hay
+   fondo ni desenfoque. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .site-header {
+    background-color: rgb(228 223 214 / 0.8);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+
+  .site-header[data-tone='silver'] {
+    background-color: rgb(196 192 185 / 0.8);
+  }
+
+  .site-header[data-tone='clear'] {
+    background-color: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 /* El logo mide 19–26px; el enlace llega a 44px de alto de área táctil. */
 .site-header__home {
   display: flex;
@@ -370,11 +393,17 @@ html.lenis body {
 /* El color, el subrayado y el hover vienen de .text-link; aquí solo la
    separación respecto al párrafo de apoyo. */
 .hero__link {
-  display: inline-block;
   /* El hero es una columna flex: sin esto el enlace se estira a todo el
      ancho y su línea de hover también. */
   align-self: flex-start;
-  margin-top: var(--space-3);
+}
+
+/* Mismo aire entre el texto y el enlace que en Nosotros (40px hasta la
+   línea del enlace). El enlace mide 44px de área táctil y se come
+   (44px - 1lh) / 2 arriba; se descuenta para que el aire visible sea el
+   mismo. Selector doble para ganarle al margen de .text-link. */
+.hero .hero__link.text-link {
+  margin-top: calc(var(--space-5) + (1lh - 44px) / 2);
 }
 
 /* ---------- Secciones del home ----------
@@ -586,29 +615,43 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
   /* Un punto recorre el diagrama: baja a la decisión y sale por la
      derecha hasta la caja. */
   .service__motion--flow {
-    animation: service-flow 4s var(--ease-in-out) 3;
+    animation: service-flow 4s var(--ease-in-out) infinite;
   }
 
   .service__motion--spin-slow {
-    animation: service-spin 60s linear 1 reverse;
+    animation: service-spin 60s linear infinite reverse;
   }
 
   /* Los ojos del bot parpadean de vez en cuando. */
   .service__motion--blink {
     transform-box: fill-box;
     transform-origin: center;
-    animation: service-blink 4s ease-in-out 3;
+    animation: service-blink 4s ease-in-out infinite;
   }
 
   .service__motion--float {
-    animation: service-float 6s var(--ease-in-out) 4 alternate;
+    animation: service-float 6s var(--ease-in-out) infinite alternate;
   }
 
-  /* Las figuras se mueven unas vueltas y se detienen (WCAG 2.2.2: nada
-     se mueve sin fin sin poder pausarse). Con el mouse encima de la
-     tarjeta vuelven a moverse. */
-  .service:hover .service__motion {
-    animation-iteration-count: infinite;
+  /* Con mouse, las figuras solo se mueven mientras el cursor está sobre su
+     tarjeta: al salir se pausan donde iban y al volver siguen desde ahí
+     (pausar, no reiniciar). Así nada se mueve solo sin fin (WCAG 2.2.2). */
+  @media (hover: hover) {
+    .service__motion {
+      animation-play-state: paused;
+    }
+
+    .service:hover .service__motion {
+      animation-play-state: running;
+    }
+  }
+
+  /* En táctil no hay hover: se mueven sin parar mientras la sección está
+     en pantalla (Services.astro marca data-onscreen) y se pausan fuera. */
+  @media (hover: none) {
+    .services:not([data-onscreen]) .service__motion {
+      animation-play-state: paused;
+    }
   }
 }
 
@@ -955,11 +998,26 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
   color: var(--ink-soft);
 }
 
-/* Abrir y cerrar con transición de altura solo donde se puede animar hasta
-   "auto"; en el resto la respuesta aparece directo, que también está bien. */
+/* Abrir y cerrar suave. En todos los navegadores la respuesta entra con un
+   desvanecido y un leve deslizamiento (@starting-style). Donde se puede
+   animar la altura hasta "auto" (interpolate-size), además el panel se
+   despliega y se pliega en 500ms; en el resto la altura cambia directo. */
 @media (prefers-reduced-motion: no-preference) {
   .faq__sign::after {
-    transition: rotate 200ms var(--ease-out);
+    transition: rotate 400ms var(--ease-in-out);
+  }
+
+  .faq__item[open] .faq__answer {
+    transition:
+      opacity 500ms var(--ease-out) 100ms,
+      translate 500ms var(--ease-out) 100ms;
+  }
+
+  @starting-style {
+    .faq__item[open] .faq__answer {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--space-1));
+    }
   }
 
   @supports (interpolate-size: allow-keywords) and selector(::details-content) {
@@ -971,12 +1029,18 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
       block-size: 0;
       overflow: clip;
       transition:
-        block-size 250ms var(--ease-out),
-        content-visibility 250ms allow-discrete;
+        block-size 500ms var(--ease-in-out),
+        content-visibility 500ms allow-discrete;
     }
 
     .faq__item[open]::details-content {
       block-size: auto;
+    }
+
+    /* Al cerrar, el texto se desvanece mientras el panel se pliega. */
+    .faq__item:not([open]) .faq__answer {
+      opacity: 0;
+      transition: opacity 300ms var(--ease-out);
     }
   }
 }
@@ -1233,6 +1297,12 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   gap: var(--space-3);
   min-height: 60svh;
   padding: var(--page-top) var(--gutter) var(--section-pad);
+}
+
+.page-stub__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .page-stub__lede {
@@ -1529,7 +1599,7 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
 }
 
 /* Enlaces sueltos ("Explora nuestros servicios", "Ver planes y precios",
-   "Más sobre GALENA", "Escríbenos →" de /planes, el correo del footer y
+   "¿Quiénes somos?", "Escríbenos →" de /planes, el correo del footer y
    del menú, "Volver a Inicio"). Llevan flecha o van solos en su línea, así
    que no dependen solo del color para reconocerse como enlace:
    sin subrayado en reposo; con hover o foco de teclado, una línea que se
@@ -2372,6 +2442,24 @@ textarea.field__input {
   background-color: var(--scrim-strong);
 }
 
+/* Mismo vidrio esmerilado que el header (excepción aprobada): el panel al
+   80% con desenfoque; sólido si no hay soporte. El
+   fondo detrás del menú baja de --scrim-strong a --scrim y también se
+   desenfoca: con el oscurecido fuerte, el vidrio del panel se veía gris. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .site-menu::backdrop {
+    background-color: var(--scrim);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .site-menu {
+    background-color: rgb(228 223 214 / 0.8);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}
+
 /* El panel ya muestra su logo: el del header, que queda visible (y en
    tablet, cortado) sobre el fondo oscuro, se oculta mientras está abierto. */
 body:has(.site-menu[open]) .site-header__home {
@@ -2475,23 +2563,18 @@ body:has(.site-menu[open]) .site-header__home {
   }
 }
 
-.site-menu__link:focus-visible .site-menu__index::after,
-.site-menu__link[aria-current='page'] .site-menu__index::after {
+.site-menu__link:focus-visible .site-menu__index::after {
   transform: scaleX(1);
 }
 
 /* Franja plata abajo, como el footer del sitio: llega a los bordes del
    panel anulando su padding. */
+/* Solo el correo, abajo a la izquierda, sin franja ni copyright. */
 .site-menu__bottom {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-1) var(--space-3);
-  margin: auto calc(-1 * var(--gutter)) calc(-1 * var(--space-4));
-  padding: var(--space-3) var(--gutter);
-  border-top: 1px solid var(--hairline);
-  background-color: var(--silver);
+  margin-top: auto;
+  padding-top: var(--space-3);
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -2505,9 +2588,6 @@ body:has(.site-menu[open]) .site-header__home {
   text-underline-offset: 3px;
 }
 
-.site-menu__legal {
-  margin: 0;
-}
 
 /* Abrir y cerrar. La duración la pone el estado de destino: abrir 400ms,
    cerrar 300ms. Con movimiento reducido el panel solo se funde; si no,
@@ -3066,8 +3146,8 @@ body:has(.site-menu[open]) .site-header__home {
 /* ---------- Cursor (Cursor.astro) ----------
    Solo con mouse y después del primer movimiento (html[data-cursor-ready]);
    sin JS o en táctil queda la flecha nativa. En reposo es un círculo
-   relleno de 36px con un punto al centro (también sobre los campos de
-   texto, a pedido); crece a 64px solo sobre lo accionable. Con
+   relleno de 36px con un punto al centro; crece a 64px sobre lo
+   accionable y sobre los campos de los formularios. Con
    mix-blend-mode: difference, el hueso se ve casi negro sobre el fondo y
    deja en negativo lo que pasa debajo. */
 
@@ -3149,8 +3229,9 @@ body:has(.site-menu[open]) .site-header__home {
     transition: opacity 150ms var(--ease-out);
   }
 
-  /* Sobre lo accionable: relleno circular de 64px. */
-  body:has(:is(a, button, summary, select, label, [role='switch']):hover) .cursor__fill {
+  /* Sobre lo accionable y los campos de los formularios: relleno circular
+     de 64px. */
+  body:has(:is(a, button, summary, select, label, [role='switch'], input, textarea):hover) .cursor__fill {
     scale: 1;
   }
 

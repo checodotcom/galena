@@ -124,7 +124,7 @@ startup. El espacio en blanco es el elemento de diseño principal, no un sobrant
 | `--ink-ghost` | `#141414` al 25% | Flecha de scroll del intro (decorativa, `aria-hidden`) |
 | `--hairline` | `#141414` al 14% | Bordes de 1px |
 | `--scrim` | `#141414` al 40% | Fondo oscurecido detrás de diálogos |
-| `--scrim-strong` | `#141414` al 75% | Fondo oscurecido detrás del menú |
+| `--scrim-strong` | `#141414` al 75% | Fondo detrás del menú solo sin soporte de `backdrop-filter` (con soporte: `--scrim` + desenfoque) |
 
 **Tipografía:** Urbanist, servida localmente en `woff2` desde `/public/fonts`.
 Nunca por CDN ni Google Fonts (bloquea el render y agrega un tercer host).
@@ -147,6 +147,9 @@ Son reglas duras. Si una petición las contradice, dilo antes de implementar.
 
 1. **Nada de gradientes**, en especial morados o violetas. Nada de glassmorphism,
    sombras difusas ni brillos.
+   Excepción aprobada: el header y el panel del menú son vidrio esmerilado
+   (su tono hueso o plata al 80% con `backdrop-filter: blur(16px)`), sólidos
+   si no hay soporte.
 2. **Sin sombras.** La jerarquía se construye con escala, peso y espacio.
 3. **Sin iconos decorativos**, sin emoji, sin ilustraciones de stock, sin blobs.
    Excepción aprobada: las figuras geométricas de línea fina (`--ink`, SVG
@@ -182,7 +185,7 @@ se pida cambiarlas.
 - `/` (home), en este orden: intro con persianas → hero → Servicios → Para
   quién (frase + botón dividido `.cta-split` a `/planes`, que desde tablet
   rebota por toda la sección como el logo de un DVD, a velocidad
-  constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Hablemos de tu negocio") →
+  constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Platícanos sobre tu negocio") →
   Nosotros → Preguntas frecuentes. Cada sección es un componente en
   `src/components/`.
 - `/planes` (antes `/servicios`, que redirige 301 en `worker/index.js`):
@@ -210,9 +213,11 @@ se pida cambiarlas.
 - Tarjetas (servicios y planes): radio `--space-3`; menos relleno en móvil.
   Las de servicios son informativas (sin enlace): un panel plata con
   nombre, número y figura de línea, y debajo, separada, la descripción. La
-  figura se traza al entrar, se mueve unas vueltas y se detiene (WCAG
-  2.2.2); con el mouse encima vuelve a moverse, el panel sube 8px, la figura
-  crece y las marcas de esquina se abren.
+  figura se traza al entrar. Con mouse, solo se mueve mientras el cursor
+  está sobre la tarjeta y al salir se pausa donde iba (no se reinicia); en
+  táctil se mueve sin parar mientras la sección está en pantalla (una isla
+  mínima en `Services.astro` marca `data-onscreen`) y se pausa fuera. Con el mouse encima, el panel
+  sube 8px, la figura crece y las marcas de esquina se abren.
 
 **Interacción**
 - Enlaces internos siempre con barra final (`/planes/`, `/contacto/`): son
@@ -236,8 +241,8 @@ se pida cambiarlas.
   diálogo abierto, la página no brinca.
 
 **Menú y contacto**
-- Menú (`SiteMenu.astro`): `<dialog>` que entra desde la derecha, con
-  `--scrim-strong` detrás y `closedby="any"` (clic afuera cierra). Mientras
+- Menú (`SiteMenu.astro`): `<dialog>` que entra desde la derecha, panel de
+  vidrio con `--scrim` desenfocado detrás (`--scrim-strong` sin soporte) y `closedby="any"` (clic afuera cierra). Mientras
   está abierto, el logo del header se oculta. Sus enlaces usan la misma
   escala que los pasos del proceso (`.step__name`). Al abrir, el foco va a la fila de
   arriba (`tabindex="-1"` + `autofocus`), no al logo.

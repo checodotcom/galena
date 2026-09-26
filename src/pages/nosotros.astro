@@ -1,5 +1,5 @@
 ---
-// Página sobre la agencia. El menú (GALENA) y el enlace "Más sobre GALENA"
+// Página sobre la agencia. El menú (GALENA) y el enlace "¿Quiénes somos?"
 // del home llevan aquí; /galena redirige aquí (worker/index.js).
 import Layout from '../layouts/Layout.astro';
 ---
@@ -10,13 +10,20 @@ import Layout from '../layouts/Layout.astro';
 >
   <section class="page-stub about-page">
     <h1 class="section-title">Nosotros</h1>
-    <p class="page-stub__lede">
-      <span class="brand-caps">Galena</span> se fundó en 2026, pero el oficio que hay detrás es más
-      viejo. Llevamos años haciendo sitios, tiendas y sistemas para negocios que necesitaban que algo
-      funcionara, no que se viera nuevo. Trabajamos igual hoy: primero entendemos dónde se está yendo
-      el resultado, después construimos. Usamos lo que la industria ya probó y probamos nosotros lo
-      que apenas aparece — en tecnología la ventaja dura poco y hay que ir por ella cada semana. Lo
-      que no mueve tu negocio, no lo construimos.
-    </p>
+    <!-- Los párrafos van juntos en un <div>: en desktop ocupan la columna
+         derecha de la rejilla, junto al título. -->
+    <div class="page-stub__text">
+      <p class="page-stub__lede">
+        <span class="brand-caps">Galena</span> fue fundada en Ciudad de México en 2026, pero el oficio
+        que hay detrás nació antes. Tenemos años de experiencia desarrollando sitios web, tiendas y
+        sistemas para negocios que necesitaban que algo funcionara, no solo que se viera nuevo.
+      </p>
+      <p class="page-stub__lede">
+        Trabajamos igual hoy: primero entendemos dónde se está yendo el resultado, después
+        construimos. Usamos lo que la industria ya probó y probamos nosotros lo que apenas aparece —
+        en tecnología, cada semana es lanzada una nueva ventaja. Lo que no mueve a tu negocio, no lo
+        construimos.
+      </p>
+    </div>
   </section>
 </Layout>

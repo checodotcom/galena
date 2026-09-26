@@ -4,6 +4,8 @@
 // abstracta hecha a mano, en --ink), y debajo, separada, su descripción.
 // Las figuras se trazan al entrar (Reveal), se mueven lento y reaccionan al
 // mouse; todo en CSS (global.css). Informativas: sin enlace.
+// En táctil las figuras se mueven mientras la sección está en pantalla: la
+// isla de abajo solo marca data-onscreen con un IntersectionObserver.
 // Copy en borrador, pendiente de aprobación.
 const services = [
   {
@@ -126,3 +128,14 @@ const services = [
     }
   </div>
 </section>
+
+<script>
+  const section = document.querySelector<HTMLElement>('.services');
+  const touch = matchMedia('(hover: none)').matches;
+
+  if (section && touch && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => {
+      section.toggleAttribute('data-onscreen', entry.isIntersecting);
+    }).observe(section);
+  }
+</script>

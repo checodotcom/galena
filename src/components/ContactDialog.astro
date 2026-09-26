@@ -5,6 +5,9 @@
 // envía el formulario, muestra los errores junto a cada campo y cambia
 // estados. Sin JS, la validación nativa sigue funcionando.
 import ConsentField from './ConsentField.astro';
+// Mismo patrón que EMAIL_PATTERN en worker/index.js: sin él, el navegador
+// acepta "juan@gmail" y el servidor lo rechaza con un error genérico.
+const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
 ---
 
 <dialog
@@ -52,6 +55,7 @@ import ConsentField from './ConsentField.astro';
           name="email"
           type="email"
           autocomplete="email"
+          pattern={EMAIL_PATTERN}
           maxlength="200"
           placeholder="Tu correo"
           aria-describedby="contact-email-error"
@@ -129,16 +133,17 @@ import ConsentField from './ConsentField.astro';
   const dialog = document.getElementById('contact-dialog');
   const form = dialog.querySelector('.contact-form');
   const planField = form.querySelector('#contact-plan');
-  const { reset } = enhanceContactForm(form);
+  const { reset, clearError } = enhanceContactForm(form);
 
   // Safari en iOS solo aplica :active si la página escucha touchstart. Sin esto,
   // CONTACT y ENVIAR no cambiarían de color al tocarlos.
   document.addEventListener('touchstart', () => {}, { passive: true });
 
-  // El botón "Quiero este plan" de cada tarjeta trae data-plan; el resto
-  // (CONTACT del header, "Escríbenos") no, y dejan el plan en "Por definir".
+  // El botón "Quiero este plan" de cada tarjeta trae data-plan y lo
+  // preselecciona. El resto (CONTACTO del header, "Escríbenos") no toca el
+  // plan: si ya había uno elegido junto con lo escrito, se conserva.
   const applyPlanFromSource = (source) => {
-    planField.value = source?.dataset.plan ?? '';
+    if (source?.dataset.plan) planField.value = source.dataset.plan;
   };
 
   // Invoker Commands API: el diálogo recibe este evento antes de abrirse.
@@ -181,8 +186,10 @@ import ConsentField from './ConsentField.astro';
     });
   }
 
-  // Tras un envío exitoso, cerrar deja el formulario listo para otro mensaje.
+  // Tras un envío exitoso, cerrar deja el formulario listo para otro
+  // mensaje. Si falló, se quita el error pero se conserva lo escrito.
   dialog.addEventListener('close', () => {
     if (form.dataset.state === 'sent') reset();
+    else clearError();
   });
 </script>

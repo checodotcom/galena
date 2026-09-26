@@ -1,6 +1,6 @@
 ---
-// Para quién es: una frase, sin lista de giros. Copy en borrador, pendiente
-// de aprobación.
+// Para quién es: una frase, sin lista de giros, y a la derecha (en desktop)
+// el botón a /planes. Copy en borrador, pendiente de aprobación.
 ---
 
 <section class="audience" aria-labelledby="audience-title">
@@ -9,10 +9,22 @@
     <h2 class="section-title" id="audience-title">
       Para cualquier negocio que quiera atender mejor.
     </h2>
-    <p class="audience__text">
-      No trabajamos con plantillas. Ajustamos cada servicio a lo que tu
-      negocio necesita, a su enfoque y a su tono, para que todo se sienta
-      tuyo desde el primer día.
-    </p>
+  </div>
+
+  <!-- El botón va dentro de un <div>: la entrada anima el <div> y el botón
+       conserva su propia transición. -->
+  <div class="audience__aside" data-reveal-group>
+    <div>
+      <!-- Píldora con el texto y círculo aparte con la flecha: al pasar el
+           mouse, las dos cambian de color y la flecha sale por arriba a la
+           derecha mientras entra otra desde abajo a la izquierda. -->
+      <a class="cta-split" href="/planes/">
+        <span class="cta-split__label">Explora nuestros planes</span>
+        <span class="cta-split__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"></path></svg>
+          <svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"></path></svg>
+        </span>
+      </a>
+    </div>
   </div>
 </section>

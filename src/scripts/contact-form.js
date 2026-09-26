@@ -50,10 +50,21 @@ export function enhanceContactForm(form) {
     }
   };
 
+  // `required` acepta un campo con puros espacios, pero el Worker lo recorta
+  // y lo rechaza: se marca inválido aquí para mostrar el error del campo y
+  // no el genérico "No se pudo enviar".
+  const checkBlank = (control) => {
+    if (!control.required || !('value' in control) || control.type === 'checkbox') return;
+    const blank = control.value.length > 0 && control.value.trim() === '';
+    control.setCustomValidity(blank ? 'Solo espacios' : '');
+  };
+
   const syncAll = () => controls.forEach(syncInvalid);
   // Los eventos también llegan desde enlaces y botones; solo cuentan campos.
   const syncFromEvent = (event) => {
-    if (controls.includes(event.target)) syncInvalid(event.target);
+    if (!controls.includes(event.target)) return;
+    checkBlank(event.target);
+    syncInvalid(event.target);
   };
   form.addEventListener('input', syncFromEvent);
   form.addEventListener('change', syncFromEvent);
@@ -82,6 +93,7 @@ export function enhanceContactForm(form) {
     if (form.dataset.state === 'sending' || form.dataset.state === 'sent') return;
 
     // Campos sin tocar también muestran su error tras el primer intento.
+    controls.forEach(checkBlank);
     if (!form.checkValidity()) {
       form.dataset.checked = '';
       syncAll();
@@ -111,16 +123,24 @@ export function enhanceContactForm(form) {
 
     await minimumWait;
     setState(ok ? 'sent' : 'error');
+    if (ok) form.dispatchEvent(new CustomEvent('contact:sent'));
   });
 
-  // Deja el formulario listo para otro mensaje (el diálogo lo usa al cerrarse
-  // después de un envío exitoso).
-  const reset = () => {
+  // Deja el formulario listo para otro mensaje. `message` conserva un aviso
+  // en el estado (la página muestra "Mensaje enviado." tras reiniciarse).
+  const reset = ({ message = '' } = {}) => {
     form.reset();
     delete form.dataset.checked;
+    controls.forEach(checkBlank);
     setState('idle');
+    status.textContent = message;
     syncAll();
   };
 
-  return { reset };
+  // Quita un error de envío sin borrar lo escrito (al cerrar el diálogo).
+  const clearError = () => {
+    if (form.dataset.state === 'error') setState('idle');
+  };
+
+  return { reset, clearError };
 }

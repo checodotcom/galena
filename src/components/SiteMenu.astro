@@ -8,21 +8,26 @@ interface Props {
 }
 
 const { current } = Astro.props;
-// "/servicios/" y "/servicios" son la misma página.
-const path = current.length > 1 ? current.replace(/\/$/, '') : current;
+// Los enlaces llevan barra final, como las URLs reales (/planes/): sin ella,
+// Cloudflare responde con un redirect de más. Para marcar la página actual
+// se comparan sin la barra.
+const trim = (p: string) => (p.length > 1 ? p.replace(/\/$/, '') : p);
+const path = trim(current);
 
 const links = [
   { href: '/', label: 'Inicio' },
-  { href: '/servicios', label: 'Servicios' },
-  { href: '/contacto', label: 'Contacto' },
+  { href: '/planes/', label: 'Planes' },
+  { href: '/contacto/', label: 'Contacto' },
   // "Galena" en el texto (un lector de pantalla no lo deletrea letra por
   // letra) y en mayúsculas solo a la vista, con .site-menu__link--caps.
-  { href: '/nosotros', label: 'Galena', caps: true },
+  { href: '/nosotros/', label: 'Galena', caps: true },
 ];
 ---
 
 <dialog id="site-menu" class="site-menu" aria-label="Menú" closedby="any" data-lenis-prevent>
-  <div class="site-menu__top">
+  <!-- Foco inicial en esta fila (no es un control) y no en el logo, que
+       mostraba su anillo al abrir. Con Tab se sigue al logo y a la X. -->
+  <div class="site-menu__top" tabindex="-1" autofocus>
     <a class="site-menu__home" href="/" aria-label="Galena, inicio">
       <img class="site-menu__logo" src="/galena-logo-negro.svg" alt="Galena" width="159" height="22" />
     </a>
@@ -45,7 +50,7 @@ const links = [
             <a
               class:list={['site-menu__link', { 'site-menu__link--caps': link.caps }]}
               href={link.href}
-              aria-current={link.href === path ? 'page' : undefined}
+              aria-current={trim(link.href) === path ? 'page' : undefined}
             >
               <span class="site-menu__index" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}

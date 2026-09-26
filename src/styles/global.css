@@ -189,8 +189,11 @@ html.lenis body {
     border-color 400ms var(--ease-out);
 }
 
+/* El logo mide 19–26px; el enlace llega a 44px de alto de área táctil. */
 .site-header__home {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   line-height: 0;
   pointer-events: auto;
 }
@@ -396,7 +399,7 @@ html.lenis body {
 }
 
 /* Un escalón debajo del titular del hero (7.5rem): el único <h1> del home
-   debe dominar. El menú usa esta misma escala. */
+   debe dominar. */
 .section-title {
   margin: 0;
   font-size: clamp(2rem, 5.5vw, 4.5rem);
@@ -412,95 +415,270 @@ html.lenis body {
   gap: var(--space-3);
 }
 
-/* Tarjeta plata, como la destacada de los planes en /servicios. */
+/* Tarjeta de servicio: un panel plata con nombre, número y figura, y
+   debajo, separada, la descripción. Las dos piezas se estiran para que
+   todas las tarjetas de una fila midan lo mismo. */
 .service {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.service__panel {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-3);
+  aspect-ratio: 4 / 3;
+  padding: var(--space-3);
   border-radius: var(--space-3);
   background-color: var(--silver);
+  container-type: inline-size;
+  transition: translate 400ms var(--ease-out);
+}
+
+.service__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
 .service__index {
-  position: relative;
-  align-self: flex-start;
-  margin-bottom: var(--space-2);
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   color: var(--ink-soft);
 }
 
-/* Subrayado del número, igual que en el menú: se dibuja de izquierda a
-   derecha al pasar el mouse por la tarjeta. */
-.service__index::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 2ch;
-  height: 1px;
-  background-color: var(--ink);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform 300ms var(--ease-out);
-}
-
+/* El tamaño sigue al ancho del panel (cqi), no al de la pantalla: la
+   palabra más larga, "Automatizaciones" (~7.6em), cabe en cualquier columna
+   junto al número. */
 .service__name {
   margin: 0;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-size: clamp(1.5rem, 10.5cqi, 2.25rem);
+  overflow-wrap: break-word;
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
-  transition: color 200ms ease;
 }
 
-/* El enlace del nombre cubre toda la tarjeta con su ::after: cualquier clic
-   dentro lleva a /servicios. El foco de teclado se dibuja en la tarjeta. */
-.service__link {
-  color: inherit;
-  text-decoration: none;
+/* Escenario de la figura: ocupa el resto del panel. */
+.service__stage {
+  position: relative;
+  display: grid;
+  flex: 1;
+  place-items: center;
+  margin-top: var(--space-2);
 }
 
-.service__link::after {
-  content: '';
+/* Marcas de esquina del escenario (arriba a la izquierda y abajo a la
+   derecha), como registros de impresión. Al pasar el mouse se abren. */
+.service__corners {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  pointer-events: none;
+  transition: inset 400ms var(--ease-out);
 }
 
-.service__link:focus-visible {
-  outline: none;
+.service__corners::before,
+.service__corners::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid var(--ink-soft);
 }
 
-.service:has(.service__link:focus-visible) {
-  outline: 2px solid var(--ink);
-  outline-offset: 4px;
+.service__corners::before {
+  top: 0;
+  left: 0;
+  border-top-width: 1px;
+  border-left-width: 1px;
 }
 
-.service:has(.service__link:focus-visible) .service__index::after {
-  transform: scaleX(1);
+.service__corners::after {
+  right: 0;
+  bottom: 0;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
 }
 
-/* Solo la tarjeta bajo el mouse: su número se subraya y el título se
-   aclara a --ink-soft (sigue pasando AA sobre plata). */
-@media (hover: hover) {
-  .service:hover .service__index::after {
-    transform: scaleX(1);
-  }
+.service__figure {
+  display: block;
+  width: min(62%, 200px);
+  max-height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  transition: scale 600ms var(--ease-out);
+}
 
-  .service:hover .service__name {
-    color: var(--ink-soft);
-  }
+.service__figure * {
+  vector-effect: non-scaling-stroke;
+}
+
+/* Rellenos, sin trazo: el punto que recorre el diagrama, la fecha y los
+   ojos del bot. */
+.service__figure .service__motion--flow,
+.service__figure .service__dot,
+.service__date {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.service__date {
+  font-size: 44px;
+  font-weight: 200;
+  letter-spacing: -0.02em;
 }
 
 .service__text {
-  max-width: 42ch;
+  flex: 1;
   margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--space-2);
+  background-color: var(--silver);
   font-size: 1rem;
   line-height: 1.6;
   color: var(--ink-soft);
+}
+
+/* Trazado de entrada: con Reveal activo, las líneas esperan sin dibujar y
+   se trazan cuando el grupo entra, en cascada por tarjeta (--i). Sin JS o
+   con movimiento reducido se ven completas desde el inicio. */
+html[data-reveal] .service__figure * {
+  stroke-dasharray: 1;
+}
+
+/* La transición solo existe al revelarse: así el estado oculto se aplica al
+   instante al cargar, sin verse cómo se "borran" las líneas. */
+html[data-reveal] .services__grid[data-revealed] .service__figure * {
+  transition: stroke-dashoffset 1600ms var(--ease-in-out);
+  transition-delay: calc(300ms + var(--i, 0) * 120ms);
+}
+
+html[data-reveal] .services__grid:not([data-revealed]) .service__figure * {
+  stroke-dashoffset: 1;
+}
+
+/* Lo relleno (fecha y puntos) no se traza: aparece con opacidad. */
+html[data-reveal] .services__grid[data-revealed] :is(.service__date, .service__motion--flow, .service__dot) {
+  transition: opacity 800ms ease-out;
+  transition-delay: calc(1200ms + var(--i, 0) * 120ms);
+}
+
+html[data-reveal] .services__grid:not([data-revealed]) :is(.service__date, .service__motion--flow, .service__dot) {
+  opacity: 0;
+}
+
+/* El movimiento continuo espera a que la figura se haya trazado. */
+html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
+  animation-play-state: paused;
+}
+
+/* Movimiento continuo, lento y leve: cada figura con el suyo. */
+@media (prefers-reduced-motion: no-preference) {
+  .service__motion {
+    transform-box: view-box;
+    transform-origin: 100px 100px;
+  }
+
+  /* Un punto recorre el diagrama: baja a la decisión y sale por la
+     derecha hasta la caja. */
+  .service__motion--flow {
+    animation: service-flow 4s var(--ease-in-out) 3;
+  }
+
+  .service__motion--spin-slow {
+    animation: service-spin 60s linear 1 reverse;
+  }
+
+  /* Los ojos del bot parpadean de vez en cuando. */
+  .service__motion--blink {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: service-blink 4s ease-in-out 3;
+  }
+
+  .service__motion--float {
+    animation: service-float 6s var(--ease-in-out) 4 alternate;
+  }
+
+  /* Las figuras se mueven unas vueltas y se detienen (WCAG 2.2.2: nada
+     se mueve sin fin sin poder pausarse). Con el mouse encima de la
+     tarjeta vuelven a moverse. */
+  .service:hover .service__motion {
+    animation-iteration-count: infinite;
+  }
+}
+
+@keyframes service-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes service-flow {
+  0% {
+    translate: 0 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  25% {
+    translate: 0 20px;
+  }
+  45% {
+    translate: 22px 42px;
+  }
+  65% {
+    translate: 50px 42px;
+  }
+  85% {
+    translate: 50px 78px;
+    opacity: 1;
+  }
+  100% {
+    translate: 50px 78px;
+    opacity: 0;
+  }
+}
+
+@keyframes service-blink {
+  0%,
+  90%,
+  100% {
+    scale: 1 1;
+  }
+  95% {
+    scale: 1 0.15;
+  }
+}
+
+@keyframes service-float {
+  from {
+    translate: 0 -4px;
+  }
+  to {
+    translate: 0 4px;
+  }
+}
+
+/* Mouse encima: el panel se eleva y se separa de su descripción, la figura
+   crece un poco y las marcas de esquina se abren. */
+@media (hover: hover) {
+  .service:hover .service__panel {
+    translate: 0 calc(-1 * var(--space-1));
+  }
+
+  .service:hover .service__figure {
+    scale: 1.08;
+  }
+
+  .service:hover .service__corners {
+    inset: -6px;
+  }
 }
 
 /* ---------- Para quién es y Nosotros ----------
@@ -520,7 +698,153 @@ html.lenis body {
   margin: var(--space-1) 0 0;
 }
 
-.audience__text,
+.audience__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+/* Botón dividido: píldora con el texto y círculo con la flecha, separados
+   por una rendija. Tinta en reposo; con hover o foco pasan a plata en
+   500ms y la flecha se reemplaza por otra que entra desde abajo a la
+   izquierda (el círculo recorta la que sale). */
+.cta-split {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--bone);
+  text-decoration: none;
+}
+
+.cta-split__label,
+.cta-split__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  border-radius: 999px;
+  background-color: var(--ink);
+  transition:
+    background-color 500ms var(--ease-in-out),
+    color 500ms var(--ease-in-out),
+    scale 150ms var(--ease-out);
+}
+
+.cta-split__label {
+  padding-inline: var(--space-4);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cta-split__icon {
+  position: relative;
+  width: 56px;
+  overflow: hidden;
+}
+
+.cta-split__icon svg {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate 500ms var(--ease-in-out);
+}
+
+.cta-split__icon svg + svg {
+  translate: -40px 40px;
+}
+
+.cta-split:is(:hover, :focus-visible) {
+  color: var(--ink);
+}
+
+.cta-split:is(:hover, :focus-visible) :is(.cta-split__label, .cta-split__icon) {
+  background-color: var(--silver);
+}
+
+.cta-split:is(:hover, :focus-visible) .cta-split__icon svg {
+  translate: 40px -40px;
+}
+
+.cta-split:is(:hover, :focus-visible) .cta-split__icon svg + svg {
+  translate: 0 0;
+}
+
+.cta-split:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+.cta-split:active :is(.cta-split__label, .cta-split__icon) {
+  scale: 0.97;
+}
+
+/* Para quién, desde tablet: el botón rebota por toda la sección como el
+   logo de un DVD, a velocidad constante, y puede pasar sobre la frase. Su
+   caja (.audience__aside) cubre la sección y es contenedor de tamaño, así
+   cqw/cqh miden el área libre. El eje X va en el <div> y el Y en el
+   enlace, cada uno lineal de ida y vuelta con duraciones distintas: juntos
+   dan el rebote en diagonal sin frenar en las esquinas. Se detiene con el
+   mouse o el foco encima, para poder atraparlo. Sin movimiento, o en
+   móvil, queda en su lugar. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .audience {
+    position: relative;
+  }
+
+  .audience__aside {
+    position: absolute;
+    inset: var(--space-4) var(--gutter);
+    z-index: 1;
+    display: block;
+    margin: 0;
+    container-type: size;
+    pointer-events: none;
+  }
+
+  .audience__aside > div {
+    width: max-content;
+    pointer-events: auto;
+    /* El retraso negativo lo hace arrancar abajo a la derecha (~85% en X,
+       ~85% en Y), lejos de la frase y del centro. */
+    animation: audience-bounce-x 14s linear -12s infinite alternate;
+  }
+
+  .audience__aside .cta-split {
+    animation: audience-bounce-y 9.5s linear -8s infinite alternate;
+  }
+
+  .audience__aside > div:has(:hover, :focus-visible),
+  .audience__aside > div:has(:hover, :focus-visible) .cta-split {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes audience-bounce-x {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: calc(100cqw - 100%) 0;
+  }
+}
+
+@keyframes audience-bounce-y {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc(100cqh - 100%);
+  }
+}
+
 .about__text {
   max-width: 42ch;
   margin: 0;
@@ -1205,7 +1529,7 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
 }
 
 /* Enlaces sueltos ("Explora nuestros servicios", "Ver planes y precios",
-   "Más sobre GALENA", "Escríbenos →" de /servicios, el correo del footer y
+   "Más sobre GALENA", "Escríbenos →" de /planes, el correo del footer y
    del menú, "Volver a Inicio"). Llevan flecha o van solos en su línea, así
    que no dependen solo del color para reconocerse como enlace:
    sin subrayado en reposo; con hover o foco de teclado, una línea que se
@@ -1217,6 +1541,15 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
 .not-found__home-label {
   position: relative;
   text-decoration: none;
+}
+
+/* Área táctil de 44px en los enlaces sueltos sin mover el diseño: el
+   relleno la agranda y el margen negativo devuelve el espacio. */
+.text-link:not(.text-link--inline) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-block: calc((1lh - 44px) / 2);
 }
 
 .text-link:not(.text-link--inline)::after,
@@ -1337,6 +1670,13 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   transition:
     transform 200ms ease,
     background-color 200ms ease;
+}
+
+/* El input es invisible (opacity 0) y su anillo de foco también: el anillo
+   se dibuja en el riel. */
+.period__switch:has(input:focus-visible) .period__track {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
 }
 
 /* Anual: el riel se pone negro y la bolita cruza al otro lado. */
@@ -2006,8 +2346,8 @@ textarea.field__input {
 .site-menu {
   position: fixed;
   inset: 0 0 0 auto;
-  /* 480px: a 72px (el tamaño de los títulos del home en desktop), la palabra
-     más ancha ("Contacto") cabe dentro de los márgenes. */
+  /* 480px: con los enlaces a la escala de los pasos del proceso (hasta
+     40px), la palabra más ancha ("Contacto") cabe con mucho aire. */
   width: min(100%, 480px);
   max-width: none;
   height: 100dvh;
@@ -2046,8 +2386,16 @@ body:has(.site-menu[open]) .site-header__home {
 }
 
 .site-menu__home {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   line-height: 0;
+}
+
+/* La fila de arriba recibe el foco al abrir (autofocus); no es un control,
+   así que no lleva anillo. Sus enlaces y botones conservan el suyo. */
+.site-menu__top:focus-visible {
+  outline: none;
 }
 
 .site-menu__logo {
@@ -2076,8 +2424,9 @@ body:has(.site-menu[open]) .site-header__home {
   gap: var(--space-3);
   padding-block: var(--space-2);
   color: var(--ink);
-  /* Misma escala que los títulos de sección del home (.section-title). */
-  font-size: clamp(2rem, 5.5vw, 4.5rem);
+  /* Misma escala que los nombres de los pasos del proceso (.step__name) y
+     de las tarjetas de servicios. */
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
@@ -2126,7 +2475,8 @@ body:has(.site-menu[open]) .site-header__home {
   }
 }
 
-.site-menu__link:focus-visible .site-menu__index::after {
+.site-menu__link:focus-visible .site-menu__index::after,
+.site-menu__link[aria-current='page'] .site-menu__index::after {
   transform: scaleX(1);
 }
 
@@ -2286,19 +2636,27 @@ body:has(.site-menu[open]) .site-header__home {
 
   /* En móvil las tarjetas usan menos relleno para que el texto respire a
      lo ancho; desde tablet vuelven al relleno amplio. */
-  .service,
   .plan {
     padding: var(--space-6) var(--space-5);
   }
 
-  .services__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .service__panel,
+  .service__text {
+    padding: var(--space-4);
   }
 
-  /* Si la última tarjeta queda sola en su fila, ocupa todo el ancho en vez
-     de dejar un hueco. */
-  .service:last-child:nth-child(odd) {
+  /* Rejilla de medias columnas: cada tarjeta ocupa dos, así la que queda
+     sola en la última fila se centra sin cambiar de ancho. */
+  .services__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .service {
     grid-column: span 2;
+  }
+
+  .service:last-child:nth-child(odd) {
+    grid-column: 2 / span 2;
   }
 
   .step {
@@ -2342,43 +2700,37 @@ body:has(.site-menu[open]) .site-header__home {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  /* Tres por fila sobre seis medias columnas: si la última fila queda
+     incompleta, sus tarjetas conservan el ancho y se centran. */
   .services__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
-  /* En 3 columnas: la última toma lo que sobre de su fila (2 columnas si
-     quedan dos tarjetas, las 3 si queda sola). */
+  .service,
   .service:last-child:nth-child(odd) {
-    grid-column: auto;
-  }
-
-  .service:last-child:nth-child(3n + 2) {
     grid-column: span 2;
   }
 
+  /* Dos en la última fila: la primera arranca en la media columna 2. */
+  .service:nth-last-child(2):nth-child(3n + 1) {
+    grid-column: 2 / span 2;
+  }
+
+  /* Una sola en la última fila: al centro. */
   .service:last-child:nth-child(3n + 1) {
-    grid-column: span 3;
+    grid-column: 3 / span 2;
   }
 
-  /* La tarjeta estirada a dos columnas reparte su contenido: número y
-     nombre a la izquierda, texto a la derecha, en vez de dejar medio
-     ancho vacío. */
-  .service:last-child:nth-child(3n + 2) {
+  /* Para quién: frase a la izquierda; texto y botón a la derecha, abajo. */
+  .audience {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--space-5);
-    row-gap: var(--space-2);
-    align-content: start;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--space-8);
+    align-items: end;
   }
 
-  .service:last-child:nth-child(3n + 2) .service__index {
-    justify-self: start;
-  }
-
-  .service:last-child:nth-child(3n + 2) .service__text {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: end;
+  .audience__aside {
+    margin-top: 0;
   }
 
   /* Proceso y preguntas frecuentes: título a la izquierda (fijo mientras
@@ -2471,7 +2823,7 @@ body:has(.site-menu[open]) .site-header__home {
       opacity: 1 !important;
     }
 
-    /* En /servicios, el logo del header se achica un poco apenas empieza el
+    /* En /planes, el logo del header se achica un poco apenas empieza el
        scroll — el título de la página se queda en su tamaño completo, solo
        el header se compacta. CONTACTO y el menú no se achican: bajarían de
        los 44px de área táctil. body:has(.pricing-page) detecta esa página
@@ -2711,12 +3063,232 @@ body:has(.site-menu[open]) .site-header__home {
   }
 }
 
+/* ---------- Cursor (Cursor.astro) ----------
+   Solo con mouse y después del primer movimiento (html[data-cursor-ready]);
+   sin JS o en táctil queda la flecha nativa. En reposo es un círculo
+   relleno de 36px con un punto al centro (también sobre los campos de
+   texto, a pedido); crece a 64px solo sobre lo accionable. Con
+   mix-blend-mode: difference, el hueso se ve casi negro sobre el fondo y
+   deja en negativo lo que pasa debajo. */
+
+/* Es un popover (manual) para vivir en la top layer, encima del menú y del
+   diálogo de contacto; se quitan los estilos que el navegador le pone. */
+.cursor {
+  display: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: visible;
+  width: 0;
+  height: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html[data-cursor-ready] .cursor {
+    display: block;
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: 20;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  /* !important: varios componentes declaran cursor: pointer. */
+  html[data-cursor-ready] *,
+  html[data-cursor-ready] *::before,
+  html[data-cursor-ready] *::after {
+    cursor: none !important;
+  }
+
+  /* El punto va encima del círculo y en --ink: dentro del relleno se ve
+     sólido, del color contrario al círculo. */
+  .cursor__dot {
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    z-index: 1;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ink);
+    translate: var(--dx, -100px) var(--dy, -100px);
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  .cursor__ring {
+    position: absolute;
+    top: -32px;
+    left: -48px;
+    width: 96px;
+    height: 64px;
+    translate: var(--x, -100px) var(--y, -100px);
+  }
+
+  /* Una sola caja de 96×64 recortada: círculo de 64px o píldora de 96×48.
+     clip-path y scale se interpolan, así que nada anima width ni height.
+     En reposo es un círculo relleno de 36px (scale 0.5625). */
+  .cursor__fill {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--bone);
+    clip-path: inset(0 16px round 32px);
+    scale: 0.5625;
+    transition:
+      scale 400ms var(--ease-out),
+      clip-path 400ms var(--ease-out);
+  }
+
+  .cursor__arrows {
+    font-size: 0.875rem;
+    color: var(--ink);
+    opacity: 0;
+    transition: opacity 150ms var(--ease-out);
+  }
+
+  /* Sobre lo accionable: relleno circular de 64px. */
+  body:has(:is(a, button, summary, select, label, [role='switch']):hover) .cursor__fill {
+    scale: 1;
+  }
+
+  /* Botones que ya se rellenan solos al pasar el mouse (CONTACTO, menú,
+     planes, Enviar, el botón dividido): el círculo no crece, porque los
+     volvería a invertir y el texto quedaría partido en dos tonos. Solo
+     queda el punto, claro para verse sobre el relleno oscuro. */
+  body:has(:is(.contact, .menu-button, .plan-cta, .send, .cta-split):hover) .cursor__fill {
+    scale: 0;
+  }
+
+  body:has(:is(.contact, .menu-button, .plan-cta, .send, .cta-split):hover) .cursor__dot {
+    background: var(--bone);
+  }
+
+  /* Arrastre (para un carrusel futuro): se estira a píldora y, al terminar,
+     aparecen las flechas. */
+  body:has([data-cursor='drag']:hover) .cursor__fill {
+    clip-path: inset(8px 0 round 24px);
+    scale: 1;
+  }
+
+  body:has([data-cursor='drag']:active) .cursor__fill {
+    scale: 0.9;
+  }
+
+  body:has([data-cursor='drag']:hover) .cursor__arrows {
+    opacity: 1;
+    transition-delay: 300ms;
+  }
+
+  body:has([data-cursor='drag']:hover) .cursor__dot {
+    opacity: 0;
+  }
+
+  html.cursor-out .cursor,
+  body:has([data-cursor='none']:hover) .cursor {
+    opacity: 0;
+  }
+
+  /* Sin popover, el cursor quedaría debajo de un diálogo abierto (top
+     layer): ahí vuelve la flecha nativa. */
+  @supports not selector(:popover-open) {
+    html[data-cursor-ready]:has(dialog[open]) .cursor {
+      display: none;
+    }
+
+    html[data-cursor-ready]:has(dialog[open]) *,
+    html[data-cursor-ready]:has(dialog[open]) *::before,
+    html[data-cursor-ready]:has(dialog[open]) *::after {
+      cursor: revert !important;
+    }
+
+    html[data-cursor-ready]:has(dialog[open]) :is(a, button, summary, select, label) {
+      cursor: pointer !important;
+    }
+  }
+}
+
+/* Táctil: círculo breve al tocar algo accionable (clase .cursor--tap). */
+.cursor.cursor--tap {
+  display: block;
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 20;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.cursor--tap :is(.cursor__dot, .cursor__arrows) {
+  display: none;
+}
+
+.cursor--tap .cursor__ring {
+  position: absolute;
+  top: -32px;
+  left: -48px;
+  width: 96px;
+  height: 64px;
+  translate: var(--x) var(--y);
+}
+
+.cursor--tap .cursor__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--bone);
+  clip-path: inset(0 16px round 32px);
+  animation: cursor-tap 500ms var(--ease-out) both;
+}
+
+@keyframes cursor-tap {
+  from {
+    scale: 0.4;
+    opacity: 1;
+  }
+  60% {
+    scale: 1;
+    opacity: 1;
+  }
+  to {
+    scale: 1;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor--tap .cursor__fill {
+    animation-name: cursor-tap-fade;
+  }
+
+  @keyframes cursor-tap-fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .cursor.cursor--tap,
+  html[data-cursor-ready] .cursor {
+    display: none;
+  }
+
+  html[data-cursor-ready] *,
+  html[data-cursor-ready] *::before,
+  html[data-cursor-ready] *::after {
+    cursor: revert !important;
+  }
+}
+
 /* El círculo de carga sigue girando: es el indicador de progreso, no adorno. */
 @media (prefers-reduced-motion: reduce) {
   .contact,
   .menu-button,
   .site-menu__index::after,
-  .service__index::after,
   .text-link::after,
   .site-footer__email::after,
   .site-menu__email::after,
@@ -2728,7 +3300,17 @@ body:has(.site-menu[open]) .site-header__home {
   .send,
   .send__label,
   .send__spinner,
-  .send__check {
+  .send__check,
+  .cta-split__label,
+  .cta-split__icon,
+  .cta-split__icon svg,
+  .service__panel,
+  .service__corners,
+  .service__figure,
+  .cursor,
+  .cursor__dot,
+  .cursor__fill,
+  .cursor__arrows {
     transition-duration: 0.01ms;
   }
 }

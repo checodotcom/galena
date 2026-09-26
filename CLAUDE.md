@@ -73,6 +73,19 @@ aprobadas a "cero JS por defecto"; no se agrega otro JS global sin proponerlo.
   con transición de 400ms. Cada sección lo declara con
   `data-header-tone="clear|silver"`; sin atributo es hueso. Sin JS, hueso.
 - `SmoothScroll.astro`: scroll suave con Lenis (detalles abajo).
+- `Cursor.astro`: cursor propio solo con mouse. Un punto sigue al mouse
+  exacto y un círculo lo alcanza con lerp. El JS solo escribe `--dx/--dy` y
+  `--x/--y`; los estados van en CSS con `:has()`:
+  - crece a 64px únicamente sobre lo accionable (enlaces, botones), nunca
+    sobre texto;
+  - `data-cursor="none"` lo oculta;
+  - `data-cursor="drag"` (píldora con flechas) está listo para un carrusel
+    futuro, sin usarse aún.
+  Es un `popover="manual"` para vivir en la top layer: al abrirse un
+  `<dialog>` se vuelve a mostrar y queda encima del menú y del contacto.
+  También se queda sobre los campos del formulario. Sin JS o con
+  `forced-colors`, flecha nativa. En táctil no hay cursor: solo un círculo
+  breve (500ms) donde se toca un enlace o botón.
 
 **Scroll suave (Lenis).** `SmoothScroll.astro` carga `lenis` en todas las
 páginas.
@@ -136,6 +149,8 @@ Son reglas duras. Si una petición las contradice, dilo antes de implementar.
    sombras difusas ni brillos.
 2. **Sin sombras.** La jerarquía se construye con escala, peso y espacio.
 3. **Sin iconos decorativos**, sin emoji, sin ilustraciones de stock, sin blobs.
+   Excepción aprobada: las figuras geométricas de línea fina (`--ink`, SVG
+   hecho a mano) de las tarjetas de Servicios.
 4. **Tipografía única.** Solo Urbanist. La variedad sale de peso, tamaño y
    tracking, no de mezclar familias.
 5. **Contraste de escala real.** El titular debe ser dramáticamente más grande que
@@ -165,10 +180,13 @@ se pida cambiarlas.
 
 **Páginas**
 - `/` (home), en este orden: intro con persianas → hero → Servicios → Para
-  quién → Proceso (timeline) → Cierre plata ("Hablemos de tu negocio") →
+  quién (frase + botón dividido `.cta-split` a `/planes`, que desde tablet
+  rebota por toda la sección como el logo de un DVD, a velocidad
+  constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Hablemos de tu negocio") →
   Nosotros → Preguntas frecuentes. Cada sección es un componente en
   `src/components/`.
-- `/servicios`: 3 planes, interruptor mensual/anual sin JS (`:has()`),
+- `/planes` (antes `/servicios`, que redirige 301 en `worker/index.js`):
+  3 planes, interruptor mensual/anual sin JS (`:has()`),
   carrusel con scroll-snap en móvil.
 - `/contacto`: "Hablemos" + formulario.
 - `/nosotros`: título y texto de presentación; indexada y en el sitemap.
@@ -183,15 +201,22 @@ se pida cambiarlas.
 - Secciones del home: `.section-intro` (eyebrow + `.section-title`,
   `clamp(2rem, 5.5vw, 4.5rem)`, un escalón debajo del titular del hero) y
   aire `--section-pad` arriba y abajo. Páginas internas: `--page-top`.
+- El enlace del hero baja a Servicios en el mismo home (`#servicios`).
 - En desktop (≥1024px), Proceso y Preguntas frecuentes van a dos columnas con
   el título fijo (`sticky`) a la izquierda.
 - Entrada suave, una sola vez: `Reveal.astro` + `data-reveal-group`; los
   hijos del grupo entran en cascada. Un grupo no debe tener como hijo directo
   un botón o enlace con transición propia (se envuelve en un `<div>`).
 - Tarjetas (servicios y planes): radio `--space-3`; menos relleno en móvil.
-  Las de servicios son plata y enlazan a `/servicios` con un enlace estirado.
+  Las de servicios son informativas (sin enlace): un panel plata con
+  nombre, número y figura de línea, y debajo, separada, la descripción. La
+  figura se traza al entrar, se mueve unas vueltas y se detiene (WCAG
+  2.2.2); con el mouse encima vuelve a moverse, el panel sube 8px, la figura
+  crece y las marcas de esquina se abren.
 
 **Interacción**
+- Enlaces internos siempre con barra final (`/planes/`, `/contacto/`): son
+  las URLs reales y así Cloudflare no agrega un redirect 307.
 - Todo botón es redondeado (píldora o círculo). Versalitas de interfaz a
   0.75rem.
 - Enlaces `.text-link`: sin subrayado; con hover o foco, una línea que se
@@ -199,12 +224,12 @@ se pida cambiarlas.
   `.text-link--inline` (subrayado fijo, WCAG 1.4.1). Los enlaces sueltos
   llevan flecha "→".
 - El mismo subrayado animado aparece bajo el número (01, 02…) al pasar el
-  mouse en el menú y en las tarjetas de servicios.
+  mouse en el menú.
 - "GALENA" dentro de un texto: se escribe "Galena" y se muestra con
   `.brand-caps` (así un lector de pantalla no lo deletrea).
 - Curvas compartidas: `--ease-out`, `--ease-in-out` y `--ease-drawer`. Las
   duraciones de la interfaz rondan 300–400ms.
-- El header va en `z-index: 10`. En `/servicios` solo se achica el logo al
+- El header va en `z-index: 10`. En `/planes` solo se achica el logo al
   hacer scroll (CONTACTO y el menú conservan sus 44px). En pantallas
   angostas el logo baja hasta 19px para que todo quepa a 360px.
 - `html` lleva `scrollbar-gutter: stable`: al bloquear el scroll con un
@@ -214,14 +239,22 @@ se pida cambiarlas.
 - Menú (`SiteMenu.astro`): `<dialog>` que entra desde la derecha, con
   `--scrim-strong` detrás y `closedby="any"` (clic afuera cierra). Mientras
   está abierto, el logo del header se oculta. Sus enlaces usan la misma
-  escala que `.section-title`.
+  escala que los pasos del proceso (`.step__name`). Al abrir, el foco va a la fila de
+  arriba (`tabindex="-1"` + `autofocus`), no al logo.
 - El diálogo de contacto (botón CONTACTO) y `/contacto` comparten:
   - el estilo de campos de línea (`.contact-form--line`);
   - la lógica de envío en `src/scripts/contact-form.js` (errores con
     `aria-invalid`, animación de Enviar);
   - la casilla obligatoria del aviso de privacidad (`ConsentField.astro`).
-- "Quiero este plan" preselecciona el plan en el diálogo (`data-plan`).
-- Sin JS, el Worker responde con 303 a `/contacto#enviado` o `#error`, y el
+- "Quiero este plan" preselecciona el plan en el diálogo (`data-plan`); los
+  demás botones no tocan el plan ya elegido.
+- Validación alineada con el Worker: `pattern` de correo igual a
+  `EMAIL_PATTERN`, campos con puros espacios marcados inválidos en la isla y
+  saltos de línea normalizados en el Worker antes de medir.
+- Tras enviar: el diálogo se reinicia al cerrarse (un error solo se limpia,
+  sin borrar lo escrito); `/contacto` se reinicia a los 4s y conserva el
+  aviso "Mensaje enviado.".
+- Sin JS, el Worker responde con 303 a `/contacto/#enviado` o `#error`, y el
   aviso aparece con `:target`. El Worker exige la casilla de privacidad; el
   destinatario vive en el secreto `CONTACT_TO`.
 

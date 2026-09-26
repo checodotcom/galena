@@ -1,0 +1,137 @@
+---
+// Cursor personalizado (solo mouse): un punto que sigue al mouse exacto y un
+// círculo relleno (en negativo) que lo alcanza con lerp. El JS solo mueve: escribe --dx/--dy (punto)
+// y --x/--y (círculo). Todos los estados (crecer sobre enlaces y botones,
+// píldora de arrastre, ocultarse con data-cursor="none") viven en global.css
+// con :has(). Sin JS queda la flecha nativa. En táctil no hay cursor: solo
+// un círculo breve donde se toca un enlace o botón.
+// Es un popover para estar en la top layer: cada vez que se abre un diálogo
+// (menú, contacto), se vuelve a mostrar para quedar por encima de él.
+---
+
+<div class="cursor" aria-hidden="true" popover="manual">
+  <span class="cursor__dot"></span>
+  <span class="cursor__ring">
+    <span class="cursor__fill">
+      <span class="cursor__arrows">←&ensp;→</span>
+    </span>
+  </span>
+</div>
+
+<script>
+  const cursor = document.querySelector<HTMLElement>('.cursor');
+
+  if (cursor && 'showPopover' in cursor) {
+    const raise = () => {
+      cursor.hidePopover();
+      cursor.showPopover();
+    };
+    cursor.showPopover();
+
+    // La top layer se apila por orden de apertura: al abrirse un diálogo, el
+    // cursor vuelve a subir para quedar encima.
+    new MutationObserver((records) => {
+      const opened = records.some((r) => r.target instanceof HTMLDialogElement && r.target.open);
+      if (opened) raise();
+    }).observe(document.body, { subtree: true, attributeFilter: ['open'] });
+  }
+
+  // No se decide al cargar si hay mouse: el cursor se activa con el primer
+  // movimiento de un mouse real (pointerType). Así funciona aunque la página
+  // haya cargado en modo táctil (laptops con pantalla táctil, DevTools). El
+  // CSS solo lo muestra con (hover: hover) and (pointer: fine).
+  if (cursor) {
+    const root = document.documentElement;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    // Factor por cuadro a 60fps; se ajusta al tiempo real para que en
+    // pantallas de 120Hz el círculo no alcance al mouse el doble de rápido.
+    const EASE = 0.18;
+
+    let targetX = 0;
+    let targetY = 0;
+    let x = 0;
+    let y = 0;
+    let frame = 0;
+    let last = 0;
+
+    const setRing = () => {
+      cursor.style.setProperty('--x', `${x}px`);
+      cursor.style.setProperty('--y', `${y}px`);
+    };
+
+    const tick = (now: number) => {
+      const dt = last ? now - last : 16.67;
+      last = now;
+      const k = 1 - (1 - EASE) ** (dt / 16.67);
+      x += (targetX - x) * k;
+      y += (targetY - y) * k;
+
+      // En reposo el bucle se detiene; el siguiente movimiento lo reanuda.
+      if (Math.abs(targetX - x) < 0.1 && Math.abs(targetY - y) < 0.1) {
+        x = targetX;
+        y = targetY;
+        frame = 0;
+        last = 0;
+      } else {
+        frame = requestAnimationFrame(tick);
+      }
+      setRing();
+    };
+
+    window.addEventListener(
+      'pointermove',
+      (event) => {
+        if (event.pointerType !== 'mouse') return;
+        targetX = event.clientX;
+        targetY = event.clientY;
+        cursor.style.setProperty('--dx', `${targetX}px`);
+        cursor.style.setProperty('--dy', `${targetY}px`);
+
+        // Primer movimiento: el círculo nace donde está el mouse y hasta
+        // entonces no se oculta la flecha nativa.
+        if (!root.dataset.cursorReady) {
+          x = targetX;
+          y = targetY;
+          setRing();
+          root.dataset.cursorReady = '';
+        }
+
+        if (reduced.matches) {
+          x = targetX;
+          y = targetY;
+          setRing();
+        } else if (!frame) {
+          frame = requestAnimationFrame(tick);
+        }
+      },
+      { passive: true },
+    );
+
+    root.addEventListener('mouseleave', () => root.classList.add('cursor-out'));
+    root.addEventListener('mouseenter', () => root.classList.remove('cursor-out'));
+  }
+
+  // Táctil: al tocar algo accionable, el círculo aparece ahí y se desvanece.
+  if (cursor) {
+    const ACTIONABLE = 'a, button, summary, select, label, [role="switch"]';
+
+    window.addEventListener(
+      'pointerdown',
+      (event) => {
+        if (event.pointerType !== 'touch') return;
+        const target = event.target as Element | null;
+        if (!target?.closest(ACTIONABLE)) return;
+
+        cursor.style.setProperty('--x', `${event.clientX}px`);
+        cursor.style.setProperty('--y', `${event.clientY}px`);
+        // Reinicia la animación si se toca de nuevo antes de que termine.
+        cursor.classList.remove('cursor--tap');
+        void cursor.offsetWidth;
+        cursor.classList.add('cursor--tap');
+      },
+      { passive: true },
+    );
+
+    cursor.addEventListener('animationend', () => cursor.classList.remove('cursor--tap'));
+  }
+</script>

@@ -15,7 +15,11 @@ export default {
     if (pathname === '/api/contact') return handleContact(request, env);
     // La página de la agencia se llamaba /galena; ahora es /nosotros.
     if (pathname === '/galena' || pathname === '/galena/') {
-      return Response.redirect(new URL('/nosotros', request.url), 301);
+      return Response.redirect(new URL('/nosotros/', request.url), 301);
+    }
+    // La página de planes se llamaba /servicios.
+    if (pathname === '/servicios' || pathname === '/servicios/') {
+      return Response.redirect(new URL('/planes/', request.url), 301);
     }
     return env.ASSETS.fetch(request);
   },
@@ -27,13 +31,13 @@ async function handleContact(request, env) {
   }
 
   // La isla pide JSON. Un envío sin JS (formulario nativo) vuelve a
-  // /contacto con #enviado o #error: la página muestra el aviso con :target,
+  // /contacto/ con #enviado o #error: la página muestra el aviso con :target,
   // sin JS.
   const wantsJson = request.headers.get('Accept')?.includes('application/json');
   const reply = (ok, status) =>
     wantsJson
       ? Response.json({ ok }, { status })
-      : Response.redirect(new URL(ok ? '/contacto#enviado' : '/contacto#error', request.url), 303);
+      : Response.redirect(new URL(ok ? '/contacto/#enviado' : '/contacto/#error', request.url), 303);
 
   let data;
   try {
@@ -42,13 +46,16 @@ async function handleContact(request, env) {
     return reply(false, 400);
   }
 
-  const field = (key) => String(data.get(key) ?? '').trim();
+  // Al enviar, el navegador convierte cada salto de línea en \r\n (2
+  // caracteres) aunque maxlength lo contó como 1: se normaliza antes de medir
+  // para no rechazar un mensaje que en el formulario sí cabía.
+  const field = (key) => String(data.get(key) ?? '').replace(/\r\n/g, '\n').trim();
   const name = field('name');
   const email = field('email');
   const message = field('message');
   const plan = PLAN_LABELS[field('plan')] ?? 'Por definir';
-  // Empresa solo la envía la página /contacto. La casilla del aviso de
-  // privacidad está en ambos formularios y es obligatoria.
+  // Empresa es opcional. La casilla del aviso de privacidad es obligatoria.
+  // Los dos formularios (diálogo y /contacto) envían los mismos campos.
   const company = field('company');
   const privacy = data.has('privacy');
 

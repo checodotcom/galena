@@ -259,8 +259,14 @@ html.lenis body {
     color 200ms ease;
 }
 
+/* CONTACTO: en reposo es un círculo de 44px con la flecha ↗; con hover o
+   foco se estira hacia la izquierda, el texto entra deslizándose y el botón
+   se rellena de tinta. En táctil (sin hover) se ve siempre el texto, sin
+   flecha, como píldora: cabe a 360px y no depende de un ícono solo. */
 .contact {
-  padding: 0 var(--space-2);
+  min-width: 44px;
+  padding: 0;
+  overflow: hidden;
   font: inherit;
   font-size: 0.75rem;
   letter-spacing: 0.12em;
@@ -268,6 +274,59 @@ html.lenis body {
   text-decoration: none;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.contact__label {
+  max-width: 0;
+  opacity: 0;
+  translate: 8px 0;
+  transition:
+    max-width 400ms var(--ease-out),
+    padding 400ms var(--ease-out),
+    opacity 250ms var(--ease-out),
+    translate 400ms var(--ease-out);
+}
+
+.contact__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-inline: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: margin 400ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .contact:is(:hover, :focus-visible) .contact__label {
+    max-width: 8rem;
+    padding-left: var(--space-3);
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .contact:is(:hover, :focus-visible) .contact__icon {
+    margin-inline: 10px 16px;
+  }
+}
+
+@media (hover: none) {
+  .contact {
+    padding: 0 var(--space-2);
+  }
+
+  .contact__label {
+    max-width: none;
+    opacity: 1;
+    translate: none;
+  }
+
+  .contact__icon {
+    display: none;
+  }
 }
 
 /* Círculo del mismo alto que CONTACT; el trazo sigue el color del botón
@@ -2677,8 +2736,10 @@ body:has(.site-menu[open]) .site-header__home {
     height: 26px;
   }
 
-  .contact {
-    padding: 0 var(--space-3);
+  @media (hover: none) {
+    .contact {
+      padding: 0 var(--space-3);
+    }
   }
 
   /* Nombre | correo, empresa | plan; mensaje a todo el ancho. */
@@ -3382,6 +3443,8 @@ body:has(.site-menu[open]) .site-header__home {
   .send__label,
   .send__spinner,
   .send__check,
+  .contact__label,
+  .contact__icon,
   .cta-split__label,
   .cta-split__icon,
   .cta-split__icon svg,

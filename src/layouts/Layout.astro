@@ -80,8 +80,13 @@ const year = new Date().getFullYear();
       </a>
 
       <div class="site-header__actions">
+        <!-- Círculo con flecha que, con el mouse o el foco, se estira y muestra
+             "Contacto". El texto siempre está en el DOM (nombre accesible). -->
         <button class="contact" type="button" commandfor="contact-dialog" command="show-modal">
-          Contacto
+          <span class="contact__label">Contacto</span>
+          <svg class="contact__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 17L17 7M8 7h9v9"></path>
+          </svg>
         </button>
         <button
           class="menu-button"

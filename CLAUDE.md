@@ -234,6 +234,9 @@ se pida cambiarlas.
   `.brand-caps` (así un lector de pantalla no lo deletrea).
 - Curvas compartidas: `--ease-out`, `--ease-in-out` y `--ease-drawer`. Las
   duraciones de la interfaz rondan 300–400ms.
+- CONTACTO del header: círculo de 44px con flecha ↗ que, con hover o foco,
+  se estira y muestra "Contacto" rellenándose de tinta. En táctil se ve
+  como píldora con el texto y sin flecha.
 - El header va en `z-index: 10`. En `/planes` solo se achica el logo al
   hacer scroll (CONTACTO y el menú conservan sus 44px). En pantallas
   angostas el logo baja hasta 19px para que todo quepa a 360px.

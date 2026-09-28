@@ -123,8 +123,11 @@ const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
         <ConsentField id="page-privacy" />
 
         <p class="contact-form__status" role="status"></p>
-        <button class="send" type="submit">
-          <span class="send__label">Enviar</span>
+        <button class="send cta-shift" type="submit">
+          <span class="send__label cta-shift__inner">
+            <span class="cta-shift__label">Enviar</span>
+            <span class="cta-shift__arrow" aria-hidden="true">→</span>
+          </span>
           <span class="send__spinner" aria-hidden="true"></span>
           <svg class="send__check" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"></path>
@@ -144,7 +147,7 @@ const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
     // Tras un envío exitoso, la palomita se ve unos segundos y el formulario
     // se reinicia para otro mensaje, conservando el aviso de enviado.
     form.addEventListener('contact:sent', () => {
-      setTimeout(() => reset({ message: 'Mensaje enviado.' }), 4000);
+      setTimeout(() => reset({ keepNotice: true }), 4000);
     });
   }
 </script>

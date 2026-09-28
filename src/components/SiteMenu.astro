@@ -17,10 +17,8 @@ const path = trim(current);
 const links = [
   { href: '/', label: 'Inicio' },
   { href: '/planes/', label: 'Planes' },
-  { href: '/contacto/', label: 'Contacto' },
-  // "Galena" en el texto (un lector de pantalla no lo deletrea letra por
-  // letra) y en mayúsculas solo a la vista, con .site-menu__link--caps.
-  { href: '/nosotros/', label: 'Galena', caps: true },
+  { href: '/cotizar/', label: 'Cotizar' },
+  { href: '/nosotros/', label: 'Nosotros' },
 ];
 ---
 
@@ -48,7 +46,7 @@ const links = [
         links.map((link, i) => (
           <li>
             <a
-              class:list={['site-menu__link', { 'site-menu__link--caps': link.caps }]}
+              class="site-menu__link"
               href={link.href}
               aria-current={trim(link.href) === path ? 'page' : undefined}
             >

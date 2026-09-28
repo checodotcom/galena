@@ -1,4 +1,4 @@
-// Envío de los formularios de contacto (diálogo y página /contacto): errores
+// Envío de los formularios de contacto (diálogo y página /cotizar): errores
 // junto a cada campo, estados del botón Enviar (enviando → palomita) y el
 // mensaje final. Lo importan las islas ContactDialog.astro y ContactPage.astro.
 
@@ -7,8 +7,8 @@ const CONTACT_EMAIL = 'hola@galena.agency';
 const MESSAGES = {
   idle: '',
   sending: 'Enviando…',
-  sent: 'Mensaje enviado.',
 };
+const SENT_NOTE = 'Te respondemos en menos de 24 horas.';
 
 export function enhanceContactForm(form) {
   const fields = form.querySelector('.contact-form__fields');
@@ -67,18 +67,35 @@ export function enhanceContactForm(form) {
     syncInvalid(event.target);
   };
   form.addEventListener('input', syncFromEvent);
+  // El aviso de enviado que se conserva tras reiniciar se va al escribir.
+  form.addEventListener('input', () => {
+    if (!('notice' in form.dataset)) return;
+    delete form.dataset.notice;
+    status.textContent = '';
+  });
   form.addEventListener('change', syncFromEvent);
   form.addEventListener('focusout', syncFromEvent);
 
+  // "Mensaje enviado." y, debajo, en gris, el tiempo de respuesta.
+  const showSent = () => {
+    const note = document.createElement('span');
+    note.className = 'contact-form__note';
+    note.textContent = SENT_NOTE;
+    status.replaceChildren('Mensaje enviado.', document.createElement('br'), note);
+  };
+
   const setState = (state) => {
     form.dataset.state = state;
+    delete form.dataset.notice;
     const locked = state === 'sending' || state === 'sent';
     fields.disabled = locked;
     for (const control of controls) {
       if (!fields.contains(control)) control.disabled = locked;
     }
 
-    if (state === 'error') {
+    if (state === 'sent') {
+      showSent();
+    } else if (state === 'error') {
       const link = document.createElement('a');
       link.href = `mailto:${CONTACT_EMAIL}`;
       link.textContent = CONTACT_EMAIL;
@@ -126,14 +143,17 @@ export function enhanceContactForm(form) {
     if (ok) form.dispatchEvent(new CustomEvent('contact:sent'));
   });
 
-  // Deja el formulario listo para otro mensaje. `message` conserva un aviso
-  // en el estado (la página muestra "Mensaje enviado." tras reiniciarse).
-  const reset = ({ message = '' } = {}) => {
+  // Deja el formulario listo para otro mensaje. Con `keepNotice`, conserva
+  // el aviso de enviado (la página /cotizar lo usa tras reiniciarse).
+  const reset = ({ keepNotice = false } = {}) => {
     form.reset();
     delete form.dataset.checked;
     controls.forEach(checkBlank);
     setState('idle');
-    status.textContent = message;
+    if (keepNotice) {
+      showSent();
+      form.dataset.notice = '';
+    }
     syncAll();
   };
 

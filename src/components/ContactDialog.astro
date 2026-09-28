@@ -1,6 +1,6 @@
 ---
 // Diálogo de contacto. Abrir y cerrar es HTML de la plataforma: el botón
-// CONTACTO del header usa commandfor="contact-dialog" command="show-modal", y
+// COTIZAR del header usa commandfor="contact-dialog" command="show-modal", y
 // closedby="any" lo cierra al dar clic afuera. La isla (el <script> de abajo)
 // envía el formulario, muestra los errores junto a cada campo y cambia
 // estados. Sin JS, la validación nativa sigue funcionando.
@@ -112,12 +112,15 @@ const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
       </label>
     </fieldset>
 
-    <!-- Aviso de privacidad y Enviar en la misma fila, como en /contacto. -->
+    <!-- Aviso de privacidad y Enviar en la misma fila, como en /cotizar. -->
     <div class="contact-form__footer">
       <ConsentField id="dialog-privacy" />
       <p class="contact-form__status" role="status"></p>
-      <button class="send" type="submit">
-        <span class="send__label">Enviar</span>
+      <button class="send cta-shift" type="submit">
+        <span class="send__label cta-shift__inner">
+          <span class="cta-shift__label">Enviar</span>
+          <span class="cta-shift__arrow" aria-hidden="true">→</span>
+        </span>
         <span class="send__spinner" aria-hidden="true"></span>
         <svg class="send__check" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"></path>
@@ -140,7 +143,7 @@ const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
   document.addEventListener('touchstart', () => {}, { passive: true });
 
   // El botón "Quiero este plan" de cada tarjeta trae data-plan y lo
-  // preselecciona. El resto (CONTACTO del header, "Escríbenos") no toca el
+  // preselecciona. El resto (COTIZAR del header, "Escríbenos") no toca el
   // plan: si ya había uno elegido junto con lo escrito, se conserva.
   const applyPlanFromSource = (source) => {
     if (source?.dataset.plan) planField.value = source.dataset.plan;

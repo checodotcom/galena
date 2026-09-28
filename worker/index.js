@@ -17,6 +17,10 @@ export default {
     if (pathname === '/galena' || pathname === '/galena/') {
       return Response.redirect(new URL('/nosotros/', request.url), 301);
     }
+    // La página del formulario se llamaba /contacto.
+    if (pathname === '/contacto' || pathname === '/contacto/') {
+      return Response.redirect(new URL('/cotizar/', request.url), 301);
+    }
     // La página de planes se llamaba /servicios.
     if (pathname === '/servicios' || pathname === '/servicios/') {
       return Response.redirect(new URL('/planes/', request.url), 301);
@@ -31,13 +35,13 @@ async function handleContact(request, env) {
   }
 
   // La isla pide JSON. Un envío sin JS (formulario nativo) vuelve a
-  // /contacto/ con #enviado o #error: la página muestra el aviso con :target,
+  // /cotizar/ con #enviado o #error: la página muestra el aviso con :target,
   // sin JS.
   const wantsJson = request.headers.get('Accept')?.includes('application/json');
   const reply = (ok, status) =>
     wantsJson
       ? Response.json({ ok }, { status })
-      : Response.redirect(new URL(ok ? '/contacto/#enviado' : '/contacto/#error', request.url), 303);
+      : Response.redirect(new URL(ok ? '/cotizar/#enviado' : '/cotizar/#error', request.url), 303);
 
   let data;
   try {
@@ -55,7 +59,7 @@ async function handleContact(request, env) {
   const message = field('message');
   const plan = PLAN_LABELS[field('plan')] ?? 'Por definir';
   // Empresa es opcional. La casilla del aviso de privacidad es obligatoria.
-  // Los dos formularios (diálogo y /contacto) envían los mismos campos.
+  // Los dos formularios (diálogo y /cotizar) envían los mismos campos.
   const company = field('company');
   const privacy = data.has('privacy');
 

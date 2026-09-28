@@ -87,7 +87,13 @@ html {
   }
 }
 
+/* Columna de alto mínimo de pantalla: en páginas cortas <main> crece y el
+   footer queda siempre al fondo de la ventana. El header y los diálogos
+   no cuentan (fijo y top layer). */
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   margin: 0;
   background-color: var(--bone);
   color: var(--ink);
@@ -259,7 +265,7 @@ html.lenis body {
     color 200ms ease;
 }
 
-/* CONTACTO: en reposo es un círculo de 44px con la flecha ↗; con hover o
+/* COTIZAR (botón .contact del header): en reposo es un círculo de 44px con la flecha ↗; con hover o
    foco se estira hacia la izquierda, el texto entra deslizándose y el botón
    se rellena de tinta. En táctil (sin hover) se ve siempre el texto, sin
    flecha, como píldora: cabe a 360px y no depende de un ícono solo. */
@@ -486,7 +492,7 @@ html.lenis body {
   }
 }
 
-/* .cta-shift (hero y cierre): con hover o foco, el texto se desvanece y la
+/* .cta-shift (hero, cierre y Enviar de los formularios): con hover o foco, el texto se desvanece y la
    flecha viaja al centro del botón; el cambio de color es el de .plan-cta--filled. Texto y flecha van
    en un bloque centrado (.cta-shift__inner) con la flecha al final: el
    centro del bloque es el centro del botón, y el botón conserva su ancho
@@ -1583,6 +1589,10 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
 
 /* ---------- Páginas en construcción (/nosotros, /privacidad) ---------- */
 
+main {
+  flex: 1;
+}
+
 .page-stub {
   display: flex;
   flex-direction: column;
@@ -1605,7 +1615,7 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   color: var(--ink-soft);
 }
 
-/* ---------- Página: Contacto ----------
+/* ---------- Página: Cotizar (/cotizar) ----------
    Presentación arriba y formulario pegado abajo, con todo el aire en medio
    (como la referencia). Los campos son una línea inferior, sin cápsula. */
 
@@ -1657,7 +1667,7 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   line-height: 1.1;
 }
 
-/* Estilo de línea: lo comparten la página /contacto y el diálogo de
+/* Estilo de línea: lo comparten la página /cotizar y el diálogo de
    contacto. Doble clase para ganarle a .contact-form, que va más abajo. */
 .contact-form.contact-form--line {
   gap: var(--space-5);
@@ -1725,12 +1735,36 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
   gap: var(--space-3);
 }
 
+/* La casilla ocupa su propia fila: Enviar queda solo en la de abajo, a la
+   derecha, y el aviso de enviado se centra en esa fila sin encimarse. */
 .contact-form--line .consent-field {
-  flex: 1 1 20rem;
+  flex: 1 1 100%;
 }
 
 .contact-form--line .contact-form__status {
   text-align: right;
+}
+
+/* "Mensaje enviado." va a la altura de Enviar (56px), centrado a lo ancho
+   del formulario. data-notice lo conserva en /cotizar tras reiniciarse. */
+.contact-form--line .contact-form__footer {
+  position: relative;
+}
+
+.contact-form--line:is([data-state='sent'], [data-notice]) .contact-form__status {
+  position: absolute;
+  /* Margen igual al círculo de Enviar (56px + 8px) en ambos lados: sigue
+     centrado y en pantallas angostas el texto se parte antes de tocarlo. */
+  inset-inline: 64px;
+  /* El centro del bloque (dos líneas) coincide con el centro de Enviar. */
+  bottom: 28px;
+  translate: 0 50%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.contact-form__note {
+  color: var(--ink-soft);
 }
 
 /* Casilla del aviso de privacidad: cuadro de 20px dentro de un área táctil
@@ -2523,7 +2557,7 @@ textarea.field__input {
 
 /* Éxito y error se leen en pantalla; "Enviando…" lo cuenta el botón y queda
    solo para lectores de pantalla. */
-.contact-form:not([data-state='error'], [data-state='sent']) .contact-form__status {
+.contact-form:not([data-state='error'], [data-state='sent'], [data-notice]) .contact-form__status {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -2709,7 +2743,7 @@ textarea.field__input {
   position: fixed;
   inset: 0 0 0 auto;
   /* 480px: con los enlaces a la escala de los pasos del proceso (hasta
-     40px), la palabra más ancha ("Contacto") cabe con mucho aire. */
+     40px), la palabra más ancha ("Nosotros") cabe con mucho aire. */
   width: min(100%, 480px);
   max-width: none;
   height: 100dvh;
@@ -2814,9 +2848,6 @@ body:has(.site-menu[open]) .site-header__home {
   transition: color 200ms ease;
 }
 
-.site-menu__link--caps {
-  text-transform: uppercase;
-}
 
 /* Ancho fijo: "01" es más angosto que "02" y movía el texto de "Inicio". */
 .site-menu__index {
@@ -3483,7 +3514,7 @@ body:has(.site-menu[open]) .site-header__home {
     scale: 1;
   }
 
-  /* Botones que ya se rellenan solos al pasar el mouse (CONTACTO, menú,
+  /* Botones que ya se rellenan solos al pasar el mouse (COTIZAR, menú,
      planes, Enviar, el botón dividido): el círculo no crece, porque los
      volvería a invertir y el texto quedaría partido en dos tonos. Solo
      queda el punto, claro para verse sobre el relleno oscuro. */

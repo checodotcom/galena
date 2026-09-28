@@ -196,7 +196,8 @@ se pida cambiarlas.
 - `/planes` (antes `/servicios`, que redirige 301 en `worker/index.js`):
   3 planes, interruptor mensual/anual sin JS (`:has()`),
   carrusel con scroll-snap en móvil.
-- `/contacto`: "Hablemos" + formulario.
+- `/cotizar` (antes `/contacto`, que redirige 301 en `worker/index.js`):
+  "Hablemos" + formulario. En el menú y el header se llama "Cotizar".
 - `/nosotros`: título y texto de presentación; indexada y en el sitemap.
 - `/privacidad`: vacía, con `noindex` y fuera del sitemap (filtro en
   `astro.config.mjs`). Al construirla, quitar ambas cosas.
@@ -225,7 +226,7 @@ se pida cambiarlas.
   sube 8px, la figura crece y las marcas de esquina se abren.
 
 **Interacción**
-- Enlaces internos siempre con barra final (`/planes/`, `/contacto/`): son
+- Enlaces internos siempre con barra final (`/planes/`, `/cotizar/`): son
   las URLs reales y así Cloudflare no agrega un redirect 307.
 - Todo botón es redondeado (píldora o círculo). Versalitas de interfaz a
   0.75rem.
@@ -242,12 +243,14 @@ se pida cambiarlas.
 - Botones principales con flecha (`.cta-shift`: "Explora nuestros
   servicios →" del hero y "Escríbenos →" del cierre): con hover o foco el
   texto se desvanece y la flecha viaja al centro, sin cambiar el ancho.
-- CONTACTO del header: círculo de 44px con flecha ↗ que, con hover o foco,
-  se estira y muestra "Contacto" rellenándose de tinta. En táctil se ve
+- COTIZAR del header: círculo de 44px con flecha ↗ que, con hover o foco,
+  se estira y muestra "Cotizar" rellenándose de tinta. En táctil se ve
   como píldora con el texto y sin flecha.
 - El header va en `z-index: 10` y no cambia de tamaño con el scroll en
   ninguna página. En pantallas angostas el logo baja hasta 19px para que
   todo quepa a 360px.
+- Footer siempre al fondo: `body` es columna de `min-height: 100dvh` y
+  `main` crece (`flex: 1`), así en páginas cortas no queda hueco debajo.
 - `html` lleva `scrollbar-gutter: stable`: al bloquear el scroll con un
   diálogo abierto, la página no brinca.
 
@@ -257,7 +260,7 @@ se pida cambiarlas.
   está abierto, el logo del header se oculta. Sus enlaces usan la misma
   escala que los pasos del proceso (`.step__name`). Al abrir, el foco va a la fila de
   arriba (`tabindex="-1"` + `autofocus`), no al logo.
-- El diálogo de contacto (botón CONTACTO) y `/contacto` comparten:
+- El diálogo de contacto (botón COTIZAR) y `/cotizar` comparten:
   - el estilo de campos de línea (`.contact-form--line`);
   - la lógica de envío en `src/scripts/contact-form.js` (errores con
     `aria-invalid`, animación de Enviar);
@@ -268,9 +271,9 @@ se pida cambiarlas.
   `EMAIL_PATTERN`, campos con puros espacios marcados inválidos en la isla y
   saltos de línea normalizados en el Worker antes de medir.
 - Tras enviar: el diálogo se reinicia al cerrarse (un error solo se limpia,
-  sin borrar lo escrito); `/contacto` se reinicia a los 4s y conserva el
+  sin borrar lo escrito); `/cotizar` se reinicia a los 4s y conserva el
   aviso "Mensaje enviado.".
-- Sin JS, el Worker responde con 303 a `/contacto/#enviado` o `#error`, y el
+- Sin JS, el Worker responde con 303 a `/cotizar/#enviado` o `#error`, y el
   aviso aparece con `:target`. El Worker exige la casilla de privacidad; el
   destinatario vive en el secreto `CONTACT_TO`.
 

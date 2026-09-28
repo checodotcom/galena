@@ -239,12 +239,15 @@ se pida cambiarlas.
   `.brand-caps` (así un lector de pantalla no lo deletrea).
 - Curvas compartidas: `--ease-out`, `--ease-in-out` y `--ease-drawer`. Las
   duraciones de la interfaz rondan 300–400ms.
+- Botones principales con flecha (`.cta-shift`: "Explora nuestros
+  servicios →" del hero y "Escríbenos →" del cierre): con hover o foco el
+  texto se desvanece y la flecha viaja al centro, sin cambiar el ancho.
 - CONTACTO del header: círculo de 44px con flecha ↗ que, con hover o foco,
   se estira y muestra "Contacto" rellenándose de tinta. En táctil se ve
   como píldora con el texto y sin flecha.
-- El header va en `z-index: 10`. En `/planes` solo se achica el logo al
-  hacer scroll (CONTACTO y el menú conservan sus 44px). En pantallas
-  angostas el logo baja hasta 19px para que todo quepa a 360px.
+- El header va en `z-index: 10` y no cambia de tamaño con el scroll en
+  ninguna página. En pantallas angostas el logo baja hasta 19px para que
+  todo quepa a 360px.
 - `html` lleva `scrollbar-gutter: stable`: al bloquear el scroll con un
   diálogo abierto, la página no brinca.
 

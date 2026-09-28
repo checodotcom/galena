@@ -486,24 +486,24 @@ html.lenis body {
   }
 }
 
-/* Con hover o foco, el texto se desvanece y la flecha viaja al centro del
-   botón; el cambio de color es el de .plan-cta--filled. Texto y flecha van
-   en un bloque centrado (.hero__cta-inner) con la flecha al final: el
+/* .cta-shift (hero y cierre): con hover o foco, el texto se desvanece y la
+   flecha viaja al centro del botón; el cambio de color es el de .plan-cta--filled. Texto y flecha van
+   en un bloque centrado (.cta-shift__inner) con la flecha al final: el
    centro del bloque es el centro del botón, y el botón conserva su ancho
    porque el texto solo se vuelve transparente. */
-.hero__cta-inner {
+.cta-shift__inner {
   position: relative;
   padding-right: 1.5em;
 }
 
-.hero__cta-label {
+.cta-shift__label {
   display: inline-block;
   transition:
     opacity 250ms var(--ease-out),
     translate 400ms var(--ease-out);
 }
 
-.hero__cta-arrow {
+.cta-shift__arrow {
   position: absolute;
   top: 50%;
   left: calc(100% - 1em);
@@ -514,22 +514,22 @@ html.lenis body {
 }
 
 @media (hover: hover) {
-  .hero__cta:hover .hero__cta-label {
+  .cta-shift:hover .cta-shift__label {
     opacity: 0;
     translate: -8px 0;
   }
 
-  .hero__cta:hover .hero__cta-arrow {
+  .cta-shift:hover .cta-shift__arrow {
     left: 50%;
     translate: -50% -50%;
   }
 }
 
-.hero__cta:focus-visible .hero__cta-label {
+.cta-shift:focus-visible .cta-shift__label {
   opacity: 0;
 }
 
-.hero__cta:focus-visible .hero__cta-arrow {
+.cta-shift:focus-visible .cta-shift__arrow {
   left: 50%;
   translate: -50% -50%;
 }
@@ -1021,6 +1021,16 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
 
 .about__more {
   margin: var(--space-1) 0 0;
+}
+
+/* Nosotros va centrado, como un solo bloque al centro de la sección. */
+.about .section-intro {
+  align-items: center;
+  text-align: center;
+}
+
+.about .section-title {
+  text-wrap: balance;
 }
 
 .audience__aside {
@@ -3183,34 +3193,6 @@ body:has(.site-menu[open]) .site-header__home {
       opacity: 1 !important;
     }
 
-    /* En /planes, el logo del header se achica un poco apenas empieza el
-       scroll — el título de la página se queda en su tamaño completo, solo
-       el header se compacta. CONTACTO y el menú no se achican: bajarían de
-       los 44px de área táctil. body:has(.pricing-page) detecta esa página
-       igual que body:has(.intro) detecta el home. */
-    body:has(.pricing-page) .site-header__logo {
-      transform-origin: 0 50%;
-      animation-name: pricing-header-shrink;
-      animation-fill-mode: both;
-      animation-timing-function: ease-out;
-      animation-timeline: scroll(root);
-      animation-range: 0svh 16svh;
-    }
-
-    /* En móvil, además, la barra del header en sí se compacta (menos
-       padding vertical) en el mismo rango: no solo se ven más chicos el
-       logo y CONTACT, el header realmente ocupa menos alto. En desktop hay
-       aire de sobra y no hace falta. */
-    @media (max-width: 767px) {
-      body:has(.pricing-page) .site-header {
-        animation-name: pricing-header-compact;
-        animation-fill-mode: both;
-        animation-timing-function: ease-out;
-        animation-timeline: scroll(root);
-        animation-range: 0svh 16svh;
-      }
-    }
-
     /* Timeline de proceso. Todo se mide contra una línea imaginaria a la
        mitad de la pantalla (50svh): en rangos "cover", el 0% es cuando el
        borde superior del elemento asoma por abajo, así que "cover 50svh" es
@@ -3389,20 +3371,6 @@ body:has(.site-menu[open]) .site-header__home {
 @keyframes hint-out {
   to {
     opacity: 0;
-  }
-}
-
-@keyframes pricing-header-shrink {
-  to {
-    transform: scale(0.86);
-  }
-}
-
-@keyframes pricing-header-compact {
-  to {
-    /* Solo el padding vertical: el horizontal lo sigue dando --gutter, así
-       que el logo no se corre de su columna al compactarse. */
-    padding-block: var(--space-1);
   }
 }
 
@@ -3662,8 +3630,8 @@ body:has(.site-menu[open]) .site-header__home {
   .send__label,
   .send__spinner,
   .send__check,
-  .hero__cta-label,
-  .hero__cta-arrow,
+  .cta-shift__label,
+  .cta-shift__arrow,
   .contact__label,
   .contact__icon,
   .cta-split__label,

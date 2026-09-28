@@ -414,27 +414,37 @@ html.lenis body {
   transform-origin: 50% 100%;
 }
 
-/* ---------- Sección plata ---------- */
+/* ---------- Hero ----------
+   Fondo plata (las persianas de la intro cierran en plata y el hero sigue
+   sin corte) con la banda en hueso. En móvil: contenido arriba y, debajo, la composición
+   geométrica ocupando el resto de la pantalla. Desde 1024px: contenido a la
+   izquierda y la composición cubre todo el hero a la derecha. */
 
 .hero {
+  position: relative;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  /* El bloque se ancla a la parte baja, no al centro óptico. */
-  justify-content: flex-end;
-  /* En pantallas bajas el título no se mete debajo del logo; si no cabe, la
-     sección crece en vez de encimarse. */
-  padding: var(--header-clearance) var(--gutter) var(--space-8);
+  padding: var(--header-clearance) var(--gutter) 0;
   background-color: var(--silver);
+  overflow: hidden;
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-4);
 }
 
 .hero__title {
-  /* ~16 caracteres reales por línea: la unidad ch mide el ancho del "0",
-     bastante más ancho que la media de Urbanist, así que 16ch daría ~22. */
-  max-width: 12ch;
+  /* ~18 caracteres reales por línea ("atendiendo aunque"): la unidad ch
+     mide el "0", más ancho que la media de Urbanist. */
+  max-width: 14ch;
   margin: 0;
   /* El término en svh solo gana en pantallas bajas (móvil horizontal). */
-  font-size: clamp(2.75rem, min(9vw, 14svh), 7.5rem);
+  font-size: clamp(2.75rem, min(6.5vw, 14svh), 6rem);
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
@@ -449,20 +459,233 @@ html.lenis body {
   line-height: 1.5;
 }
 
-/* El color, el subrayado y el hover vienen de .text-link; aquí solo la
-   separación respecto al párrafo de apoyo. */
-.hero__link {
-  /* El hero es una columna flex: sin esto el enlace se estira a todo el
-     ancho y su línea de hover también. */
-  align-self: flex-start;
+/* Mismas distancias que las acciones del cierre ("Platícanos sobre tu
+   negocio"): 48px desde el texto, 24px entre filas, 40px entre botón y
+   enlace, y la misma píldora de 56px con 48px de relleno. */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-6);
 }
 
-/* Mismo aire entre el texto y el enlace que en Nosotros (40px hasta la
-   línea del enlace). El enlace mide 44px de área táctil y se come
-   (44px - 1lh) / 2 arriba; se descuenta para que el aire visible sea el
-   mismo. Selector doble para ganarle al margen de .text-link. */
-.hero .hero__link.text-link {
-  margin-top: calc(var(--space-5) + (1lh - 44px) / 2);
+/* .plan-cta se declara más abajo, por eso el selector doble. El texto va
+   en una sola línea: en móvil el relleno baja a 40px para que quepa desde
+   360px; desde tablet es de 48px, igual que el botón del cierre. */
+.hero .hero__cta {
+  width: auto;
+  padding-inline: var(--space-5);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .hero .hero__cta {
+    padding-inline: var(--space-6);
+  }
+}
+
+/* Con hover o foco, el texto se desvanece y la flecha viaja al centro del
+   botón; el cambio de color es el de .plan-cta--filled. Texto y flecha van
+   en un bloque centrado (.hero__cta-inner) con la flecha al final: el
+   centro del bloque es el centro del botón, y el botón conserva su ancho
+   porque el texto solo se vuelve transparente. */
+.hero__cta-inner {
+  position: relative;
+  padding-right: 1.5em;
+}
+
+.hero__cta-label {
+  display: inline-block;
+  transition:
+    opacity 250ms var(--ease-out),
+    translate 400ms var(--ease-out);
+}
+
+.hero__cta-arrow {
+  position: absolute;
+  top: 50%;
+  left: calc(100% - 1em);
+  translate: 0 -50%;
+  transition:
+    left 400ms var(--ease-in-out),
+    translate 400ms var(--ease-in-out);
+}
+
+@media (hover: hover) {
+  .hero__cta:hover .hero__cta-label {
+    opacity: 0;
+    translate: -8px 0;
+  }
+
+  .hero__cta:hover .hero__cta-arrow {
+    left: 50%;
+    translate: -50% -50%;
+  }
+}
+
+.hero__cta:focus-visible .hero__cta-label {
+  opacity: 0;
+}
+
+.hero__cta:focus-visible .hero__cta-arrow {
+  left: 50%;
+  translate: -50% -50%;
+}
+
+/* Enlace secundario en versalitas. */
+.hero .hero__secondary {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Composición: en móvil llena el espacio bajo el contenido; las piezas se
+   ubican en porcentajes de esa caja. --v es la línea vertical, --h la
+   horizontal y --b el borde de los bloques de la derecha. */
+.hero__art {
+  --v: 57%;
+  --h: 30%;
+  --b: 77%;
+  --h-start: 50%;
+
+  position: relative;
+  flex: 1;
+  min-height: 28svh;
+  margin-inline: calc(-1 * var(--gutter));
+  margin-top: var(--space-2);
+}
+
+.hero__vline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--v);
+  width: 1px;
+  background-color: var(--hairline);
+}
+
+.hero__hline {
+  position: absolute;
+  top: var(--h);
+  right: 0;
+  left: var(--h-start);
+  height: 1px;
+  background-color: var(--hairline);
+}
+
+.hero__block {
+  position: absolute;
+  background-color: var(--bone);
+}
+
+/* Arriba a la derecha. */
+.hero__block--top {
+  top: 0;
+  right: 0;
+  left: var(--b);
+  height: var(--h);
+}
+
+/* Abajo, entre la línea vertical y el borde: el círculo rebota aquí.
+   Es contenedor de tamaño, así cqw/cqh miden el área donde se mueve. */
+.hero__block--bottom {
+  top: var(--h);
+  bottom: 0;
+  left: var(--v);
+  width: calc(var(--b) - var(--v));
+  container-type: size;
+}
+
+/* El eje X va en .hero__orbit y el Y en el círculo, cada uno lineal de ida
+   y vuelta con duraciones distintas: juntos dan el rebote en diagonal a
+   velocidad constante, como el logo de un DVD. En reposo (sin movimiento)
+   el círculo queda centrado en el bloque. */
+.hero__orbit {
+  display: block;
+  width: max-content;
+  translate: calc((100cqw - 100%) / 2) 0;
+}
+
+.hero__dot {
+  display: block;
+  width: clamp(28px, 4.4vw, 64px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: var(--ink);
+  translate: 0 calc((100cqh - 100%) / 2);
+}
+
+.hero__hint {
+  position: absolute;
+  right: 0;
+  bottom: var(--space-2);
+  left: 0;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  margin-inline: auto;
+  fill: none;
+  stroke: var(--ink-ghost);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    justify-content: center;
+    padding-bottom: var(--space-12);
+  }
+
+  .hero__content {
+    max-width: 60%;
+    padding-top: 0;
+  }
+
+  .hero__art {
+    --v: 72.8%;
+    --h: 31%;
+    --b: 86%;
+    --h-start: 68.4%;
+
+    position: absolute;
+    inset: 0;
+    margin: 0;
+  }
+
+  .hero__hint {
+    bottom: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__orbit {
+    animation: hero-bounce-x 7s linear -2s infinite alternate;
+  }
+
+  .hero__dot {
+    animation: hero-bounce-y 19s linear -6s infinite alternate;
+  }
+}
+
+@keyframes hero-bounce-x {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: calc(100cqw - 100%) 0;
+  }
+}
+
+@keyframes hero-bounce-y {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc(100cqh - 100%);
+  }
 }
 
 /* ---------- Secciones del home ----------
@@ -486,7 +709,7 @@ html.lenis body {
   margin-bottom: var(--space-8);
 }
 
-/* Un escalón debajo del titular del hero (7.5rem): el único <h1> del home
+/* Un escalón debajo del titular del hero (6rem): el único <h1> del home
    debe dominar. */
 .section-title {
   margin: 0;
@@ -2767,10 +2990,6 @@ body:has(.site-menu[open]) .site-header__home {
     bottom: var(--space-6);
   }
 
-  .hero {
-    padding-bottom: var(--space-12);
-  }
-
   .section-intro {
     margin-bottom: var(--space-12);
   }
@@ -3443,6 +3662,8 @@ body:has(.site-menu[open]) .site-header__home {
   .send__label,
   .send__spinner,
   .send__check,
+  .hero__cta-label,
+  .hero__cta-arrow,
   .contact__label,
   .contact__icon,
   .cta-split__label,

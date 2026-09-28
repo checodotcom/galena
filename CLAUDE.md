@@ -182,7 +182,12 @@ Resumen de lo construido y de las decisiones ya tomadas. Respétalas salvo que
 se pida cambiarlas.
 
 **Páginas**
-- `/` (home), en este orden: intro con persianas → hero → Servicios → Para
+- `/` (home), en este orden: intro con persianas → hero (plata, sin corte con las persianas: título,
+  apoyo, píldora "Explora nuestros servicios →" a `#servicios` y enlace
+  "Ver planes y precios"; a la derecha, o abajo en móvil, una composición de
+  líneas finas que parten la zona en cuatro bloques alternados como tablero
+  (hueso arriba a la derecha y abajo a la izquierda); un círculo negro
+  rebota como logo de DVD dentro del bloque de abajo) → Servicios → Para
   quién (frase + botón dividido `.cta-split` a `/planes`, que desde tablet
   rebota por toda la sección como el logo de un DVD, a velocidad
   constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Platícanos sobre tu negocio") →
@@ -204,7 +209,7 @@ se pida cambiarlas.
 - Secciones del home: `.section-intro` (eyebrow + `.section-title`,
   `clamp(2rem, 5.5vw, 4.5rem)`, un escalón debajo del titular del hero) y
   aire `--section-pad` arriba y abajo. Páginas internas: `--page-top`.
-- El enlace del hero baja a Servicios en el mismo home (`#servicios`).
+- El botón del hero baja a Servicios en el mismo home (`#servicios`).
 - En desktop (≥1024px), Proceso y Preguntas frecuentes van a dos columnas con
   el título fijo (`sticky`) a la izquierda.
 - Entrada suave, una sola vez: `Reveal.astro` + `data-reveal-group`; los

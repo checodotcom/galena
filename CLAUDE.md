@@ -73,6 +73,16 @@ aprobadas a "cero JS por defecto"; no se agrega otro JS global sin proponerlo.
   con transición de 400ms. Cada sección lo declara con
   `data-header-tone="clear|silver"`; sin atributo es hueso. Sin JS, hueso.
 - `SmoothScroll.astro`: scroll suave con Lenis (detalles abajo).
+- `CookieNotice.astro`: aviso de cookies (tarjeta tinta que sube desde
+  abajo 1.2s después de `load`, con "Ahora no" en plata y "Acepto →" en
+  hueso). Informa, no condiciona: la respuesta no cambia lo que se carga;
+  solo se guarda en `localStorage` (`galena-cookie-notice`) para no volver
+  a mostrarlo. Sin JS no aparece.
+- Google Analytics 4 (`G-90H5X6SS20`), inline en el `<head>` del layout y
+  solo en producción (`import.meta.env.PROD`): la cola `dataLayer` se arma
+  de inmediato y `gtag.js` se descarga tras el evento `load`, para no
+  afectar el render. Está declarado en `/privacidad` (secciones 2, 3, 4 y
+  7); cualquier rastreador nuevo exige actualizar el aviso.
 - `Cursor.astro`: cursor propio solo con mouse. Un punto sigue al mouse
   exacto y un círculo lo alcanza con lerp. El JS solo escribe `--dx/--dy` y
   `--x/--y`; los estados van en CSS con `:has()`:
@@ -203,7 +213,7 @@ se pida cambiarlas.
   "Hablemos" + formulario. En el menú y el header se llama "Cotizar".
 - `/nosotros`: título y texto de presentación; indexada y en el sitemap.
 - `/privacidad`: aviso integral redactado (LFPDPPP 2025; describe el
-  formulario, sin cookies ni analítica). Responsable: persona física,
+  formulario y Google Analytics). Responsable: persona física,
   Sergio Herrasti De la Garza. Indexada y en el sitemap. Si el sitio agrega analítica,
   newsletter o un CRM, hay que actualizar el aviso y su fecha.
 - `/galena` redirige 301 a `/nosotros` (en `worker/index.js`).

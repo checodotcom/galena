@@ -1,0 +1,71 @@
+---
+// Aviso de cookies: tarjeta tinta que sube desde abajo poco después de
+// cargar y se oculta con "Acepto" o "Ahora no". Informa, no condiciona: la
+// respuesta no cambia lo que se carga (Google Analytics va igual), solo se
+// guarda en el navegador para no volver a mostrarla. Sin JS no aparece.
+---
+
+<aside class="cookie" aria-label="Aviso de cookies" hidden>
+  <div class="cookie__body">
+    <p class="cookie__title">Medimos las visitas para mejorar el sitio.</p>
+    <p class="cookie__text">
+      Usamos cookies de Google Analytics solo para saber qué funciona. Sin publicidad.
+      <a class="text-link text-link--inline" href="/privacidad/">Aviso de privacidad</a>
+    </p>
+  </div>
+  <div class="cookie__actions">
+    <button class="cookie__btn cookie__btn--later" type="button" data-choice="later">
+      Ahora no
+    </button>
+    <button class="cookie__btn cookie__btn--accept" type="button" data-choice="accepted">
+      Acepto →
+    </button>
+  </div>
+</aside>
+
+<script>
+  const notice = document.querySelector<HTMLElement>('.cookie');
+  const KEY = 'galena-cookie-notice';
+
+  // localStorage puede no existir o lanzar error (modo privado estricto,
+  // almacenamiento bloqueado): en ese caso el aviso se muestra y ya.
+  const read = () => {
+    try {
+      return localStorage.getItem(KEY);
+    } catch {
+      return null;
+    }
+  };
+  const save = (value: string) => {
+    try {
+      localStorage.setItem(KEY, value);
+    } catch {}
+  };
+
+  if (notice && !read()) {
+    const open = () => {
+      notice.hidden = false;
+      // Forzar el cálculo del estado oculto para que la transición parta de
+      // ahí (sin depender de requestAnimationFrame, que se pausa en pestañas
+      // en segundo plano).
+      void notice.offsetWidth;
+      notice.classList.add('is-open');
+    };
+
+    // Un momento después de cargar: no compite con la intro ni con el hero.
+    const schedule = () => setTimeout(open, 1200);
+    if (document.readyState === 'complete') schedule();
+    else addEventListener('load', schedule, { once: true });
+
+    notice.addEventListener('click', (event) => {
+      const button = (event.target as Element).closest<HTMLButtonElement>('[data-choice]');
+      if (!button) return;
+      save(button.dataset.choice ?? 'later');
+      notice.classList.remove('is-open');
+      const done = () => (notice.hidden = true);
+      notice.addEventListener('transitionend', done, { once: true });
+      // Respaldo si no hay transición (movimiento reducido).
+      setTimeout(done, 700);
+    });
+  }
+</script>

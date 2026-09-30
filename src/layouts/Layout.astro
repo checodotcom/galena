@@ -7,6 +7,7 @@ import ContactDialog from '../components/ContactDialog.astro';
 import SmoothScroll from '../components/SmoothScroll.astro';
 import HeaderTone from '../components/HeaderTone.astro';
 import Cursor from '../components/Cursor.astro';
+import CookieNotice from '../components/CookieNotice.astro';
 import SiteMenu from '../components/SiteMenu.astro';
 
 interface Props {
@@ -65,6 +66,33 @@ const year = new Date().getFullYear();
         ]
       }
     </script>
+
+    <!-- Google Analytics 4, solo en producción. La cola (dataLayer) se arma
+         de inmediato, pero gtag.js se descarga hasta que la página terminó
+         de cargar: no compite con el render ni con el LCP. Si se agregan
+         otros rastreadores, actualizar /privacidad. -->
+    {
+      import.meta.env.PROD && (
+        <script is:inline>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', 'G-90H5X6SS20');
+          addEventListener(
+            'load',
+            () => {
+              const tag = document.createElement('script');
+              tag.async = true;
+              tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-90H5X6SS20';
+              document.head.append(tag);
+            },
+            { once: true },
+          );
+        </script>
+      )
+    }
   </head>
 
   <body>
@@ -114,5 +142,6 @@ const year = new Date().getFullYear();
     <SmoothScroll />
     <HeaderTone />
     <Cursor />
+    <CookieNotice />
   </body>
 </html>

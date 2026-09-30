@@ -3606,6 +3606,121 @@ body:has(.site-menu[open]) .site-header__home {
   }
 }
 
+/* ---------- Aviso de cookies (CookieNotice.astro) ----------
+   Tarjeta tinta fija abajo; sube con translate y baja al responder. En
+   móvil ocupa el ancho con 16px de margen y los botones se reparten el
+   ancho; desde tablet se limita a 56rem, alineada al margen izquierdo. */
+.cookie {
+  position: fixed;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  left: var(--space-2);
+  z-index: 30;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--space-3);
+  background-color: var(--ink);
+  color: var(--bone);
+  translate: 0 calc(100% + var(--space-4));
+  transition: translate 600ms var(--ease-out);
+}
+
+.cookie[hidden] {
+  display: none;
+}
+
+.cookie.is-open {
+  translate: 0 0;
+}
+
+.cookie__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cookie__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.cookie__text {
+  max-width: 52ch;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: rgb(228 223 214 / 0.75);
+}
+
+.cookie .text-link--inline {
+  color: var(--bone);
+}
+
+.cookie__actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.cookie__btn {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 999px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease-out);
+}
+
+.cookie__btn--later {
+  background-color: var(--silver);
+}
+
+.cookie__btn--accept {
+  background-color: var(--bone);
+}
+
+@media (hover: hover) {
+  .cookie__btn--later:hover {
+    background-color: var(--bone);
+  }
+
+  .cookie__btn--accept:hover {
+    background-color: var(--silver);
+  }
+}
+
+/* El anillo de foco global es tinta: sobre la tarjeta tinta no se vería. */
+.cookie :focus-visible {
+  outline-color: var(--bone);
+}
+
+@media (min-width: 768px) {
+  .cookie {
+    right: auto;
+    bottom: var(--space-3);
+    left: var(--gutter);
+    width: min(56rem, calc(100% - 2 * var(--gutter)));
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--space-3) var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .cookie__btn {
+    flex: none;
+  }
+}
+
 /* ---------- Cursor (Cursor.astro) ----------
    Solo con mouse y después del primer movimiento (html[data-cursor-ready]);
    sin JS o en táctil queda la flecha nativa. En reposo es un círculo
@@ -3846,6 +3961,8 @@ body:has(.site-menu[open]) .site-header__home {
   .send__label,
   .send__spinner,
   .send__check,
+  .cookie,
+  .cookie__btn,
   .cta-shift__label,
   .cta-shift__arrow,
   .contact__label,

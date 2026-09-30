@@ -1,8 +1,8 @@
 ---
 // Aviso de privacidad integral (Ley Federal de Protección de Datos
 // Personales en Posesión de los Particulares, DOF 20/03/2025). Describe lo
-// que el sitio hace hoy: el formulario de cotización (diálogo y /cotizar),
-// sin cookies ni analítica. Si eso cambia (analítica, newsletter, un CRM),
+// que el sitio hace hoy: el formulario de cotización (diálogo y /cotizar) y
+// Google Analytics. Si eso cambia (otra analítica, newsletter, un CRM),
 // hay que actualizar el aviso y su fecha.
 import Layout from '../layouts/Layout.astro';
 
@@ -48,6 +48,11 @@ const actualizado = '30 de septiembre de 2026';
         No solicitamos datos personales sensibles ni datos financieros. Te pedimos no
         incluirlos en tu mensaje.
       </p>
+      <p>
+        Además, al navegar el sitio se recaban de forma automática datos de uso: páginas
+        que visitas, tiempo en ellas, tipo de dispositivo y navegador, sitio de
+        procedencia y ubicación aproximada (ciudad o país). Ver la sección 7.
+      </p>
     </section>
 
     <section class="legal__section" aria-labelledby="finalidades">
@@ -57,10 +62,11 @@ const actualizado = '30 de septiembre de 2026';
         <li>Responder tu solicitud de cotización o contacto.</li>
         <li>Preparar y enviarte una propuesta de acuerdo con lo que nos cuentas.</li>
         <li>Dar seguimiento a esa conversación mientras decides.</li>
+        <li>Medir, con datos de uso agregados, cómo se usa el sitio para mejorarlo.</li>
       </ul>
       <p>
-        Estas son las únicas finalidades. No usamos tus datos para publicidad, no te
-        suscribimos a listas de correo y no los vendemos.
+        No usamos tus datos para publicidad, no te suscribimos a listas de correo y no
+        los vendemos.
       </p>
     </section>
 
@@ -77,6 +83,10 @@ const actualizado = '30 de septiembre de 2026';
           pueden ubicarse fuera de México.
         </li>
         <li>Nuestro proveedor de correo electrónico, donde recibimos tu mensaje.</li>
+        <li>
+          Google, a través de Google Analytics, que procesa los datos de uso del sitio.
+          Sus servidores pueden ubicarse fuera de México.
+        </li>
       </ul>
       <p>
         Solo compartiríamos tus datos sin tu consentimiento en los casos que la ley
@@ -125,8 +135,27 @@ const actualizado = '30 de septiembre de 2026';
     <section class="legal__section" aria-labelledby="cookies">
       <h2 id="cookies">7. Cookies y tecnologías de rastreo</h2>
       <p>
-        Este sitio no usa cookies propias ni herramientas de analítica o publicidad que te
-        rastreen. Si eso cambia, lo actualizaremos aquí antes de hacerlo.
+        Usamos Google Analytics para saber cuántas personas visitan el sitio y cómo lo
+        recorren. Para ello coloca cookies en tu navegador que registran los datos de uso
+        descritos en la sección 2. No las usamos para identificarte ni para mostrarte
+        publicidad.
+      </p>
+      <p>
+        Puedes bloquear o borrar las cookies desde la configuración de tu navegador, o
+        desactivar Google Analytics con el
+        <a
+          class="text-link text-link--inline"
+          href="https://tools.google.com/dlpage/gaoptout"
+          target="_blank"
+          rel="noopener"
+          >complemento de inhabilitación de Google<span class="sr-only">
+            (abre en otra pestaña)</span
+          ></a
+        >. El sitio seguirá funcionando igual.
+      </p>
+      <p>
+        También guardamos en tu navegador tu respuesta al aviso de cookies, solo para no
+        volver a mostrártelo.
       </p>
     </section>
 

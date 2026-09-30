@@ -38,7 +38,7 @@ const plans = [
     setup: '$497 USD',
     cta: 'Quiero este plan →',
     featured: true,
-    badge: 'Más elegido',
+    badge: 'Recomendado',
     includesLabel: 'Todo lo de Sitio Inteligente, más',
     includes: [
       'Hasta 5 páginas en tu sitio web',
@@ -122,6 +122,8 @@ const plans = [
                 <p class="plan__savings">Ahorras {plan.savings} USD al año</p>
                 <p class="plan__setup">
                   Implementación única: <span class="plan__setup-amount">{plan.setup}</span>
+                  <br />
+                  La mensualidad empieza 30 días después.
                 </p>
               </div>
 
@@ -148,7 +150,7 @@ const plans = [
     </section>
 
     <p class="pricing-page__note">
-      Precios en USD. En México se cotiza con IVA. <span class="pricing-page__note-glue">¿Necesitas algo a la medida? <button type="button" class="text-link" commandfor="contact-dialog" command="show-modal">Escríbenos →</button></span>
+      Precios en USD. En México se cotiza con IVA. Sin contratos forzosos ni cargos escondidos. <span class="pricing-page__note-glue">¿Necesitas algo a la medida? <button type="button" class="text-link" commandfor="contact-dialog" command="show-modal">Escríbenos →</button></span>
     </p>
   </div>
 </Layout>

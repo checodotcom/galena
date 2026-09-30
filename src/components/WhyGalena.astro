@@ -1,0 +1,33 @@
+---
+// Por qué Galena: tres datos reales justo después del hero (autoridad y
+// diferencia). Cifras grandes en Urbanist fina, sin íconos. Solo se publica
+// lo verificable: los 6 años son de experiencia del equipo, no de la empresa.
+const facts = [
+  {
+    value: '+6 años',
+    text: 'de experiencia del equipo en marketing digital, conversiones y desarrollo web.',
+  },
+  {
+    value: '1–2 semanas',
+    text: 'de la primera llamada a tu sistema funcionando.',
+  },
+  {
+    value: '1 sola agencia',
+    text: 'para tu sitio, automatizaciones y agentes de IA, sin coordinar proveedores.',
+  },
+];
+---
+
+<section class="why" aria-labelledby="why-title">
+  <h2 class="sr-only" id="why-title">Por qué Galena</h2>
+  <ul class="why__list" data-reveal-group>
+    {
+      facts.map((fact) => (
+        <li class="why__item">
+          <span class="why__value">{fact.value}</span>
+          <span class="why__text">{fact.text}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

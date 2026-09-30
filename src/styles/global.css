@@ -699,6 +699,71 @@ html.lenis body {
    último texto): --section-pad, más amplio en desktop. Y el mismo
    encabezado: eyebrow + título grande. */
 
+/* ---------- Por qué Galena ----------
+   Tres datos entre líneas finas: uno debajo del otro en móvil, en tres
+   columnas desde tablet. Sin aire abajo: Servicios ya lo pone arriba. */
+.why {
+  padding: var(--section-pad) var(--gutter) 0;
+}
+
+.why__list {
+  display: grid;
+  container-type: inline-size;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--hairline);
+}
+
+.why__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-block: var(--space-5);
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* Cada cifra en una línea y las tres del mismo tamaño: se mide contra el
+   ancho de la lista (cqi). "1 sola agencia", la más larga, mide ~7em. */
+.why__value {
+  font-size: clamp(2rem, 11cqi, 4rem);
+  white-space: nowrap;
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.why__text {
+  max-width: 32ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 768px) {
+  .why__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .why__value {
+    font-size: clamp(2rem, 3.4cqi, 4rem);
+  }
+
+  .why__item {
+    padding: var(--space-6) var(--space-4);
+    border-bottom: 0;
+  }
+
+  .why__item:first-child {
+    padding-left: 0;
+  }
+
+  .why__item + .why__item {
+    border-left: 1px solid var(--hairline);
+  }
+}
+
 .services,
 .audience,
 .process,
@@ -1020,9 +1085,14 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
   margin-bottom: 0;
 }
 
-.audience .section-title,
 .about .section-title {
   max-width: 16ch;
+}
+
+/* Frase más larga (canales incluidos): más ancho para no pasar de 3–4
+   líneas. */
+.audience .section-title {
+  max-width: 22ch;
 }
 
 .about__more {
@@ -1186,6 +1256,7 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
   }
 }
 
+.audience__text,
 .about__text {
   max-width: 42ch;
   margin: 0;
@@ -1659,14 +1730,6 @@ main {
   display: block;
 }
 
-.contact-page__form-title {
-  margin: 0 0 var(--space-5);
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 200;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
 /* Estilo de línea: lo comparten la página /cotizar y el diálogo de
    contacto. Doble clase para ganarle a .contact-form, que va más abajo. */
 .contact-form.contact-form--line {
@@ -1682,6 +1745,19 @@ main {
 
 .contact-dialog__title {
   padding-right: var(--space-6);
+}
+
+/* Invitación a quien duda, bajo el título del formulario. */
+.contact-form__doubts {
+  max-width: 42ch;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.contact-page__doubts {
+  margin-bottom: var(--space-5);
 }
 
 .contact-form--line .contact-form__fields {
@@ -3125,7 +3201,7 @@ body:has(.site-menu[open]) .site-header__home {
   /* Para quién: frase a la izquierda; texto y botón a la derecha, abajo. */
   .audience {
     display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
     column-gap: var(--space-8);
     align-items: end;
   }

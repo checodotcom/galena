@@ -19,9 +19,12 @@ const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
   </div>
 
   <section class="contact-page__form" aria-labelledby="contact-page-form-title">
-    <h2 class="contact-page__form-title" id="contact-page-form-title">
-      Llena el formulario a continuación.
-    </h2>
+    <!-- Título solo para lectores de pantalla; a la vista, la invitación a
+         quien duda (empatía táctica). -->
+    <h2 class="sr-only" id="contact-page-form-title">Formulario de cotización</h2>
+    <p class="contact-form__doubts contact-page__doubts">
+      ¿Tienes dudas? Cuéntanoslas: hay opciones para empezar con menos riesgo.
+    </p>
 
     <!-- Solo para envíos sin JS: el servidor regresa aquí con #enviado o
          #error y el aviso correspondiente aparece con :target. -->
@@ -105,7 +108,7 @@ const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
             name="message"
             rows="3"
             maxlength="5000"
-            placeholder="Platícanos tu idea"
+            placeholder="¿Qué quieres lograr? Ej. más citas o responder más rápido"
             aria-describedby="page-message-error"
             required></textarea>
           <p class="field__error" id="page-message-error">Escribe tu mensaje.</p>

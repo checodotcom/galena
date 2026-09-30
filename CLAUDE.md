@@ -187,8 +187,11 @@ se pida cambiarlas.
   "Ver planes y precios"; a la derecha, o abajo en móvil, una composición de
   líneas finas que parten la zona en cuatro bloques alternados como tablero
   (hueso arriba a la derecha y abajo a la izquierda); un círculo negro
-  rebota como logo de DVD dentro del bloque de abajo) → Servicios → Para
-  quién (frase + botón dividido `.cta-split` a `/planes`, que desde tablet
+  rebota como logo de DVD dentro del bloque de abajo) → Por qué Galena
+  (`WhyGalena.astro`: "+6 años", "1–2 semanas", "1 sola agencia" en
+  cifras grandes entre líneas finas) → Servicios → Para
+  quién (negocios locales por WhatsApp, redes y teléfono; línea de
+  pérdida → ganancia; botón dividido `.cta-split` a `/planes`, que desde tablet
   rebota por toda la sección como el logo de un DVD, a velocidad
   constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Platícanos sobre tu negocio") →
   Nosotros → Preguntas frecuentes. Cada sección es un componente en
@@ -276,6 +279,21 @@ se pida cambiarlas.
 - Sin JS, el Worker responde con 303 a `/cotizar/#enviado` o `#error`, y el
   aviso aparece con `:target`. El Worker exige la casilla de privacidad; el
   destinatario vive en el secreto `CONTACT_TO`.
+
+**Persuasión con honestidad**
+- Principios aplicados: autoridad (+6 años del equipo, no de la empresa,
+  fundada en 2026), posicionamiento (negocios locales; "todo en uno, una
+  sola agencia, en 1–2 semanas"), framing mixto (la pérdida nombra el
+  problema, la ganancia promete), statu quo (la mensualidad empieza 30 días
+  después de la implementación: público en /planes y FAQ), empatía táctica
+  (pregunta "¿Y si no estoy seguro…?" y la línea de dudas en los
+  formularios) y mirroring (el placeholder pide el objetivo con sus
+  palabras).
+- Nada de prueba social, cifras ni urgencia que no sean reales. El plan 02
+  dice "Recomendado", no "Más elegido", hasta tener datos. Sin
+  testimonios, logos ni casos por ahora (no hay placeholders).
+- La prueba de 14 días y el pago 50/50 de la implementación son solo para
+  negociar con quien duda: no van en el sitio.
 
 **Pendientes**
 - Copy en borrador por aprobar: Servicios, Para quién, Cierre y Preguntas

@@ -24,7 +24,13 @@ const plans = [
       'Sitio web profesional (hasta 3 páginas)',
       'Dominio, hosting y mantenimiento',
       'Formularios con seguimiento automático',
-      'Chat en el sitio conectado a WhatsApp',
+      {
+        text: 'Chat en el sitio conectado a WhatsApp',
+        // En anual los 30 USD de la conexión van de cortesía y no se
+        // mencionan; los 15 USD mensuales sí aplican.
+        note: 'La conexión a WhatsApp tiene un costo de 30 USD, más 15 USD mensuales adicionales.',
+        noteAnnual: 'La conexión a WhatsApp tiene un costo adicional de 15 USD mensuales.',
+      },
       'Bandeja única de mensajes',
     ],
   },
@@ -92,7 +98,10 @@ const plans = [
           </label>
           <span class="period__label">Anual</span>
         </div>
-        <p class="period__note">Obtén 2 meses gratis en la modalidad anual</p>
+        <div class="period__notes">
+          <p class="period__note">Recibe 2 mensualidades de descuento en la modalidad anual</p>
+          <p class="period__note">La primera mensualidad empieza 30 días después de la implementación.</p>
+        </div>
       </div>
 
       <div class="plans">
@@ -122,8 +131,6 @@ const plans = [
                 <p class="plan__savings">Ahorras {plan.savings} USD al año</p>
                 <p class="plan__setup">
                   Implementación única: <span class="plan__setup-amount">{plan.setup}</span>
-                  <br />
-                  La mensualidad empieza 30 días después.
                 </p>
               </div>
 
@@ -140,7 +147,17 @@ const plans = [
               <div class="plan__includes">
                 <p class="plan__includes-label">{plan.includesLabel}</p>
                 <ul class="plan__list">
-                  {plan.includes.map((item) => <li>{item}</li>)}
+                  {plan.includes.map((item) =>
+                    typeof item === 'string' ? (
+                      <li>{item}</li>
+                    ) : (
+                      <li>
+                        {item.text}
+                        <span class="plan__note plan__note--monthly">{item.note}</span>
+                        <span class="plan__note plan__note--annual">{item.noteAnnual}</span>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
             </article>

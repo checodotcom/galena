@@ -2162,6 +2162,11 @@ main {
   background-color: var(--bone);
 }
 
+.period__notes {
+  display: grid;
+  gap: var(--space-1);
+}
+
 .period__note {
   margin: 0;
   font-size: 0.875rem;
@@ -2405,6 +2410,25 @@ main {
 .plan__list li {
   padding: var(--space-2) 0;
   border-top: 1px solid var(--hairline);
+}
+
+/* Aviso de costo bajo un punto de la lista, con su versión mensual y su
+   versión anual (en anual la conexión va de cortesía y no se menciona). */
+.plan__note {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.plan__note--annual,
+.pricing-page:has(#period-annual:checked) .plan__note--monthly {
+  display: none;
+}
+
+.pricing-page:has(#period-annual:checked) .plan__note--annual {
+  display: block;
 }
 
 /* ---------- Footer ---------- */

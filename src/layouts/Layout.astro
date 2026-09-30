@@ -67,25 +67,22 @@ const year = new Date().getFullYear();
       }
     </script>
 
-    <!-- Google Analytics 4, solo en producción. La cola (dataLayer) se arma
-         de inmediato, pero gtag.js se descarga hasta que la página terminó
-         de cargar: no compite con el render ni con el LCP. Si se agregan
-         otros rastreadores, actualizar /privacidad. -->
+    <!-- Google Tag Manager (GTM-PBQSJZBJ), solo en producción. Todas las
+         etiquetas (GA4 incluida) se administran desde GTM. La cola
+         (dataLayer) se arma de inmediato, pero gtm.js se descarga hasta que
+         la página terminó de cargar: no compite con el render ni con el LCP.
+         Si en GTM se agregan rastreadores nuevos, actualizar /privacidad. -->
     {
       import.meta.env.PROD && (
         <script is:inline>
           window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-90H5X6SS20');
+          dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
           addEventListener(
             'load',
             () => {
               const tag = document.createElement('script');
               tag.async = true;
-              tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-90H5X6SS20';
+              tag.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-PBQSJZBJ';
               document.head.append(tag);
             },
             { once: true },
@@ -96,6 +93,18 @@ const year = new Date().getFullYear();
   </head>
 
   <body>
+    {
+      import.meta.env.PROD && (
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-PBQSJZBJ"
+            height="0"
+            width="0"
+            style="display:none;visibility:hidden"
+            title="Google Tag Manager"></iframe>
+        </noscript>
+      )
+    }
     <header class="site-header">
       <a class="site-header__home" href="/" aria-label="Galena, inicio">
         <img

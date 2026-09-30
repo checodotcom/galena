@@ -78,11 +78,13 @@ aprobadas a "cero JS por defecto"; no se agrega otro JS global sin proponerlo.
   hueso). Informa, no condiciona: la respuesta no cambia lo que se carga;
   solo se guarda en `localStorage` (`galena-cookie-notice`) para no volver
   a mostrarlo. Sin JS no aparece.
-- Google Analytics 4 (`G-90H5X6SS20`), inline en el `<head>` del layout y
-  solo en producción (`import.meta.env.PROD`): la cola `dataLayer` se arma
-  de inmediato y `gtag.js` se descarga tras el evento `load`, para no
-  afectar el render. Está declarado en `/privacidad` (secciones 2, 3, 4 y
-  7); cualquier rastreador nuevo exige actualizar el aviso.
+- Google Tag Manager (`GTM-PBQSJZBJ`), inline en el `<head>` del layout
+  (más el `<noscript>` al inicio del `<body>`) y solo en producción
+  (`import.meta.env.PROD`): la cola `dataLayer` se arma de inmediato y
+  `gtm.js` se descarga tras el evento `load`. GA4 (`G-90H5X6SS20`) vive
+  dentro de GTM, no en el código: no volver a agregar el `gtag` directo o
+  las visitas se duplican. Está declarado en `/privacidad` (secciones 2,
+  3, 4 y 7); cualquier etiqueta nueva que rastree exige actualizar el aviso.
 - `Cursor.astro`: cursor propio solo con mouse. Un punto sigue al mouse
   exacto y un círculo lo alcanza con lerp. El JS solo escribe `--dx/--dy` y
   `--x/--y`; los estados van en CSS con `:has()`:

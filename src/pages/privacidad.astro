@@ -1,15 +1,142 @@
 ---
-// Aviso de privacidad: pendiente del texto definitivo de Galena.
-// Mientras esté vacía, noindex y fuera del sitemap (astro.config.mjs).
+// Aviso de privacidad integral (Ley Federal de Protección de Datos
+// Personales en Posesión de los Particulares, DOF 20/03/2025). Describe lo
+// que el sitio hace hoy: el formulario de cotización (diálogo y /cotizar),
+// sin cookies ni analítica. Si eso cambia (analítica, newsletter, un CRM),
+// hay que actualizar el aviso y su fecha.
 import Layout from '../layouts/Layout.astro';
+
+const responsable = 'Sergio Herrasti De la Garza';
+const correo = 'hola@galena.agency';
+const actualizado = '30 de septiembre de 2026';
 ---
 
 <Layout
   title="Aviso de privacidad — Galena"
-  description="Aviso de privacidad de Galena."
-  noindex
+  description="Cómo trata Galena los datos personales que compartes en el formulario de cotización."
 >
-  <section class="page-stub">
-    <h1 class="section-title">Aviso de privacidad</h1>
-  </section>
+  <article class="legal">
+    <header class="legal__head">
+      <h1 class="section-title">Aviso de privacidad</h1>
+      <p class="legal__meta">Última actualización: {actualizado}</p>
+    </header>
+
+    <section class="legal__section" aria-labelledby="responsable">
+      <h2 id="responsable">1. Quién es responsable de tus datos</h2>
+      <p>
+        {responsable}, que opera comercialmente como <span class="brand-caps">Galena</span>,
+        con domicilio en Ciudad de México, México, es responsable del tratamiento de los
+        datos personales que nos proporcionas a través de galena.agency.
+      </p>
+      <p>
+        Para cualquier asunto relacionado con este aviso o con tus datos, escríbenos a
+        <a class="text-link text-link--inline" href={`mailto:${correo}`}>{correo}</a>.
+      </p>
+    </section>
+
+    <section class="legal__section" aria-labelledby="datos">
+      <h2 id="datos">2. Qué datos recabamos</h2>
+      <p>Cuando llenas el formulario de cotización recabamos:</p>
+      <ul>
+        <li>Nombre.</li>
+        <li>Correo electrónico.</li>
+        <li>Nombre de tu empresa o negocio (opcional).</li>
+        <li>El plan que te interesa, si eliges uno.</li>
+        <li>El mensaje que nos escribes.</li>
+      </ul>
+      <p>
+        No solicitamos datos personales sensibles ni datos financieros. Te pedimos no
+        incluirlos en tu mensaje.
+      </p>
+    </section>
+
+    <section class="legal__section" aria-labelledby="finalidades">
+      <h2 id="finalidades">3. Para qué los usamos</h2>
+      <p>Usamos tus datos únicamente para:</p>
+      <ul>
+        <li>Responder tu solicitud de cotización o contacto.</li>
+        <li>Preparar y enviarte una propuesta de acuerdo con lo que nos cuentas.</li>
+        <li>Dar seguimiento a esa conversación mientras decides.</li>
+      </ul>
+      <p>
+        Estas son las únicas finalidades. No usamos tus datos para publicidad, no te
+        suscribimos a listas de correo y no los vendemos.
+      </p>
+    </section>
+
+    <section class="legal__section" aria-labelledby="terceros">
+      <h2 id="terceros">4. Con quién los compartimos</h2>
+      <p>
+        No transferimos tus datos a terceros. Para operar el sitio nos apoyamos en
+        proveedores que los procesan solo por nuestra cuenta y bajo nuestras
+        instrucciones:
+      </p>
+      <ul>
+        <li>
+          Cloudflare, que aloja el sitio y procesa el envío del formulario. Sus servidores
+          pueden ubicarse fuera de México.
+        </li>
+        <li>Nuestro proveedor de correo electrónico, donde recibimos tu mensaje.</li>
+      </ul>
+      <p>
+        Solo compartiríamos tus datos sin tu consentimiento en los casos que la ley
+        permite, por ejemplo, por requerimiento de una autoridad competente.
+      </p>
+    </section>
+
+    <section class="legal__section" aria-labelledby="conservacion">
+      <h2 id="conservacion">5. Cuánto tiempo los conservamos</h2>
+      <p>
+        Conservamos tus datos mientras sean necesarios para atender tu solicitud y darle
+        seguimiento. Si no llegamos a trabajar juntos, los eliminamos después de 12 meses
+        sin contacto. Si nos contratas, se conservan durante la relación comercial y el
+        plazo que exijan las obligaciones legales y fiscales.
+      </p>
+    </section>
+
+    <section class="legal__section" aria-labelledby="derechos">
+      <h2 id="derechos">6. Tus derechos (ARCO)</h2>
+      <p>
+        Puedes acceder a tus datos, rectificarlos si son inexactos, cancelarlos u oponerte
+        a su tratamiento. También puedes revocar tu consentimiento o pedir que limitemos su
+        uso.
+      </p>
+      <p>
+        Para hacerlo, escribe a
+        <a class="text-link text-link--inline" href={`mailto:${correo}`}>{correo}</a>
+        con el asunto "Derechos ARCO" e incluye:
+      </p>
+      <ul>
+        <li>Tu nombre y un correo para responderte.</li>
+        <li>Un documento que acredite tu identidad (o la de tu representante).</li>
+        <li>Qué derecho quieres ejercer y sobre qué datos.</li>
+      </ul>
+      <p>
+        Te responderemos en un máximo de 20 días hábiles y, si procede, haremos efectiva tu
+        solicitud dentro de los 15 días hábiles siguientes.
+      </p>
+      <p>
+        Si consideras que tu derecho a la protección de datos ha sido vulnerado, puedes
+        acudir a la autoridad competente en la materia, la Secretaría Anticorrupción y Buen
+        Gobierno.
+      </p>
+    </section>
+
+    <section class="legal__section" aria-labelledby="cookies">
+      <h2 id="cookies">7. Cookies y tecnologías de rastreo</h2>
+      <p>
+        Este sitio no usa cookies propias ni herramientas de analítica o publicidad que te
+        rastreen. Si eso cambia, lo actualizaremos aquí antes de hacerlo.
+      </p>
+    </section>
+
+    <section class="legal__section" aria-labelledby="cambios">
+      <h2 id="cambios">8. Cambios a este aviso</h2>
+      <p>
+        Podemos actualizar este aviso cuando cambien nuestros servicios o la ley. Siempre
+        publicaremos la versión vigente en esta página, con su fecha de última
+        actualización.
+      </p>
+    </section>
+  </article>
 </Layout>

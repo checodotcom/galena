@@ -202,8 +202,10 @@ se pida cambiarlas.
 - `/cotizar` (antes `/contacto`, que redirige 301 en `worker/index.js`):
   "Hablemos" + formulario. En el menú y el header se llama "Cotizar".
 - `/nosotros`: título y texto de presentación; indexada y en el sitemap.
-- `/privacidad`: vacía, con `noindex` y fuera del sitemap (filtro en
-  `astro.config.mjs`). Al construirla, quitar ambas cosas.
+- `/privacidad`: aviso integral redactado (LFPDPPP 2025; describe el
+  formulario, sin cookies ni analítica). Responsable: persona física,
+  Sergio Herrasti De la Garza. Indexada y en el sitemap. Si el sitio agrega analítica,
+  newsletter o un CRM, hay que actualizar el aviso y su fecha.
 - `/galena` redirige 301 a `/nosotros` (en `worker/index.js`).
 - `404`: Cloudflare la sirve (`not_found_handling` en `wrangler.jsonc`).
   Máquina de escribir con GSAP, dos vueltas y se detiene; es la única página
@@ -298,7 +300,7 @@ se pida cambiarlas.
 **Pendientes**
 - Copy en borrador por aprobar: Servicios, Para quién, Cierre y Preguntas
   frecuentes.
-- Construir el aviso de privacidad (`/privacidad`).
+- Revisión legal del aviso de privacidad por un abogado (recomendable).
 - GSAP está instalado para componentes futuros: cada uno es una isla que se
   carga solo en su página. Si usa ScrollTrigger, debe compartir el reloj de
   animación con Lenis.

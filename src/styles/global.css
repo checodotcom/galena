@@ -1672,6 +1672,80 @@ main {
   padding: var(--page-top) var(--gutter) var(--section-pad);
 }
 
+/* ---------- Aviso de privacidad ----------
+   Texto largo: columna de lectura de ~65 caracteres, subtítulos a la escala
+   de los pasos del proceso y listas con guion fino. */
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 44rem;
+  padding: var(--page-top) var(--gutter) var(--section-pad);
+}
+
+.legal__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.legal__head .section-title {
+  margin: 0;
+}
+
+.legal__meta {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.legal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.legal__section h2 {
+  margin: 0 0 var(--space-1);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.legal__section p,
+.legal__section li {
+  max-width: 65ch;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.legal__section ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legal__section li {
+  position: relative;
+  padding-left: var(--space-3);
+}
+
+.legal__section li::before {
+  content: '';
+  position: absolute;
+  top: 0.85em;
+  left: 0;
+  width: 10px;
+  height: 1px;
+  background-color: var(--ink-line);
+}
+
 .page-stub__text {
   display: flex;
   flex-direction: column;
@@ -2010,6 +2084,7 @@ main {
 .text-link:not(.text-link--inline),
 .site-footer__email,
 .site-menu__email,
+.site-menu__legal,
 .not-found__home-label {
   position: relative;
   text-decoration: none;
@@ -2027,6 +2102,7 @@ main {
 .text-link:not(.text-link--inline)::after,
 .site-footer__email::after,
 .site-menu__email::after,
+.site-menu__legal::after,
 .not-found__home-label::after {
   content: '';
   position: absolute;
@@ -2043,6 +2119,7 @@ main {
 .text-link:not(.text-link--inline):focus-visible::after,
 .site-footer__email:focus-visible::after,
 .site-menu__email:focus-visible::after,
+.site-menu__legal:focus-visible::after,
 .not-found__home:focus-visible .not-found__home-label::after {
   transform: scaleX(1);
 }
@@ -2055,6 +2132,7 @@ main {
   .text-link:not(.text-link--inline):hover::after,
   .site-footer__email:hover::after,
   .site-menu__email:hover::after,
+  .site-menu__legal:hover::after,
   .not-found__home:hover .not-found__home-label::after {
     transform: scaleX(1);
   }
@@ -2992,10 +3070,15 @@ body:has(.site-menu[open]) .site-header__home {
 
 /* Franja plata abajo, como el footer del sitio: llega a los bordes del
    panel anulando su padding. */
-/* Solo el correo, abajo a la izquierda, sin franja ni copyright. */
+/* Correo a la izquierda y Política de privacidad a la derecha, sin franja
+   ni copyright. Los dos llevan el mismo subrayado animado al pasar el
+   mouse. */
 .site-menu__bottom {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
+  gap: 0 var(--space-3);
   margin-top: auto;
   padding-top: var(--space-3);
   font-size: 0.75rem;
@@ -3003,7 +3086,8 @@ body:has(.site-menu[open]) .site-header__home {
   text-transform: uppercase;
 }
 
-.site-menu__email {
+.site-menu__email,
+.site-menu__legal {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -3752,6 +3836,7 @@ body:has(.site-menu[open]) .site-header__home {
   .text-link::after,
   .site-footer__email::after,
   .site-menu__email::after,
+  .site-menu__legal::after,
   .not-found__home-label::after,
   .not-found__home-arrow,
   .period__track,

@@ -5,10 +5,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://galena.agency',
   integrations: [
-    sitemap({
-      // Páginas aún vacías: fuera del sitemap hasta que se construyan.
-      filter: (page) => !page.endsWith('/privacidad/'),
-    }),
+    sitemap(),
   ],
   // Con dos o más páginas conviene un archivo de CSS enlazado y no incrustado:
   // el navegador lo descarga una vez y lo reutiliza en cada navegación en vez

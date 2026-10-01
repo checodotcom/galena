@@ -2748,6 +2748,9 @@ textarea.field__input {
   display: inline-grid;
   flex-shrink: 0;
   place-items: center;
+  /* La columna no crece con la etiqueta: al encogerse a 56px, la palomita
+     queda centrada en el círculo y no corrida por el ancho del texto. */
+  grid-template-columns: minmax(0, 1fr);
   /* Misma presencia que "Quiero este plan": 56px de alto y borde --ink-line. */
   width: 176px;
   height: 56px;

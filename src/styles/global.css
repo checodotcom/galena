@@ -80,13 +80,19 @@ html {
   scrollbar-gutter: stable;
 }
 
-/* Safari en iPhone pinta la franja bajo la barra de herramientas (la zona
-   segura inferior) con el fondo de <html>. Como el footer es lo último de
-   la página, ahí va plata para que se vea una sola pieza. Solo en táctil:
-   en escritorio, scrollbar-gutter dejaría una tira plata junto a la página. */
+/* Safari en iPhone pinta con el fondo de la página dos franjas: la de arriba
+   (hora y batería) y la de abajo (bajo su barra de herramientas). Arriba va
+   hueso, como el header; abajo, plata, como el footer. Para tener ambos, el
+   fondo es hueso en toda la página menos el último píxel, y plata de base:
+   lo que queda debajo de la página (la franja inferior) sale plata. Son dos
+   rellenos planos, no un degradado. Solo en táctil: en escritorio,
+   scrollbar-gutter dejaría una tira plata junto a la página. */
 @media (hover: none) and (pointer: coarse) {
-  html {
-    background-color: var(--silver);
+  html,
+  body {
+    background:
+      linear-gradient(var(--bone), var(--bone)) top / 100% calc(100% - 1px) no-repeat,
+      var(--silver);
   }
 }
 

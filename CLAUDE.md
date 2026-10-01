@@ -32,8 +32,9 @@ view transitions nativas entre documentos, solo con CSS en el archivo global:
 ```
 
 - No usar `<ClientRouter />` de Astro: convierte el sitio en SPA y agrega JS.
-- Sin soporte (Firefox) la navegación es normal. El fondo `--bone` va en `html`
-  además de `body`, para que ningún cuadro intermedio se pinte blanco.
+- Sin soporte (Firefox) la navegación es normal. `html` y `<main>` llevan
+  `--bone` (el `body` es `--silver`, el color del footer), para que ningún
+  cuadro intermedio se pinte blanco.
 - Con `prefers-reduced-motion: reduce`, la transición se desactiva.
 
 **Prefetch:** con Speculation Rules en el `<head>` del layout, no con el
@@ -271,6 +272,11 @@ se pida cambiarlas.
   todo quepa a 360px.
 - Footer siempre al fondo: `body` es columna de `min-height: 100dvh` y
   `main` crece (`flex: 1`), así en páginas cortas no queda hueco debajo.
+- Safari en iPhone pinta con el fondo de la página las franjas de arriba
+  (hora y batería) y de abajo (bajo su barra de herramientas). Por eso en
+  táctil `html` y `body` llevan hueso sobre plata salvo el último píxel: dos
+  rellenos planos de color, no un degradado visible. No quitarlo. Solo en
+  táctil: en escritorio, `scrollbar-gutter` dejaría una tira plata.
 - `html` lleva `scrollbar-gutter: stable`: al bloquear el scroll con un
   diálogo abierto, la página no brinca.
 
@@ -324,7 +330,7 @@ se pida cambiarlas.
 
 - Antes de escribir código para algo ambiguo, **pregunta**. No inventes copy,
   secciones ni features que no pedí.
-- Haz **un cambio a la vez** y explícame qué cambiaste en una o dos líneas.
+- Haz **un cambio a la vez** y explícame brevemente qué cambiaste y por qué.
 - No agregues dependencias sin proponerlas antes y decirme qué resuelven.
 - No crees archivos README, de documentación ni de configuración que no pedí.
 - Si algo que pido empeora el rendimiento o la accesibilidad, dímelo en vez de

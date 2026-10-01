@@ -5,7 +5,8 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://galena.agency',
   integrations: [
-    sitemap(),
+    // /privacidad lleva noindex: no debe aparecer en el sitemap.
+    sitemap({ filter: (page) => !page.includes('/privacidad') }),
   ],
   // Con dos o más páginas conviene un archivo de CSS enlazado y no incrustado:
   // el navegador lo descarga una vez y lo reutiliza en cada navegación en vez

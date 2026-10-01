@@ -13,12 +13,46 @@ const title = 'Galena — Agencia digital';
 const description =
   'Sitio web, automatizaciones y agentes para optimizar las conversiones de tu negocio.';
 
+// Datos estructurados: solo lo verificable (sin teléfono, reseñas ni redes).
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'ProfessionalService',
+      '@id': 'https://galena.agency/#organization',
+      name: 'Galena',
+      url: 'https://galena.agency/',
+      logo: 'https://galena.agency/galena-logo-negro.svg',
+      email: 'hola@galena.agency',
+      description,
+      foundingDate: '2026',
+      address: { '@type': 'PostalAddress', addressLocality: 'Ciudad de México', addressCountry: 'MX' },
+      areaServed: { '@type': 'Country', name: 'México' },
+      knowsAbout: [
+        'Sitios web',
+        'Automatizaciones',
+        'Gestión de clientes (CRM)',
+        'Agenda de citas',
+        'Chat y chatbots con inteligencia artificial',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://galena.agency/#website',
+      url: 'https://galena.agency/',
+      name: 'Galena',
+      inLanguage: 'es-MX',
+      publisher: { '@id': 'https://galena.agency/#organization' },
+    },
+  ],
+};
+
 // Persianas de la transición hueso → plata. El CSS usa 15 en móvil y 10 en
 // desktop; se renderizan todas y las sobrantes se ocultan por breakpoint.
 const blinds = 15;
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} jsonLd={jsonLd}>
   <div class="intro" data-header-tone="clear">
     <!-- Antes que las persianas en el DOM: las barras la tapan al cerrarse. -->
     <svg class="intro__hint" viewBox="0 0 24 24" aria-hidden="true">

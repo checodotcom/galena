@@ -114,6 +114,8 @@ páginas.
   `clip` al pausar, para respetar `scrollbar-gutter: stable`.
 - No usar `scroll-behavior: smooth` en CSS: choca con Lenis.
 
+**Datos estructurados:** el home lleva JSON-LD (`ProfessionalService` + `WebSite`) vía la prop `jsonLd` del layout; solo datos verificables. **Caché:** `public/_headers` da un año a `/_astro/*` y `/fonts/*` (las fuentes no llevan hash: renombrar si cambian). Search Console: propiedad de dominio verificada por DNS, con `sitemap-index.xml` enviado.
+
 **Sitemap:** con `@astrojs/sitemap` (integración oficial, corre en el build,
 cero JS en el cliente). Genera `sitemap-index.xml` a partir de `site` en
 `astro.config.mjs`, y `public/robots.txt` apunta a él.
@@ -216,7 +218,8 @@ se pida cambiarlas.
 - `/nosotros`: título y texto de presentación; indexada y en el sitemap.
 - `/privacidad`: aviso integral redactado (LFPDPPP 2025; describe el
   formulario y Google Analytics). Responsable: persona física,
-  Sergio Herrasti De la Garza. Indexada y en el sitemap. Si el sitio agrega analítica,
+  Sergio Herrasti De la Garza. Con `noindex` y fuera del sitemap (filtro en
+  `astro.config.mjs`); el enlace del menú sigue activo. Si el sitio agrega analítica,
   newsletter o un CRM, hay que actualizar el aviso y su fecha.
 - `/galena` redirige 301 a `/nosotros` (en `worker/index.js`).
 - `404`: Cloudflare la sirve (`not_found_handling` en `wrangler.jsonc`).

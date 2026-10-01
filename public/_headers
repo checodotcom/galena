@@ -1,0 +1,5 @@
+# Archivos con hash en el nombre o que no cambian: caché de un año.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

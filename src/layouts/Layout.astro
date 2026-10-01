@@ -15,9 +15,11 @@ interface Props {
   description: string;
   // Para páginas aún vacías: que los buscadores no las indexen.
   noindex?: boolean;
+  // Datos estructurados (schema.org) de la página, si los tiene.
+  jsonLd?: Record<string, unknown>;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, jsonLd } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL('/og-image.png', Astro.site).href;
 const year = new Date().getFullYear();
@@ -31,6 +33,7 @@ const year = new Date().getFullYear();
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
+    {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <meta name="theme-color" content="#e4dfd6" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -45,7 +48,7 @@ const year = new Date().getFullYear();
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Galena" />
-    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale" content="es_MX" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />

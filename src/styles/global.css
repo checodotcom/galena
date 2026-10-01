@@ -80,6 +80,16 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Safari en iPhone pinta la franja bajo la barra de herramientas (la zona
+   segura inferior) con el fondo de <html>. Como el footer es lo último de
+   la página, ahí va plata para que se vea una sola pieza. Solo en táctil:
+   en escritorio, scrollbar-gutter dejaría una tira plata junto a la página. */
+@media (hover: none) and (pointer: coarse) {
+  html {
+    background-color: var(--silver);
+  }
+}
+
 /* Transiciones entre páginas nativas, sin JS. Sin soporte, navegación normal. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
@@ -623,22 +633,6 @@ html.lenis body {
   translate: 0 calc((100cqh - 100%) / 2);
 }
 
-.hero__hint {
-  position: absolute;
-  right: 0;
-  bottom: var(--space-2);
-  left: 0;
-  z-index: 1;
-  width: 24px;
-  height: 24px;
-  margin-inline: auto;
-  fill: none;
-  stroke: var(--ink-ghost);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 @media (min-width: 1024px) {
   .hero {
     justify-content: center;
@@ -659,10 +653,6 @@ html.lenis body {
     position: absolute;
     inset: 0;
     margin: 0;
-  }
-
-  .hero__hint {
-    bottom: var(--space-4);
   }
 }
 
@@ -794,6 +784,9 @@ html.lenis body {
 
 .services__grid {
   display: grid;
+  /* Columna explícita: sin esto el ancho "auto" crece con el contenido y en
+     algunos navegadores la tarjeta puede rebasar el ancho de la pantalla. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
 }
 
@@ -804,6 +797,7 @@ html.lenis body {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  min-width: 0;
 }
 
 .service__panel {

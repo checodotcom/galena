@@ -105,7 +105,10 @@ body {
   flex-direction: column;
   min-height: 100dvh;
   margin: 0;
-  background-color: var(--bone);
+  /* Plata: es el color del footer, lo último de la página. Safari en iPhone
+     pinta con el fondo de la página la franja bajo su barra inferior; <main>
+     lleva el hueso. */
+  background-color: var(--silver);
   color: var(--ink);
   font-family: 'Urbanist', system-ui, sans-serif;
   font-weight: 400;
@@ -1656,6 +1659,7 @@ html[data-reveal] [data-reveal-group]:not([data-revealed]) > * {
 
 main {
   flex: 1;
+  background-color: var(--bone);
 }
 
 .page-stub {

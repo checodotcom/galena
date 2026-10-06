@@ -203,16 +203,18 @@ se pida cambiarlas.
   líneas finas que parten la zona en cuatro bloques alternados como tablero
   (hueso arriba a la derecha y abajo a la izquierda); un círculo negro
   rebota como logo de DVD dentro del bloque de abajo) → Por qué Galena
-  (`WhyGalena.astro`: "+6 años", "1–2 semanas", "1 sola agencia" en
+  (`WhyGalena.astro`: "+6 años", "10 días hábiles", "1 sola agencia" en
   cifras grandes entre líneas finas) → Servicios → Para
-  quién (negocios locales por WhatsApp, redes y teléfono; línea de
+  quién (clínicas por WhatsApp, redes y teléfono; línea de
   pérdida → ganancia; botón dividido `.cta-split` a `/planes`, que desde tablet
   rebota por toda la sección como el logo de un DVD, a velocidad
-  constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Platícanos sobre tu negocio") →
+  constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Platícanos sobre tu clínica") →
   Nosotros → Preguntas frecuentes. Cada sección es un componente en
   `src/components/`.
 - `/planes` (antes `/servicios`, que redirige 301 en `worker/index.js`):
-  3 planes, interruptor mensual/anual sin JS (`:has()`),
+  3 planes con precios en pesos mexicanos más IVA (números en el arreglo
+  `plans` de `planes.astro`, formateados con `Intl.NumberFormat('es-MX')`;
+  anual = 10 mensualidades; WhatsApp Business incluido, sin costo extra), interruptor mensual/anual sin JS (`:has()`),
   carrusel con scroll-snap en móvil.
 - `/cotizar` (antes `/contacto`, que redirige 301 en `worker/index.js`):
   "Hablemos" + formulario. En el menú y el header se llama "Cotizar".
@@ -305,8 +307,8 @@ se pida cambiarlas.
 
 **Persuasión con honestidad**
 - Principios aplicados: autoridad (+6 años del equipo, no de la empresa,
-  fundada en 2026), posicionamiento (negocios locales; "todo en uno, una
-  sola agencia, en 1–2 semanas"), framing mixto (la pérdida nombra el
+  fundada en 2026), posicionamiento (clínicas: dentistas, quiroprácticos, fisioterapia en CDMX; "todo en uno, una
+  sola agencia, en 10 días hábiles"), framing mixto (la pérdida nombra el
   problema, la ganancia promete), statu quo (la mensualidad empieza 30 días
   después de la implementación: público en /planes y FAQ), empatía táctica
   (pregunta "¿Y si no estoy seguro…?" y la línea de dudas en los

@@ -505,6 +505,14 @@ html.lenis body {
   white-space: nowrap;
 }
 
+/* A 320px el botón (sin saltos de línea) con 40px de relleno (y aun con 24px) se pasaba del
+   ancho de la pantalla. */
+@media (max-width: 359px) {
+  .hero .hero__cta {
+    padding-inline: var(--space-2);
+  }
+}
+
 @media (min-width: 768px) {
   .hero .hero__cta {
     padding-inline: var(--space-6);

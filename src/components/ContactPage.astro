@@ -1,6 +1,6 @@
 ---
 // Página de contacto: presentación arriba y formulario abajo. Mismos campos
-// (incluidos empresa y el aviso de privacidad), servidor y estados de envío
+// (incluidos clínica y el aviso de privacidad), servidor y estados de envío
 // que el diálogo de contacto (lógica compartida en src/scripts/contact-form.js).
 // Las etiquetas son solo para lectores de pantalla: a la vista, cada campo
 // se presenta con su placeholder, como en la referencia de diseño.
@@ -74,14 +74,14 @@ const EMAIL_PATTERN = '[^\\s@<>"]+@[^\\s@<>"]+\\.[^\\s@<>"]+';
         </div>
 
         <div class="field">
-          <label class="sr-only" for="page-company">Empresa (opcional)</label>
+          <label class="sr-only" for="page-company">Clínica (opcional)</label>
           <input
             class="field__input"
             id="page-company"
             name="company"
             autocomplete="organization"
             maxlength="120"
-            placeholder="Tu empresa"
+            placeholder="Tu clínica"
           />
         </div>
 

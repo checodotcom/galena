@@ -58,7 +58,7 @@ async function handleContact(request, env) {
   const email = field('email');
   const message = field('message');
   const plan = PLAN_LABELS[field('plan')] ?? 'Por definir';
-  // Empresa es opcional. La casilla del aviso de privacidad es obligatoria.
+  // Clínica es opcional. La casilla del aviso de privacidad es obligatoria.
   // Los dos formularios (diálogo y /cotizar) envían los mismos campos.
   const company = field('company');
   const privacy = data.has('privacy');
@@ -106,7 +106,7 @@ function buildMessage({ to, name, email, company, plan, privacy, message }) {
     'Content-Transfer-Encoding: base64',
   ];
   const lines = [`Nombre: ${name}`, `Correo: ${email}`];
-  if (company) lines.push(`Empresa: ${company}`);
+  if (company) lines.push(`Clínica: ${company}`);
   lines.push(`Plan: ${plan}`);
   lines.push(`Aviso de privacidad: ${privacy ? 'aceptado' : 'no aceptado'}`);
   const body = `${lines.join('\n')}\n\n${message}\n`;

@@ -27,13 +27,7 @@ const plans = [
       'Sitio web profesional (hasta 3 páginas)',
       'Dominio, hosting y mantenimiento',
       'Formularios con seguimiento automático',
-      {
-        text: 'Chat en el sitio conectado a WhatsApp',
-        // En anual los 30 USD de la conexión van de cortesía y no se
-        // mencionan; los 15 USD mensuales sí aplican.
-        note: 'La conexión a WhatsApp tiene un costo de 30 USD, más 15 USD mensuales adicionales.',
-        noteAnnual: 'La conexión a WhatsApp tiene un costo adicional de 15 USD mensuales.',
-      },
+      'Chat en el sitio conectado a WhatsApp Business (incluido)',
       'Bandeja única de mensajes',
     ],
   },
@@ -150,17 +144,7 @@ const plans = [
               <div class="plan__includes">
                 <p class="plan__includes-label">{plan.includesLabel}</p>
                 <ul class="plan__list">
-                  {plan.includes.map((item) =>
-                    typeof item === 'string' ? (
-                      <li>{item}</li>
-                    ) : (
-                      <li>
-                        {item.text}
-                        <span class="plan__note plan__note--monthly">{item.note}</span>
-                        <span class="plan__note plan__note--annual">{item.noteAnnual}</span>
-                      </li>
-                    ),
-                  )}
+                  {plan.includes.map((item) => <li>{item}</li>)}
                 </ul>
               </div>
             </article>

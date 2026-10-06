@@ -2349,19 +2349,31 @@ main {
 
 .plan__price {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--space-2);
+  /* Si cifra y unidad (MXN / año + IVA) no caben juntas, la unidad baja. */
+  gap: var(--space-1) var(--space-2);
   margin: 0;
 }
 
 .plan__amount {
+  white-space: nowrap;
   font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 200;
   line-height: 1;
   letter-spacing: -0.01em;
 }
 
+/* A 1024-1099px las tres tarjetas son angostas y "$96,970" a 4rem se pasa del
+   relleno por unos píxeles. */
+@media (min-width: 1024px) and (max-width: 1099px) {
+  .plan__amount {
+    font-size: 3.5rem;
+  }
+}
+
 .plan__unit {
+  white-space: nowrap;
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -2403,6 +2415,8 @@ main {
 }
 
 .plan__setup-amount {
+  /* Monto, MXN e IVA siempre juntos: que no quede "IVA" solo en otra línea. */
+  white-space: nowrap;
   color: var(--ink);
 }
 

@@ -8,15 +8,18 @@ const title = 'Planes y precios — Galena';
 const description =
   'Elige el plan de Galena para tu clínica: sitio web, agenda, recordatorios y reseñas. Sin contratos forzosos, sin cargos escondidos.';
 
+// Precios en pesos mexicanos, sin IVA. Anual = 10 mensualidades (2 de descuento).
+const mxn = (amount: number) => `$${new Intl.NumberFormat('es-MX').format(amount)}`;
+
 const plans = [
   {
     index: '01',
     name: 'Sitio Inteligente',
     tagline: 'Para empezar a captar en línea',
-    monthly: '$127',
-    annual: '$1,270',
-    savings: '$254',
-    setup: '$297 USD',
+    monthly: 2697,
+    annual: 26970,
+    savings: 5394,
+    setup: 6197,
     cta: 'Quiero este plan',
     featured: false,
     includesLabel: 'Incluye',
@@ -38,10 +41,10 @@ const plans = [
     index: '02',
     name: 'Crecimiento',
     tagline: 'Para llenar la agenda y subir reseñas',
-    monthly: '$297',
-    annual: '$2,970',
-    savings: '$594',
-    setup: '$497 USD',
+    monthly: 5897,
+    annual: 58970,
+    savings: 11794,
+    setup: 9997,
     cta: 'Quiero este plan →',
     featured: true,
     badge: 'Recomendado',
@@ -58,10 +61,10 @@ const plans = [
     index: '03',
     name: 'IA Total',
     tagline: 'Para atender 24/7 sin contratar',
-    monthly: '$497',
-    annual: '$4,970',
-    savings: '$994',
-    setup: '$797 USD',
+    monthly: 9697,
+    annual: 96970,
+    savings: 19394,
+    setup: 15697,
     cta: 'Quiero este plan',
     featured: false,
     includesLabel: 'Todo lo de Crecimiento, más',
@@ -123,14 +126,14 @@ const plans = [
 
               <div class="plan__pricing">
                 <p class="plan__price">
-                  <span class="plan__amount plan__amount--monthly">{plan.monthly}</span>
-                  <span class="plan__amount plan__amount--annual">{plan.annual}</span>
-                  <span class="plan__unit plan__unit--monthly">USD / mes</span>
-                  <span class="plan__unit plan__unit--annual">USD / año</span>
+                  <span class="plan__amount plan__amount--monthly">{mxn(plan.monthly)}</span>
+                  <span class="plan__amount plan__amount--annual">{mxn(plan.annual)}</span>
+                  <span class="plan__unit plan__unit--monthly">MXN / mes + IVA</span>
+                  <span class="plan__unit plan__unit--annual">MXN / año + IVA</span>
                 </p>
-                <p class="plan__savings">Ahorras {plan.savings} USD al año</p>
+                <p class="plan__savings">Ahorras {mxn(plan.savings)} MXN al año</p>
                 <p class="plan__setup">
-                  Implementación única: <span class="plan__setup-amount">{plan.setup}</span>
+                  Implementación única: <span class="plan__setup-amount">{mxn(plan.setup)} MXN + IVA</span>
                 </p>
               </div>
 
@@ -167,7 +170,7 @@ const plans = [
     </section>
 
     <p class="pricing-page__note">
-      Precios en USD. En México se cotiza con IVA. Sin contratos forzosos ni cargos escondidos. <span class="pricing-page__note-glue">¿Necesitas algo a la medida? <button type="button" class="text-link" commandfor="contact-dialog" command="show-modal">Escríbenos →</button></span>
+      Precios en pesos mexicanos. No incluyen IVA (16 %). Sin contratos forzosos ni cargos escondidos. <span class="pricing-page__note-glue">¿Necesitas algo a la medida? <button type="button" class="text-link" commandfor="contact-dialog" command="show-modal">Escríbenos →</button></span>
     </p>
   </div>
 </Layout>

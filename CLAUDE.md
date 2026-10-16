@@ -285,8 +285,15 @@ se pida cambiarlas.
   abierta a la vez. La abierta es un bloque plata (radio `--space-3`) con
   número, nombre grande, descripción y su figura de línea a la derecha (debajo
   del texto en móvil); las demás son filas con "+". Se abre con hover (mouse,
-  con 70ms de pausa), toque (táctil) o foco (teclado); la isla solo cambia
-  `is-active` y `aria-expanded`. Todas las filas abiertas miden lo mismo
+  con 70ms de pausa) o foco (teclado), siempre una sola; en táctil cada
+  fila se abre y se cierra con un toque por su cuenta (abrir una no cierra las
+  otras, para que la fila tocada no se mueva bajo el dedo y sin mover el scroll
+  por JS, que en Safari de iPhone era brusco); la isla solo cambia
+  `is-active` y `aria-expanded`. La figura vive dentro del cuerpo plegable (sin
+  `display:none`, que impide animar el trazo); en iOS el trazo por
+  `stroke-dashoffset` se sustituye por un fundido (`@supports
+  (-webkit-touch-callout: none)`), por un fallo conocido de WebKit con
+  `pathLength` + `vector-effect: non-scaling-stroke`. Todas las filas abiertas miden lo mismo
   (`min-height: 19rem`) para que la lista no se mueva bajo el puntero: si una
   descripción crece, revisar que siga cabiendo. La figura se traza cada vez
   que su fila se abre. Con mouse, solo se mueve mientras el cursor está sobre

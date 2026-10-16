@@ -66,79 +66,79 @@ const services = [
           <div class="svc__body" id={`svc-body-${i}`}>
             <div class="svc__inner">
               <p class="svc__text">{service.text}</p>
+
+              {/* pathLength="1" en cada trazo: el dibujo de entrada anima
+                  stroke-dashoffset de 1 a 0 sin medir longitudes. */}
+              <svg class="service__figure" viewBox="0 0 200 200" aria-hidden="true">
+                {service.figure === 'site' && (
+                    <>
+                      <rect x="30" y="45" width="140" height="110" rx="6" pathLength="1" />
+                      <path d="M30 65H170" pathLength="1" />
+                      <circle cx="42" cy="55" r="3" pathLength="1" />
+                      <circle cx="54" cy="55" r="3" pathLength="1" />
+                      <g class="service__motion service__motion--float">
+                        <rect x="44" y="79" width="52" height="62" rx="3" pathLength="1" />
+                        <path d="M108 86H156M108 100H156M108 114H140" pathLength="1" />
+                        <rect x="108" y="126" width="32" height="15" rx="7.5" pathLength="1" />
+                      </g>
+                    </>
+                  )}
+                  {service.figure === 'flow' && (
+                    <>
+                      <rect x="75" y="28" width="50" height="22" rx="11" pathLength="1" />
+                      <path d="M100 50V70" pathLength="1" />
+                      <path d="M100 70L122 92L100 114L78 92Z" pathLength="1" />
+                      <path d="M78 92H50V128M122 92H150V128" pathLength="1" />
+                      <path d="M46 123L50 128L54 123M146 123L150 128L154 123" pathLength="1" />
+                      <rect x="28" y="128" width="44" height="28" rx="4" pathLength="1" />
+                      <rect x="128" y="128" width="44" height="28" rx="4" pathLength="1" />
+                      <circle class="service__motion service__motion--flow" cx="100" cy="50" r="3" />
+                    </>
+                  )}
+                  {service.figure === 'venn' && (
+                    <g class="service__motion service__motion--spin-slow">
+                      <circle cx="100" cy="76" r="42" pathLength="1" />
+                      <circle cx="78" cy="114" r="42" pathLength="1" />
+                      <circle cx="122" cy="114" r="42" pathLength="1" />
+                      <circle cx="100" cy="101" r="3" pathLength="1" />
+                    </g>
+                  )}
+                  {service.figure === 'calendar' && (
+                    <>
+                      <rect x="40" y="45" width="120" height="110" rx="8" pathLength="1" />
+                      <path d="M40 72H160" pathLength="1" />
+                      <path d="M72 36V54M128 36V54" pathLength="1" />
+                      <text class="service__date" x="146" y="142" text-anchor="end">12</text>
+                    </>
+                  )}
+                  {service.figure === 'chat' && (
+                    <>
+                      {/* Globo del bot arriba y el de los tres puntos abajo, sin
+                          tocarse: ni los bordes ni las colas se cruzan (el de
+                          abajo flota ±4px y queda espacio de sobra). */}
+                      <rect x="30" y="28" width="100" height="52" rx="16" pathLength="1" />
+                      <path d="M52 80L46 94L68 80" pathLength="1" />
+                      {/* Cabeza de bot en el globo de arriba: el que responde. */}
+                      <rect x="64" y="46" width="32" height="22" rx="6" pathLength="1" />
+                      <path d="M80 46V39" pathLength="1" />
+                      <circle cx="80" cy="37" r="2" pathLength="1" />
+                      <g class="service__motion service__motion--blink">
+                        <circle class="service__dot" cx="73" cy="57" r="2.5" />
+                        <circle class="service__dot" cx="87" cy="57" r="2.5" />
+                      </g>
+                      <g class="service__motion service__motion--float">
+                        <rect x="70" y="108" width="100" height="52" rx="16" pathLength="1" />
+                        <path d="M148 160L154 174L132 160" pathLength="1" />
+                        <circle cx="104" cy="134" r="3" pathLength="1" />
+                        <circle cx="120" cy="134" r="3" pathLength="1" />
+                        <circle cx="136" cy="134" r="3" pathLength="1" />
+                      </g>
+                    </>
+                  )}
+              
+              </svg>
             </div>
           </div>
-
-          {/* pathLength="1" en cada trazo: el dibujo de entrada anima
-              stroke-dashoffset de 1 a 0 sin medir longitudes. */}
-          <svg class="service__figure" viewBox="0 0 200 200" aria-hidden="true">
-            {service.figure === 'site' && (
-                <>
-                  <rect x="30" y="45" width="140" height="110" rx="6" pathLength="1" />
-                  <path d="M30 65H170" pathLength="1" />
-                  <circle cx="42" cy="55" r="3" pathLength="1" />
-                  <circle cx="54" cy="55" r="3" pathLength="1" />
-                  <g class="service__motion service__motion--float">
-                    <rect x="44" y="79" width="52" height="62" rx="3" pathLength="1" />
-                    <path d="M108 86H156M108 100H156M108 114H140" pathLength="1" />
-                    <rect x="108" y="126" width="32" height="15" rx="7.5" pathLength="1" />
-                  </g>
-                </>
-              )}
-              {service.figure === 'flow' && (
-                <>
-                  <rect x="75" y="28" width="50" height="22" rx="11" pathLength="1" />
-                  <path d="M100 50V70" pathLength="1" />
-                  <path d="M100 70L122 92L100 114L78 92Z" pathLength="1" />
-                  <path d="M78 92H50V128M122 92H150V128" pathLength="1" />
-                  <path d="M46 123L50 128L54 123M146 123L150 128L154 123" pathLength="1" />
-                  <rect x="28" y="128" width="44" height="28" rx="4" pathLength="1" />
-                  <rect x="128" y="128" width="44" height="28" rx="4" pathLength="1" />
-                  <circle class="service__motion service__motion--flow" cx="100" cy="50" r="3" />
-                </>
-              )}
-              {service.figure === 'venn' && (
-                <g class="service__motion service__motion--spin-slow">
-                  <circle cx="100" cy="76" r="42" pathLength="1" />
-                  <circle cx="78" cy="114" r="42" pathLength="1" />
-                  <circle cx="122" cy="114" r="42" pathLength="1" />
-                  <circle cx="100" cy="101" r="3" pathLength="1" />
-                </g>
-              )}
-              {service.figure === 'calendar' && (
-                <>
-                  <rect x="40" y="45" width="120" height="110" rx="8" pathLength="1" />
-                  <path d="M40 72H160" pathLength="1" />
-                  <path d="M72 36V54M128 36V54" pathLength="1" />
-                  <text class="service__date" x="146" y="142" text-anchor="end">12</text>
-                </>
-              )}
-              {service.figure === 'chat' && (
-                <>
-                  {/* Globo del bot arriba y el de los tres puntos abajo, sin
-                      tocarse: ni los bordes ni las colas se cruzan (el de
-                      abajo flota ±4px y queda espacio de sobra). */}
-                  <rect x="30" y="28" width="100" height="52" rx="16" pathLength="1" />
-                  <path d="M52 80L46 94L68 80" pathLength="1" />
-                  {/* Cabeza de bot en el globo de arriba: el que responde. */}
-                  <rect x="64" y="46" width="32" height="22" rx="6" pathLength="1" />
-                  <path d="M80 46V39" pathLength="1" />
-                  <circle cx="80" cy="37" r="2" pathLength="1" />
-                  <g class="service__motion service__motion--blink">
-                    <circle class="service__dot" cx="73" cy="57" r="2.5" />
-                    <circle class="service__dot" cx="87" cy="57" r="2.5" />
-                  </g>
-                  <g class="service__motion service__motion--float">
-                    <rect x="70" y="108" width="100" height="52" rx="16" pathLength="1" />
-                    <path d="M148 160L154 174L132 160" pathLength="1" />
-                    <circle cx="104" cy="134" r="3" pathLength="1" />
-                    <circle cx="120" cy="134" r="3" pathLength="1" />
-                    <circle cx="136" cy="134" r="3" pathLength="1" />
-                  </g>
-                </>
-              )}
-              
-          </svg>
         </li>
       ))
     }
@@ -152,7 +152,7 @@ const services = [
       .svc__btn { grid-template-columns: minmax(0, 1fr); cursor: default; color: var(--ink); }
       .svc__plus { display: none; }
       .svc__body { grid-template-rows: 1fr; visibility: visible; }
-      .service__figure { display: block; }
+      .service__figure { display: block; opacity: 1; }
       .service__figure * { stroke-dashoffset: 0; }
       .service__figure :is(.service__date, .service__motion--flow, .service__dot) { opacity: 1; }
     </style>
@@ -167,35 +167,32 @@ const services = [
     const items = [...list.querySelectorAll<HTMLElement>('.svc__item')];
     let intent = 0;
 
-    const activate = (index: number) => {
-      items.forEach((item, i) => {
-        const on = i === index;
-        item.classList.toggle('is-active', on);
-        item.querySelector('.svc__btn')?.setAttribute('aria-expanded', String(on));
-      });
+    const setOpen = (item: HTMLElement, on: boolean) => {
+      item.classList.toggle('is-active', on);
+      item.querySelector('.svc__btn')?.setAttribute('aria-expanded', String(on));
     };
+
+    // Con mouse (y teclado) siempre hay una sola fila abierta.
+    const activate = (index: number) => {
+      items.forEach((item, i) => setOpen(item, i === index));
+    };
+
+    // En táctil cada fila se abre y se cierra por su cuenta: abrir una no
+    // cierra las otras. Así la fila tocada nunca se mueve bajo el dedo (lo
+    // de arriba no se encoge) y no hace falta mover el scroll por JS, que en
+    // Safari de iPhone se sentía brusco.
+    const touch = matchMedia('(hover: none)');
 
     items.forEach((item, i) => {
       const button = item.querySelector<HTMLElement>('.svc__btn');
-      // Toque, Enter/Espacio y foco (Tab) abren la fila.
       button?.addEventListener('click', () => {
-        // En táctil la fila de arriba se cierra al abrir esta: el contenido
-        // se movería bajo el dedo. Durante la transición se compensa el
-        // scroll para que la fila tocada se quede donde está.
-        const top = button.getBoundingClientRect().top;
-        activate(i);
-        const until = performance.now() + 600;
-        const hold = () => {
-          const delta = button.getBoundingClientRect().top - top;
-          if (Math.abs(delta) > 0.5) scrollBy(0, delta);
-          if (performance.now() < until) requestAnimationFrame(hold);
-        };
-        requestAnimationFrame(hold);
+        if (touch.matches) setOpen(item, !item.classList.contains('is-active'));
+        else activate(i);
       });
       // Solo el foco de teclado abre la fila (un toque o un clic ya la abren
       // con su propio evento); así Tab no reacomoda la página sin querer.
       button?.addEventListener('focus', () => {
-        if (button.matches(':focus-visible')) activate(i);
+        if (!touch.matches && button.matches(':focus-visible')) activate(i);
       });
       // Con mouse se abre al pasar, con una pausa corta para no abrir filas
       // de paso. Con la fila abierta, la lista no se mueve bajo el puntero

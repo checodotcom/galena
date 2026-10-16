@@ -1149,7 +1149,14 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
-  transition: font-size 400ms var(--ease-out);
+}
+
+/* Animar el tamaño del texto obliga a recalcular el layout en cada cuadro;
+   en táctil el cambio es instantáneo (el cuerpo sí se anima). */
+@media (hover: hover) {
+  .svc__name {
+    transition: font-size 400ms var(--ease-out);
+  }
 }
 
 /* "+" dibujado con dos líneas: se desvanece en la fila abierta. */
@@ -1186,7 +1193,6 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   gap: var(--space-2);
   padding: var(--space-4) var(--space-3) 0;
   color: var(--ink);
-  cursor: default;
 }
 
 .is-active .svc__name {
@@ -1195,6 +1201,21 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
 
 .is-active .svc__plus {
   display: none;
+}
+
+/* En táctil la fila abierta también se cierra con un toque: el "+" pasa a
+   "−" en la esquina de su bloque. */
+@media (hover: none) {
+  .is-active .svc__plus {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-3);
+    display: block;
+  }
+
+  .is-active .svc__plus::after {
+    display: none;
+  }
 }
 
 /* Cuerpo: crece de 0 a su alto (0fr → 1fr). Cerrado se oculta del todo
@@ -1229,9 +1250,11 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   color: var(--ink);
 }
 
-/* La figura: en móvil, debajo del texto y solo en la fila abierta. */
+/* La figura vive dentro del cuerpo plegable: en móvil, debajo del texto, y
+   se pliega y se oculta con él (visibility) sin usar display:none, que
+   impediría que el trazo se anime al abrir. */
 .service__figure {
-  display: none;
+  display: block;
   width: 150px;
   margin: 0 auto var(--space-4);
   overflow: visible;
@@ -1239,10 +1262,6 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   stroke: var(--ink);
   stroke-width: 1;
   pointer-events: none;
-}
-
-.is-active .service__figure {
-  display: block;
 }
 
 .service__figure * {
@@ -1291,6 +1310,29 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
 
 .services:not([data-seen]) .service__figure :is(.service__date, .service__motion--flow, .service__dot) {
   opacity: 0;
+}
+
+/* Safari de iPhone combina mal pathLength con vector-effect: non-scaling-
+   stroke (el guion no se normaliza y la línea sale punteada). Ahí no se
+   usa el trazo: la figura se funde con opacidad. */
+@supports (-webkit-touch-callout: none) {
+  .service__figure * {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+
+  .services:not([data-seen]) .service__figure * {
+    stroke-dashoffset: 0;
+  }
+
+  .service__figure {
+    opacity: 0;
+  }
+
+  .is-active .service__figure {
+    opacity: 1;
+    transition: opacity 700ms var(--ease-out) 150ms;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

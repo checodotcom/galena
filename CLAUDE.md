@@ -132,7 +132,9 @@ una cámara.
   fondo tinta de "Por qué Galena" (texto en hueso). Cruce 2: la sección
   negra se cierra en círculo hacia la cifra "10" (la tinta y su contenido,
   recortados con el mismo círculo) y deja ver "Para quién" en hueso, que ya
-  está debajo. Los fondos van en capas propias que no escalan.
+  está debajo. Al terminar se guarda en la "o" del titular de
+  Para quién y se desvanece ahí; la "o" es la más cercana al "10" (en la práctica, la de "teléfono"); el script
+  la mide con Range y canvas y el círculo termina con el radio de su hueco. Los fondos van en capas propias que no escalan.
 - Solo la escena que se ve (la de más opacidad, si pasa de la mitad) recibe
   clics; con el foco (Tab) en otra, el scroll va a su meseta. Al cambiar el
   tamaño de la ventana se conserva el progreso, y si se cruza el umbral de

@@ -50,6 +50,9 @@
   // El foco del segundo cruce es la cifra enorme: la tinta se encoge hacia ella.
   const focal = why?.querySelectorAll<HTMLElement>('.why__item')[0]?.querySelector<HTMLElement>('.why__value');
   const header = document.querySelector<HTMLElement>('.site-header');
+  // Al final del segundo cruce la tinta se guarda en una "o" del titular de
+  // Para quién.
+  const audienceTitle = audience?.querySelector<HTMLElement>('.section-title');
 
   if (track && stage && hero && why && audience && portalInk && bgInk && bgBone && dot && focal && header) {
     const mq = matchMedia(QUERY);
@@ -74,6 +77,7 @@
     let need1 = 1000; // radio con el que el círculo del hero cubre el header
     let need2 = 1000; // radio con el que el círculo que se encoge aún cubre el header
     let R2 = 1000; // radio con el que ese círculo cubre todo el escenario
+    let nest = { cx: 0, cy: 0, r: 0 }; // la "o" donde se guarda la tinta
     let resizeTimer = 0;
     let lastW = 0;
     let lastH = 0;
@@ -132,6 +136,55 @@
       need2 = stripNeed(cx, cy);
     };
 
+    // Busca la "o" del titular de Para quién más cercana al "10" y mide su
+    // centro y el radio de su hueco. Las letras se miden con Range, y la
+    // altura de la "o" con canvas (la caja del texto incluye ascendentes).
+    const measureNest = () => {
+      if (!audienceTitle) return;
+      const prev = audience.style.transform;
+      audience.style.transform = 'none';
+      const s = stage.getBoundingClientRect();
+      const cs = getComputedStyle(audienceTitle);
+      // El titular puede seguir desplazado por Reveal: se descuenta.
+      const shift = new DOMMatrix(cs.transform === 'none' ? undefined : cs.transform);
+      const size = parseFloat(cs.fontSize);
+      const ctx = document.createElement('canvas').getContext('2d');
+      if (!ctx) {
+        audience.style.transform = prev;
+        return;
+      }
+      ctx.font = `${cs.fontWeight} ${size}px ${cs.fontFamily}`;
+      const m = ctx.measureText('o');
+      const asc = m.actualBoundingBoxAscent;
+      const desc = m.actualBoundingBoxDescent;
+      const outer = Math.min(asc + desc, m.actualBoundingBoxLeft + m.actualBoundingBoxRight) / 2;
+      const walker = document.createTreeWalker(audienceTitle, NodeFilter.SHOW_TEXT);
+      let best: { cx: number; cy: number } | null = null;
+      let bestDist = Infinity;
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const text = node.textContent ?? '';
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] !== 'o' && text[i] !== 'O') continue;
+          const range = document.createRange();
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          const r = range.getBoundingClientRect();
+          // Centro de la tinta de la letra, no de su caja de avance.
+          const cx = r.left - s.left - shift.m41 + (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2;
+          // La línea base queda a "ascent de fuente" bajo el borde de la caja.
+          const cy = r.top - s.top - shift.m42 + (m.fontBoundingBoxAscent ?? asc) - (asc - desc) / 2;
+          const dist = Math.hypot(cx - bone.cx, cy - bone.cy);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = { cx, cy };
+          }
+        }
+      }
+      audience.style.transform = prev;
+      // Menos el grosor del trazo (peso 200): el círculo entra en el hueco.
+      if (best) nest = { ...best, r: Math.max(2, outer - size * 0.045) };
+    };
+
     const readTarget = () => {
       // El alto del escenario (100lvh) no cambia cuando la barra de Safari
       // aparece o se esconde; innerHeight sí, y movería el progreso.
@@ -163,7 +216,8 @@
       hero.style.opacity = String(1 - mapSoft(u, 0, 0.55, 0, 1));
       hero.style.transform = isZoomed ? `scale(${1 + 3 * Math.pow(u, 1.5)})` : '';
       const r1 = (dotD / 2) * (1 + (S1 - 1) * cube(clamp(u / 0.7)));
-      portalInk.style.opacity = isZoomed ? '1' : '0';
+      // Al guardarse en la "o" (v ≈ 0.9) la tinta se desvanece del todo.
+      portalInk.style.opacity = isZoomed ? String(1 - mapSoft(v, 0.88, 1, 0, 1)) : '0';
       if (v === 0) portalInk.style.clipPath = circle(r1, ink);
       // Fondo tinta sólido entre los dos cruces; en el segundo lo reemplaza
       // el círculo de tinta que se encoge (encima de "Para quién").
@@ -178,12 +232,24 @@
       why.style.opacity = String(whyIn * whyOut);
       const whyScale = v > 0 ? 1 - 0.45 * soft(clamp(v / 0.9)) : mapSoft(u, 0.7, 1, 0.6, 1);
       why.style.transform = `scale(${whyScale})`;
-      const r2 = R2 * Math.pow(1 - clamp(v / 0.9), 1.6);
-      if (v > 0) portalInk.style.clipPath = circle(r2, bone);
+      // La tinta se cierra hacia el "10" y, al final, se guarda en la "o" del
+      // titular: el centro viaja de una a otra y el radio termina siendo el
+      // del hueco de la letra (no desaparece).
+      const t2 = clamp(v / 0.9);
+      const r2 = nest.r + (R2 - nest.r) * Math.pow(1 - t2, 1.6);
+      const travel = soft(clamp((t2 - 0.25) / 0.75));
+      const c2 = { cx: bone.cx + (nest.cx - bone.cx) * travel, cy: bone.cy + (nest.cy - bone.cy) * travel };
+      if (v > 0) portalInk.style.clipPath = circle(r2, c2);
       // El contenido se recorta con el mismo círculo, para que nada asome
-      // fuera de la tinta. Su escala parte del "10" (el centro del círculo),
-      // así que en sus coordenadas el radio se divide entre la escala.
-      why.style.clipPath = v > 0 ? circle(r2 / whyScale, bone) : '';
+      // fuera de la tinta. Su escala parte del "10", así que en sus
+      // coordenadas el centro y el radio se dividen entre la escala.
+      why.style.clipPath =
+        v > 0
+          ? circle(r2 / whyScale, {
+              cx: bone.cx + (c2.cx - bone.cx) / whyScale,
+              cy: bone.cy + (c2.cy - bone.cy) / whyScale,
+            })
+          : '';
       bgBone.style.opacity = v > 0 ? '1' : '0';
 
       // Para quién: está debajo de la tinta y aparece mientras se cierra.
@@ -243,6 +309,7 @@
       stage.classList.remove('is-zoomed');
       readTarget();
       measureFocal();
+      measureNest();
       current = target;
       render(current);
     };

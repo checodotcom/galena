@@ -3937,9 +3937,9 @@ body:has(.site-menu[open]) .site-header__home {
    junto con el fondo, a medio camino ambos serían el mismo gris. */
 @keyframes step-marker-on {
   0% {
-    border-color: var(--ink-line);
+    border-color: var(--ink-ghost);
     background-color: var(--bone);
-    color: var(--ink);
+    color: var(--ink-ghost);
   }
   50% {
     color: var(--ink);

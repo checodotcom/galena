@@ -1,11 +1,11 @@
 ---
-// Servicios principales. Cada tarjeta es un panel con nombre, número y una
-// figura de línea (excepción aprobada a "sin ilustraciones": geometría
-// abstracta hecha a mano, en --ink), y debajo, separada, su descripción.
-// Las figuras se trazan al entrar (Reveal), se mueven lento y reaccionan al
-// mouse; todo en CSS (global.css). Informativas: sin enlace.
-// En táctil las figuras se mueven mientras la sección está en pantalla: la
-// isla de abajo solo marca data-onscreen con un IntersectionObserver.
+// Servicios principales: lista tipo acordeón con una especialidad abierta a
+// la vez. La abierta es un bloque plata con su descripción y una figura de
+// línea (excepción aprobada a "sin ilustraciones": geometría abstracta hecha
+// a mano, en --ink) que se traza y se mueve mientras está abierta. Se abre
+// con hover (mouse), toque (táctil) o foco (teclado); la isla de abajo solo
+// cambia la clase is-active y aria-expanded. Todo el estilo está en
+// global.css. Sin JS (<noscript>) se ven todas abiertas.
 // Copy en borrador, pendiente de aprobación.
 const services = [
   {
@@ -42,22 +42,37 @@ const services = [
     <h2 class="section-title" id="services-title">Nuestra especialidad</h2>
   </div>
 
-  <div class="services__grid" data-reveal-group>
+  <!-- La lista va dentro de un <div> del grupo: la entrada anima la lista
+       entera y los <li> conservan sus propias transiciones (Reveal las
+       reemplazaría en los hijos directos). -->
+  <div data-reveal-group>
+  <ul class="svc">
     {
       services.map((service, i) => (
-        <article class="service" style={`--i: ${i}`}>
-          <div class="service__panel">
-            <div class="service__head">
-              <h3 class="service__name">{service.name}</h3>
-              <span class="service__index">{String(i + 1).padStart(2, '0')}</span>
+        <li class:list={['svc__item', { 'is-active': i === 0 }]}>
+          <h3 class="svc__head">
+            <button
+              class="svc__btn"
+              type="button"
+              id={`svc-btn-${i}`}
+              aria-controls={`svc-body-${i}`}
+              aria-expanded={i === 0 ? 'true' : 'false'}
+            >
+              <span class="svc__idx">{String(i + 1).padStart(2, '0')}</span>
+              <span class="svc__name">{service.name}</span>
+              <span class="svc__plus" aria-hidden="true" />
+            </button>
+          </h3>
+          <div class="svc__body" id={`svc-body-${i}`}>
+            <div class="svc__inner">
+              <p class="svc__text">{service.text}</p>
             </div>
-            <div class="service__stage">
-              <span class="service__corners" aria-hidden="true" />
+          </div>
 
-            {/* pathLength="1" en cada trazo: el dibujo de entrada anima
-                stroke-dashoffset de 1 a 0 sin medir longitudes. */}
-            <svg class="service__figure" viewBox="0 0 200 200" aria-hidden="true">
-              {service.figure === 'site' && (
+          {/* pathLength="1" en cada trazo: el dibujo de entrada anima
+              stroke-dashoffset de 1 a 0 sin medir longitudes. */}
+          <svg class="service__figure" viewBox="0 0 200 200" aria-hidden="true">
+            {service.figure === 'site' && (
                 <>
                   <rect x="30" y="45" width="140" height="110" rx="6" pathLength="1" />
                   <path d="M30 65H170" pathLength="1" />
@@ -122,23 +137,96 @@ const services = [
                   </g>
                 </>
               )}
-              </svg>
-            </div>
-          </div>
-          <p class="service__text">{service.text}</p>
-        </article>
+              
+          </svg>
+        </li>
       ))
     }
+  </ul>
   </div>
+
+  <!-- Sin JS no hay forma de abrir una fila: se muestran todas abiertas. -->
+  <noscript>
+    <style>
+      .svc__item { background-color: var(--silver); border-radius: var(--space-3); margin-block: var(--space-1); border-bottom-color: transparent; }
+      .svc__btn { grid-template-columns: minmax(0, 1fr); cursor: default; color: var(--ink); }
+      .svc__plus { display: none; }
+      .svc__body { grid-template-rows: 1fr; visibility: visible; }
+      .service__figure { display: block; }
+      .service__figure * { stroke-dashoffset: 0; }
+      .service__figure :is(.service__date, .service__motion--flow, .service__dot) { opacity: 1; }
+    </style>
+  </noscript>
 </section>
 
 <script>
   const section = document.querySelector<HTMLElement>('.services');
-  const touch = matchMedia('(hover: none)').matches;
+  const list = section?.querySelector<HTMLElement>('.svc');
 
-  if (section && touch && 'IntersectionObserver' in window) {
-    new IntersectionObserver(([entry]) => {
-      section.toggleAttribute('data-onscreen', entry.isIntersecting);
-    }).observe(section);
+  if (section && list) {
+    const items = [...list.querySelectorAll<HTMLElement>('.svc__item')];
+    let intent = 0;
+
+    const activate = (index: number) => {
+      items.forEach((item, i) => {
+        const on = i === index;
+        item.classList.toggle('is-active', on);
+        item.querySelector('.svc__btn')?.setAttribute('aria-expanded', String(on));
+      });
+    };
+
+    items.forEach((item, i) => {
+      const button = item.querySelector<HTMLElement>('.svc__btn');
+      // Toque, Enter/Espacio y foco (Tab) abren la fila.
+      button?.addEventListener('click', () => {
+        // En táctil la fila de arriba se cierra al abrir esta: el contenido
+        // se movería bajo el dedo. Durante la transición se compensa el
+        // scroll para que la fila tocada se quede donde está.
+        const top = button.getBoundingClientRect().top;
+        activate(i);
+        const until = performance.now() + 600;
+        const hold = () => {
+          const delta = button.getBoundingClientRect().top - top;
+          if (Math.abs(delta) > 0.5) scrollBy(0, delta);
+          if (performance.now() < until) requestAnimationFrame(hold);
+        };
+        requestAnimationFrame(hold);
+      });
+      // Solo el foco de teclado abre la fila (un toque o un clic ya la abren
+      // con su propio evento); así Tab no reacomoda la página sin querer.
+      button?.addEventListener('focus', () => {
+        if (button.matches(':focus-visible')) activate(i);
+      });
+      // Con mouse se abre al pasar, con una pausa corta para no abrir filas
+      // de paso. Con la fila abierta, la lista no se mueve bajo el puntero
+      // (todas miden lo mismo abiertas).
+      item.addEventListener('pointerenter', (event) => {
+        if (event.pointerType !== 'mouse') return;
+        clearTimeout(intent);
+        intent = window.setTimeout(() => activate(i), 70);
+      });
+      item.addEventListener('pointerleave', () => clearTimeout(intent));
+    });
+
+    // Las líneas de la primera figura se dibujan la primera vez que la
+    // lista se ve.
+    const seen = () => section.setAttribute('data-seen', '');
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry], observer) => {
+        if (!entry.isIntersecting) return;
+        seen();
+        observer.disconnect();
+      }, { threshold: 0.25 }).observe(list);
+    } else {
+      seen();
+    }
+
+    // En táctil la figura abierta se mueve mientras la sección está en
+    // pantalla (no hay hover que la active).
+    if (matchMedia('(hover: none)').matches && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        section.toggleAttribute('data-onscreen', entry.isIntersecting);
+      }).observe(section);
+    }
   }
 </script>

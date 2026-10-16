@@ -84,19 +84,19 @@ html {
   scrollbar-gutter: stable;
 }
 
-/* Safari en iPhone pinta con el fondo de la página dos franjas: la de arriba
-   (hora y batería) y la de abajo (bajo su barra de herramientas). Arriba va
-   hueso, como el header; abajo, plata, como el footer. Para tener ambos, el
-   fondo es hueso en toda la página menos el último píxel, y plata de base:
-   lo que queda debajo de la página (la franja inferior) sale plata. Son dos
-   rellenos planos, no un degradado. Solo en táctil: en escritorio,
-   scrollbar-gutter dejaría una tira plata junto a la página. */
+/* Safari en iPhone pinta con el fondo de <html> dos franjas fuera de la
+   página: la de arriba (hora y batería) y la de abajo (bajo su barra de
+   herramientas). Arriba debe ser hueso, como la intro y el header; abajo,
+   plata, como el footer. El fondo de <html> se repite hacia los dos lados
+   como una baldosa del alto de la página: arriba del inicio se ve el final
+   de la baldosa (hueso) y debajo del final se ve su comienzo (400px de
+   plata). Dentro de la página no se ve, <body> la cubre. Son dos rellenos
+   planos con corte seco, no un degradado visible. Solo en táctil: en
+   escritorio, scrollbar-gutter dejaría una tira plata junto a la página. */
 @media (hover: none) and (pointer: coarse) {
-  html,
-  body {
+  html {
     background:
-      linear-gradient(var(--bone), var(--bone)) top / 100% calc(100% - 1px) no-repeat,
-      var(--silver);
+      linear-gradient(var(--silver) 0 400px, var(--bone) 400px) top / 100% 100% repeat-y;
   }
 }
 
@@ -293,6 +293,10 @@ html.lenis body {
   opacity: 1;
 }
 
+.site-header[data-tone='ink'] :focus-visible {
+  outline-color: var(--bone);
+}
+
 .site-header[data-tone='ink'] :is(.contact, .menu-button) {
   border-color: var(--bone-hairline);
   color: var(--bone);
@@ -458,13 +462,18 @@ html.lenis body {
 
 .intro {
   position: relative;
-  height: 100svh;
+  /* lvh y no svh: en Safari de iPhone la barra inferior flota sobre la
+     página, y con svh la intro quedaba más corta que lo que se ve y dejaba
+     asomar el hero abajo. En escritorio los dos valen lo mismo. */
+  height: 100lvh;
 }
 
 .intro__hint {
   position: absolute;
   right: 0;
-  bottom: var(--space-4);
+  /* La flecha se queda sobre la barra del navegador: la diferencia entre
+     lvh y svh es justo lo que la barra tapa. */
+  bottom: calc(100lvh - 100svh + var(--space-4));
   left: 0;
   width: 24px;
   height: 24px;
@@ -535,6 +544,7 @@ html.lenis body {
 
 /* Mismo tamaño que el resto de los párrafos de apoyo (1.25rem). */
 .hero__support {
+  text-wrap: pretty;
   max-width: 42ch;
   margin: var(--space-3) 0 0;
   color: var(--ink-soft);
@@ -792,7 +802,7 @@ html.lenis body {
 }
 
 /* Los datos de abajo: cada uno en su mitad. */
-.why__item:nth-child(1) {
+.why__item:nth-child(2) {
   grid-column: 1;
   grid-row: 2;
 }
@@ -806,7 +816,7 @@ html.lenis body {
 }
 
 /* El "10": una parte completa, con la cifra enorme y su frase debajo. */
-.why__item:nth-child(2) {
+.why__item:nth-child(1) {
   grid-column: 1 / -1;
   grid-row: 1;
   gap: var(--space-6);
@@ -824,7 +834,7 @@ html.lenis body {
   text-wrap: balance;
 }
 
-.why__item:nth-child(2) .why__value {
+.why__item:nth-child(1) .why__value {
   font-size: clamp(9rem, 58cqi, 20rem);
   line-height: 0.8;
   letter-spacing: -0.04em;
@@ -838,12 +848,20 @@ html.lenis body {
   color: var(--ink-soft);
 }
 
-.why__item:nth-child(2) .why__text {
+.why__item:nth-child(1) .why__text {
   max-width: 16ch;
   font-size: clamp(1.25rem, 5.5cqi, 2rem);
   font-weight: 200;
   line-height: 1.2;
   color: var(--ink);
+}
+
+/* En 320 y 360px "1 sola agencia" pasa a dos líneas: las dos cifras de abajo
+   reservan el mismo alto para que sus textos arranquen parejos. */
+@media (max-width: 399px) {
+  .why__item:not(:first-child) .why__value {
+    min-height: 2.2em;
+  }
 }
 
 @media (min-width: 768px) {
@@ -856,7 +874,7 @@ html.lenis body {
     padding-right: 0;
   }
 
-  .why__item:nth-child(2) {
+  .why__item:nth-child(1) {
     padding: var(--space-6) 0;
   }
 
@@ -997,7 +1015,7 @@ html[data-zoom] .why__item:last-child {
   border-bottom: 1px solid var(--bone-hairline);
 }
 
-html[data-zoom] .why__item:nth-child(1) {
+html[data-zoom] .why__item:nth-child(2) {
   grid-column: 2;
   grid-row: 2;
 }
@@ -1007,7 +1025,7 @@ html[data-zoom] .why__item:nth-child(3) {
   grid-row: 3;
 }
 
-html[data-zoom] .why__item:nth-child(2) {
+html[data-zoom] .why__item:nth-child(1) {
   grid-column: 1;
   grid-row: 1 / span 3;
   justify-content: space-between;
@@ -1027,13 +1045,13 @@ html[data-zoom] .why__text {
 
 /* La cifra: se mide contra el alto de la pantalla para que quepa a 700px
    y llene a 1080px. */
-html[data-zoom] .why__item:nth-child(2) .why__value {
+html[data-zoom] .why__item:nth-child(1) .why__value {
   font-size: clamp(10rem, 54svh, 32rem);
   line-height: 0.8;
   letter-spacing: -0.04em;
 }
 
-html[data-zoom] .why__item:nth-child(2) .why__text {
+html[data-zoom] .why__item:nth-child(1) .why__text {
   max-width: 16ch;
   font-size: clamp(1.5rem, 3.6svh, 2.25rem);
   font-weight: 200;
@@ -1067,113 +1085,164 @@ html[data-zoom] .why__item:nth-child(2) .why__text {
   line-height: 1.1;
 }
 
-/* ---------- Servicios ---------- */
+/* ---------- Servicios ----------
+   Lista tipo acordeón: una especialidad abierta a la vez. La abierta se
+   vuelve un bloque plata con nombre grande, descripción y su figura de
+   línea (excepción aprobada a "sin ilustraciones"). Con mouse se abre al
+   pasar; en táctil, al tocar; con teclado, con el foco (Services.astro).
+   Sin JS (<noscript> en el componente) se ven todas abiertas. */
 
-.services__grid {
-  display: grid;
-  /* Columna explícita: sin esto el ancho "auto" crece con el contenido y en
-     algunos navegadores la tarjeta puede rebasar el ancho de la pantalla. */
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-3);
+.svc {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--hairline);
 }
 
-/* Tarjeta de servicio: un panel plata con nombre, número y figura, y
-   debajo, separada, la descripción. Las dos piezas se estiran para que
-   todas las tarjetas de una fila midan lo mismo. */
-.service {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.service__panel {
+.svc__item {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  aspect-ratio: 4 / 3;
-  padding: var(--space-3);
+  border-bottom: 1px solid var(--hairline);
+  transition:
+    background-color 400ms var(--ease-out),
+    margin 400ms var(--ease-out),
+    border-radius 400ms var(--ease-out);
+}
+
+.svc__item.is-active {
+  margin-block: var(--space-1);
+  border-bottom-color: transparent;
   border-radius: var(--space-3);
   background-color: var(--silver);
-  container-type: inline-size;
-  transition: translate 400ms var(--ease-out);
 }
 
-.service__head {
-  display: flex;
+.svc__head {
+  margin: 0;
+  /* Solo se cargan los pesos 200 y 400: sin esto el número heredaba la
+     negrita del <h3> y el navegador la sintetizaba. */
+  font-weight: 400;
+}
+
+.svc__btn {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 300ms var(--ease-out);
 }
 
-.service__index {
+.svc__idx {
   font-size: 0.75rem;
   letter-spacing: 0.12em;
-  color: var(--ink-soft);
 }
 
-/* El tamaño sigue al ancho del panel (cqi), no al de la pantalla: la
-   palabra más larga, "Automatizaciones" (~7.6em), cabe en cualquier columna
-   junto al número. */
-.service__name {
-  margin: 0;
-  font-size: clamp(1.5rem, 10.5cqi, 2.25rem);
+.svc__name {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
   overflow-wrap: break-word;
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
+  transition: font-size 400ms var(--ease-out);
 }
 
-/* Escenario de la figura: ocupa el resto del panel. */
-.service__stage {
+/* "+" dibujado con dos líneas: se desvanece en la fila abierta. */
+.svc__plus {
   position: relative;
-  display: grid;
-  flex: 1;
-  place-items: center;
-  margin-top: var(--space-2);
+  width: 14px;
+  height: 14px;
+  transition: opacity 300ms var(--ease-out);
 }
 
-/* Marcas de esquina del escenario (arriba a la izquierda y abajo a la
-   derecha), como registros de impresión. Al pasar el mouse se abren. */
-.service__corners {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transition: inset 400ms var(--ease-out);
-}
-
-.service__corners::before,
-.service__corners::after {
+.svc__plus::before,
+.svc__plus::after {
   content: '';
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border: 0 solid var(--ink-soft);
+  background-color: currentColor;
 }
 
-.service__corners::before {
-  top: 0;
-  left: 0;
-  border-top-width: 1px;
-  border-left-width: 1px;
-}
-
-.service__corners::after {
+.svc__plus::before {
+  top: 6.5px;
   right: 0;
-  bottom: 0;
-  border-right-width: 1px;
-  border-bottom-width: 1px;
+  left: 0;
+  height: 1px;
 }
 
+.svc__plus::after {
+  top: 0;
+  bottom: 0;
+  left: 6.5px;
+  width: 1px;
+}
+
+.is-active .svc__btn {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-3) 0;
+  color: var(--ink);
+  cursor: default;
+}
+
+.is-active .svc__name {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.is-active .svc__plus {
+  display: none;
+}
+
+/* Cuerpo: crece de 0 a su alto (0fr → 1fr). Cerrado se oculta del todo
+   (visibility) para que el lector de pantalla y Tab no lo vean. */
+.svc__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 450ms var(--ease-in-out),
+    visibility 0s linear 450ms;
+}
+
+.is-active .svc__body {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.svc__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.svc__text {
+  text-wrap: pretty;
+  max-width: 46ch;
+  margin: 0;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* La figura: en móvil, debajo del texto y solo en la fila abierta. */
 .service__figure {
-  display: block;
-  width: min(62%, 200px);
-  max-height: 100%;
+  display: none;
+  width: 150px;
+  margin: 0 auto var(--space-4);
   overflow: visible;
   fill: none;
   stroke: var(--ink);
   stroke-width: 1;
-  transition: scale 600ms var(--ease-out);
+  pointer-events: none;
+}
+
+.is-active .service__figure {
+  display: block;
 }
 
 .service__figure * {
@@ -1195,52 +1264,44 @@ html[data-zoom] .why__item:nth-child(2) .why__text {
   letter-spacing: -0.02em;
 }
 
-.service__text {
-  flex: 1;
-  margin: 0;
-  padding: var(--space-3);
-  border-radius: var(--space-2);
-  background-color: var(--silver);
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--ink-soft);
-}
-
-/* Trazado de entrada: con Reveal activo, las líneas esperan sin dibujar y
-   se trazan cuando el grupo entra, en cascada por tarjeta (--i). Sin JS o
-   con movimiento reducido se ven completas desde el inicio. */
-html[data-reveal] .service__figure * {
+/* Trazado de entrada: las líneas se dibujan cada vez que la fila se abre.
+   Cerrada, la figura está sin trazar. Antes de que la lista se vea por
+   primera vez (data-seen) también, para que la primera se dibuje al
+   llegar. Movimiento reducido: aparece completa sin dibujarse. */
+.service__figure * {
   stroke-dasharray: 1;
-}
-
-/* La transición solo existe al revelarse: así el estado oculto se aplica al
-   instante al cargar, sin verse cómo se "borran" las líneas. */
-html[data-reveal] .services__grid[data-revealed] .service__figure * {
-  transition: stroke-dashoffset 1600ms var(--ease-in-out);
-  transition-delay: calc(300ms + var(--i, 0) * 120ms);
-}
-
-html[data-reveal] .services__grid:not([data-revealed]) .service__figure * {
   stroke-dashoffset: 1;
 }
 
-/* Lo relleno (fecha y puntos) no se traza: aparece con opacidad. */
-html[data-reveal] .services__grid[data-revealed] :is(.service__date, .service__motion--flow, .service__dot) {
-  transition: opacity 800ms ease-out;
-  transition-delay: calc(1200ms + var(--i, 0) * 120ms);
+.is-active .service__figure * {
+  stroke-dashoffset: 0;
 }
 
-html[data-reveal] .services__grid:not([data-revealed]) :is(.service__date, .service__motion--flow, .service__dot) {
+.services:not([data-seen]) .service__figure * {
+  stroke-dashoffset: 1;
+}
+
+.service__figure :is(.service__date, .service__motion--flow, .service__dot) {
   opacity: 0;
 }
 
-/* El movimiento continuo espera a que la figura se haya trazado. */
-html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
-  animation-play-state: paused;
+.is-active .service__figure :is(.service__date, .service__motion--flow, .service__dot) {
+  opacity: 1;
 }
 
-/* Movimiento continuo, lento y leve: cada figura con el suyo. */
+.services:not([data-seen]) .service__figure :is(.service__date, .service__motion--flow, .service__dot) {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: no-preference) {
+  .is-active .service__figure * {
+    transition: stroke-dashoffset 1400ms var(--ease-in-out) 150ms;
+  }
+
+  .is-active .service__figure :is(.service__date, .service__motion--flow, .service__dot) {
+    transition: opacity 800ms ease-out 900ms;
+  }
+
   .service__motion {
     transform-box: view-box;
     transform-origin: 100px 100px;
@@ -1267,21 +1328,21 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
     animation: service-float 6s var(--ease-in-out) infinite alternate;
   }
 
-  /* Con mouse, las figuras solo se mueven mientras el cursor está sobre su
-     tarjeta: al salir se pausan donde iban y al volver siguen desde ahí
-     (pausar, no reiniciar). Así nada se mueve solo sin fin (WCAG 2.2.2). */
+  /* Con mouse, la figura abierta solo se mueve mientras el cursor está
+     sobre la lista: al salir se pausa donde iba (pausar, no reiniciar). Así
+     nada se mueve solo sin fin (WCAG 2.2.2). */
   @media (hover: hover) {
     .service__motion {
       animation-play-state: paused;
     }
 
-    .service:hover .service__motion {
+    .svc:hover .is-active .service__motion {
       animation-play-state: running;
     }
   }
 
-  /* En táctil no hay hover: se mueven sin parar mientras la sección está
-     en pantalla (Services.astro marca data-onscreen) y se pausan fuera. */
+  /* En táctil no hay hover: se mueve mientras la sección está en pantalla
+     (Services.astro marca data-onscreen) y se pausa fuera. */
   @media (hover: none) {
     .services:not([data-onscreen]) .service__motion {
       animation-play-state: paused;
@@ -1342,19 +1403,37 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
   }
 }
 
-/* Mouse encima: el panel se eleva y se separa de su descripción, la figura
-   crece un poco y las marcas de esquina se abren. */
-@media (hover: hover) {
-  .service:hover .service__panel {
-    translate: 0 calc(-1 * var(--space-1));
+/* Desde tablet: la fila abierta es un bloque ancho con el texto a la
+   izquierda y la figura a la derecha, centrada en vertical. El alto mínimo
+   es igual para todas (el de la más larga): al cambiar de fila, el puntero
+   sigue dentro de la fila que se abre y la lista no parpadea. */
+@media (min-width: 768px) {
+  .svc__item.is-active {
+    min-height: 19rem;
   }
 
-  .service:hover .service__figure {
-    scale: 1.08;
+  .svc__btn {
+    grid-template-columns: 4rem minmax(0, 1fr) auto;
+    padding-block: var(--space-3);
   }
 
-  .service:hover .service__corners {
-    inset: -6px;
+  .is-active .svc__btn {
+    padding: var(--space-4) var(--space-5) 0;
+  }
+
+  .svc__text {
+    /* El texto no llega a la figura (que está a la derecha). */
+    max-width: min(46ch, calc(100% - var(--space-8) - clamp(160px, 17vw, 220px) - var(--space-3)));
+    padding: var(--space-3) var(--space-5) var(--space-4);
+  }
+
+  .service__figure {
+    position: absolute;
+    top: 50%;
+    right: var(--space-8);
+    width: clamp(160px, 17vw, 220px);
+    margin: 0;
+    translate: 0 -50%;
   }
 }
 
@@ -1478,7 +1557,8 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
   scale: 0.97;
 }
 
-/* Para quién, desde tablet: el botón rebota por toda la sección como el
+/* Para quién, desde tablet con mouse (en táctil no hay hover para detenerlo
+   y taparía la frase sin que se pueda pausar): el botón rebota por toda la sección como el
    logo de un DVD, a velocidad constante, y puede pasar sobre la frase. Su
    caja (.audience__aside) cubre la sección y es contenedor de tamaño, así
    cqw/cqh miden el área libre. El eje X va en el <div> y el Y en el
@@ -1486,7 +1566,7 @@ html[data-reveal] .services__grid:not([data-revealed]) .service__motion {
    dan el rebote en diagonal sin frenar en las esquinas. Se detiene con el
    mouse o el foco encima, para poder atraparlo. Sin movimiento, o en
    móvil, queda en su lugar. */
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 768px) and (hover: hover) and (prefers-reduced-motion: no-preference) {
   .audience {
     position: relative;
   }
@@ -3494,7 +3574,7 @@ body:has(.site-menu[open]) .site-header__home {
   }
 
   .intro__hint {
-    bottom: var(--space-6);
+    bottom: calc(100lvh - 100svh + var(--space-6));
   }
 
   .section-intro {
@@ -3505,25 +3585,6 @@ body:has(.site-menu[open]) .site-header__home {
      lo ancho; desde tablet vuelven al relleno amplio. */
   .plan {
     padding: var(--space-6) var(--space-5);
-  }
-
-  .service__panel,
-  .service__text {
-    padding: var(--space-4);
-  }
-
-  /* Rejilla de medias columnas: cada tarjeta ocupa dos, así la que queda
-     sola en la última fila se centra sin cambiar de ancho. */
-  .services__grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .service {
-    grid-column: span 2;
-  }
-
-  .service:last-child:nth-child(odd) {
-    grid-column: 2 / span 2;
   }
 
   .step {
@@ -3567,27 +3628,6 @@ body:has(.site-menu[open]) .site-header__home {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  /* Tres por fila sobre seis medias columnas: si la última fila queda
-     incompleta, sus tarjetas conservan el ancho y se centran. */
-  .services__grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .service,
-  .service:last-child:nth-child(odd) {
-    grid-column: span 2;
-  }
-
-  /* Dos en la última fila: la primera arranca en la media columna 2. */
-  .service:nth-last-child(2):nth-child(3n + 1) {
-    grid-column: 2 / span 2;
-  }
-
-  /* Una sola en la última fila: al centro. */
-  .service:last-child:nth-child(3n + 1) {
-    grid-column: 3 / span 2;
-  }
-
   /* Para quién: frase a la izquierda; texto y botón a la derecha, abajo. */
   .audience {
     display: grid;
@@ -3629,8 +3669,8 @@ body:has(.site-menu[open]) .site-header__home {
 }
 
 /* ---------- Animaciones ligadas al scroll ----------
-   Todo depende del scroll desde arriba: el intro mide 100svh y está al inicio,
-   así que los rangos en svh equivalen a "cuánto ha salido el intro".
+   Todo depende del scroll desde arriba: el intro mide 100lvh (igual a 100svh en
+   escritorio) y está al inicio, así que los rangos en svh equivalen a "cuánto ha salido el intro".
    Sin soporte (Firefox) o con movimiento reducido, se ve el estado final:
    logo en el header, CONTACT visible y corte directo entre secciones. */
 
@@ -3899,8 +3939,8 @@ body:has(.site-menu[open]) .site-header__home {
   left: var(--space-2);
   z-index: 30;
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
   border-radius: var(--space-3);
   background-color: var(--ink);
   color: var(--bone);
@@ -3924,7 +3964,7 @@ body:has(.site-menu[open]) .site-header__home {
 
 .cookie__title {
   margin: 0;
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.25rem, 3vw, 2rem);
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
@@ -3933,8 +3973,8 @@ body:has(.site-menu[open]) .site-header__home {
 .cookie__text {
   max-width: 52ch;
   margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.55;
+  font-size: 0.8125rem;
+  line-height: 1.5;
   color: rgb(228 223 214 / 0.75);
 }
 
@@ -4252,8 +4292,9 @@ body:has(.site-menu[open]) .site-header__home {
   .cta-split__label,
   .cta-split__icon,
   .cta-split__icon svg,
-  .service__panel,
-  .service__corners,
+  .svc__item,
+  .svc__body,
+  .svc__name,
   .service__figure,
   .cursor,
   .cursor__dot,

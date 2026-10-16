@@ -116,15 +116,20 @@ una cámara.
   fondo tinta de "Por qué Galena" (texto en hueso). Cruce 2: un círculo hueso
   nace de la cifra "10" y se vuelve el fondo de "Para quién". Los
   fondos van en capas propias que no escalan.
-- Solo la escena en reposo recibe clics; con el foco (Tab) en otra, el scroll
-  va a su meseta. Pista de `600svh`; si se agrega o quita una escena, hay que
+- Solo la escena que se ve (la de más opacidad, si pasa de la mitad) recibe
+  clics; con el foco (Tab) en otra, el scroll va a su meseta. Al cambiar el
+  tamaño de la ventana se conserva el progreso, y si se cruza el umbral de
+  900×700 el efecto se apaga limpio (sin estilos de escena colgados). Pista de `600svh`; si se agrega o quita una escena, hay que
   ajustar la altura y los tramos.
-- Mientras el fondo es tinta, el header toma el tono `ink` (fondo tinta,
-  logo y botones en hueso): ScrollZoom pone `html[data-tone-override]` y
+- El header toma el tono `ink` (fondo tinta, logo y botones en hueso) solo
+  cuando el círculo negro ya cubre la franja del header (se calcula con la
+  geometría, no con el progreso), y vuelve a hueso cuando el círculo hueso la
+  cubre; en medio se queda plata: ScrollZoom pone `html[data-tone-override]` y
   HeaderTone lo respeta (evento `tone-override`). El logo hueso es una
   segunda imagen apilada que se funde con la de tinta.
 - El botón que rebota de "Para quién" rebota desde el borde inferior del
-  header, no por debajo.
+  header, no por debajo. Solo rebota con mouse (`hover: hover`): en tablet
+  táctil se queda en su lugar, porque no habría cómo detenerlo.
 - Tokens derivados para la escena tinta: `--bone-soft` (hueso 70%) y
   `--bone-hairline` (hueso 25%).
 
@@ -166,6 +171,8 @@ startup. El espacio en blanco es el elemento de diseño principal, no un sobrant
 | `--ink-faint` | `#141414` al 40% | Placeholders de formularios |
 | `--ink-ghost` | `#141414` al 25% | Flecha de scroll del intro (decorativa, `aria-hidden`) |
 | `--hairline` | `#141414` al 14% | Bordes de 1px |
+| `--bone-soft` | `#E4DFD6` al 70% | Texto secundario sobre fondo tinta (escena "Por qué Galena" del zoom) |
+| `--bone-hairline` | `#E4DFD6` al 25% | Líneas finas y bordes sobre fondo tinta |
 | `--scrim` | `#141414` al 40% | Fondo oscurecido detrás de diálogos |
 | `--scrim-strong` | `#141414` al 75% | Fondo detrás del menú solo sin soporte de `backdrop-filter` (con soporte: `--scrim` + desenfoque) |
 
@@ -273,14 +280,20 @@ se pida cambiarlas.
 - Entrada suave, una sola vez: `Reveal.astro` + `data-reveal-group`; los
   hijos del grupo entran en cascada. Un grupo no debe tener como hijo directo
   un botón o enlace con transición propia (se envuelve en un `<div>`).
-- Tarjetas (servicios y planes): radio `--space-3`; menos relleno en móvil.
-  Las de servicios son informativas (sin enlace): un panel plata con
-  nombre, número y figura de línea, y debajo, separada, la descripción. La
-  figura se traza al entrar. Con mouse, solo se mueve mientras el cursor
-  está sobre la tarjeta y al salir se pausa donde iba (no se reinicia); en
-  táctil se mueve sin parar mientras la sección está en pantalla (una isla
-  mínima en `Services.astro` marca `data-onscreen`) y se pausa fuera. Con el mouse encima, el panel
-  sube 8px, la figura crece y las marcas de esquina se abren.
+- Tarjetas de planes: radio `--space-3`; menos relleno en móvil.
+- Servicios (`Services.astro`): lista tipo acordeón con una especialidad
+  abierta a la vez. La abierta es un bloque plata (radio `--space-3`) con
+  número, nombre grande, descripción y su figura de línea a la derecha (debajo
+  del texto en móvil); las demás son filas con "+". Se abre con hover (mouse,
+  con 70ms de pausa), toque (táctil) o foco (teclado); la isla solo cambia
+  `is-active` y `aria-expanded`. Todas las filas abiertas miden lo mismo
+  (`min-height: 19rem`) para que la lista no se mueva bajo el puntero: si una
+  descripción crece, revisar que siga cabiendo. La figura se traza cada vez
+  que su fila se abre. Con mouse, solo se mueve mientras el cursor está sobre
+  la lista y al salir se pausa donde iba; en táctil, mientras la sección está
+  en pantalla (`data-onscreen`). Sin JS (`<noscript>`) se ven todas abiertas.
+  La lista va dentro de un `<div data-reveal-group>`: Reveal reemplaza las
+  transiciones de los hijos directos.
 
 **Interacción**
 - Enlaces internos siempre con barra final (`/planes/`, `/cotizar/`): son
@@ -308,11 +321,14 @@ se pida cambiarlas.
   todo quepa a 360px.
 - Footer siempre al fondo: `body` es columna de `min-height: 100dvh` y
   `main` crece (`flex: 1`), así en páginas cortas no queda hueco debajo.
-- Safari en iPhone pinta con el fondo de la página las franjas de arriba
-  (hora y batería) y de abajo (bajo su barra de herramientas). Por eso en
-  táctil `html` y `body` llevan hueso sobre plata salvo el último píxel: dos
-  rellenos planos de color, no un degradado visible. No quitarlo. Solo en
-  táctil: en escritorio, `scrollbar-gutter` dejaría una tira plata.
+- Safari en iPhone pinta con el fondo de `<html>` las franjas fuera de la
+  página: arriba (hora y batería) debe verse hueso y abajo (bajo su barra de
+  herramientas) plata. En táctil `html` repite como baldosa del alto de la
+  página un fondo de 400px de plata y el resto hueso (corte seco, no un
+  degradado visible): arriba se ve el final (hueso), abajo el comienzo
+  (plata). No quitarlo. Solo en táctil: en escritorio, `scrollbar-gutter`
+  dejaría una tira plata. La intro mide `100lvh` (no `svh`): la barra
+  inferior de Safari flota sobre la página y con `svh` asomaba el hero.
 - `html` lleva `scrollbar-gutter: stable`: al bloquear el scroll con un
   diálogo abierto, la página no brinca.
 

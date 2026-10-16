@@ -28,8 +28,8 @@
   // El primer cruce arranca casi al fijarse el escenario (sin tramo muerto
   // al llegar al hero) y las mesetas son cortas: el movimiento no se detiene.
   const T1 = [0.03, 0.38]; // Hero → Por qué Galena
-  const T2 = [0.5, 0.8]; // Por qué Galena → Para quién
-  const HOLD = { hero: 0.015, why: 0.44, audience: 0.9 }; // centro de cada meseta
+  const T2 = [0.5, 0.88]; // Por qué Galena → Para quién
+  const HOLD = { hero: 0.015, why: 0.44, audience: 0.94 }; // centro de cada meseta
   const EASE = 0.085; // lerp por cuadro a 60fps: menor = más inercia
 
   const root = document.documentElement;
@@ -44,9 +44,10 @@
   const bgBone = stage?.querySelector<HTMLElement>('.zoom__bg--bone');
   const dot = hero?.querySelector<HTMLElement>('.hero__dot');
   // El foco del segundo cruce es la cifra enorme: el círculo hueso nace de ella.
-  const focal = why?.querySelectorAll<HTMLElement>('.why__item')[1]?.querySelector<HTMLElement>('.why__value');
+  const focal = why?.querySelectorAll<HTMLElement>('.why__item')[0]?.querySelector<HTMLElement>('.why__value');
+  const header = document.querySelector<HTMLElement>('.site-header');
 
-  if (track && stage && hero && why && audience && portalInk && portalBone && bgInk && bgBone && dot && focal) {
+  if (track && stage && hero && why && audience && portalInk && portalBone && bgInk && bgBone && dot && focal && header) {
     const mq = matchMedia(QUERY);
     const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
     const map = (v: number, a: number, b: number, c: number, d: number) => c + (d - c) * clamp((v - a) / (b - a));
@@ -63,9 +64,13 @@
     let max = 1;
     let last = 0;
     let zoomed = false;
-    let inked = false;
+    let tone = '';
     let S1 = 40;
     let S2 = 40;
+    let dotD = 64;
+    let focalD = 48;
+    let need1 = 1000; // radio con el que el círculo del hero cubre el header
+    let need2 = 1000; // ídem para el círculo hueso
     let resizeTimer = 0;
 
     // Escala con la que un círculo de diámetro d, centrado en (cx, cy), cubre
@@ -75,6 +80,13 @@
       const h = stage.clientHeight;
       const far = Math.max(Math.hypot(cx, cy), Math.hypot(w - cx, cy), Math.hypot(cx, h - cy), Math.hypot(w - cx, h - cy));
       return (far / (d / 2)) * 1.05;
+    };
+
+    // Radio que cubre toda la franja del header (la esquina más lejana manda).
+    const stripNeed = (cx: number, cy: number) => {
+      const w = stage.clientWidth;
+      const h = header.offsetHeight;
+      return Math.hypot(Math.max(cx, w - cx), Math.max(cy, Math.abs(cy - h)));
     };
 
     // Centro de un elemento en coordenadas del escenario, sin transform
@@ -97,6 +109,8 @@
       portalInk.style.top = `${cy - d / 2}px`;
       hero.style.transformOrigin = `${cx}px ${cy}px`;
       S1 = coverScale(cx, cy, d);
+      dotD = d;
+      need1 = stripNeed(cx, cy);
     };
 
     const measureFocal = () => {
@@ -107,6 +121,8 @@
       portalBone.style.top = `${cy - d / 2}px`;
       why.style.transformOrigin = `${cx}px ${cy}px`;
       S2 = coverScale(cx, cy, d);
+      need2 = stripNeed(cx, cy) ;
+      focalD = d;
     };
 
     const readTarget = () => {
@@ -114,8 +130,11 @@
       target = clamp(-track.getBoundingClientRect().top / max);
     };
 
-    const setInk = (on: boolean) => {
-      if (on) root.dataset.toneOverride = 'ink';
+    // Tono del header mientras dura el zoom ('' = el que ponga HeaderTone).
+    const setTone = (next: string) => {
+      if (next === tone) return;
+      tone = next;
+      if (next) root.dataset.toneOverride = next;
       else delete root.dataset.toneOverride;
       dispatchEvent(new Event('tone-override'));
     };
@@ -154,15 +173,24 @@
       // Header en tinta (con el logo en hueso) mientras el fondo es tinta:
       // desde que el círculo del hero llega al header hasta que el círculo
       // hueso lo alcanza.
-      const ink = u >= 0.52 && v < 0.55;
-      if (ink !== inked) {
-        inked = ink;
-        setInk(ink);
-      }
+      const r1 = (dotD / 2) * (1 + (S1 - 1) * cube(clamp(u / 0.7)));
+      const r2 = v > 0 ? (focalD / 2) * S2 * cube(clamp(v / 0.75)) : 0;
+      const ink = isZoomed && r1 >= 0.9 * need1 && r2 < 0.9 * need2;
+      // Entre el inicio del cruce y el círculo, el header sigue plata (el
+      // del hero); sin esto saltaba a hueso cuando el hero ya no recibe clics.
+      setTone(ink ? 'ink' : isZoomed && v === 0 ? 'silver' : '');
 
-      // Solo la escena en reposo recibe clics.
-      const active = p < (HOLD.hero + HOLD.why) / 2 ? hero : p < (HOLD.why + HOLD.audience) / 2 ? why : audience;
-      for (const scene of [hero, why, audience]) scene.style.pointerEvents = scene === active ? 'auto' : 'none';
+      // Solo la escena que se ve (la de más opacidad, si pasa de la mitad)
+      // recibe clics: nunca un botón invisible.
+      const levels: [HTMLElement, number][] = [
+        [hero, 1 - mapSoft(u, 0, 0.55, 0, 1)],
+        [why, whyIn * whyOut],
+        [audience, mapSoft(v, 0.72, 0.97, 0, 1)],
+      ];
+      const top = levels.reduce((a, b) => (b[1] > a[1] ? b : a));
+      for (const [scene, level] of levels) {
+        scene.style.pointerEvents = scene === top[0] && level >= 0.5 ? 'auto' : 'none';
+      }
     };
 
     const frame = (now: number) => {
@@ -189,8 +217,8 @@
     };
 
     const remeasure = () => {
+      if (!running) return;
       zoomed = false;
-      inked = false;
       stage.classList.remove('is-zoomed');
       readTarget();
       measureFocal();
@@ -200,7 +228,18 @@
 
     const onResize = () => {
       clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(remeasure, 150);
+      resizeTimer = window.setTimeout(() => {
+        // Al cambiar el tamaño, el scroll se conserva en píxeles pero la
+        // pista cambia de alto: se guarda el progreso y se vuelve a él.
+        const keep = current;
+        remeasure();
+        if (!running) return;
+        const trackTop = track.getBoundingClientRect().top + scrollY;
+        scrollTo({ top: trackTop + keep * max, behavior: 'instant' });
+        readTarget();
+        current = target;
+        render(current);
+      }, 150);
     };
 
     // Con el foco en una escena que no está en su meseta (Tab), el scroll
@@ -228,14 +267,14 @@
     const stop = () => {
       if (!running) return;
       running = false;
+      clearTimeout(resizeTimer);
       cancelAnimationFrame(raf);
       raf = 0;
       removeEventListener('scroll', onScroll);
       removeEventListener('resize', onResize);
       stage.removeEventListener('focusin', onFocusIn);
       stage.classList.remove('is-zoomed');
-      if (inked) setInk(false);
-      inked = false;
+      setTone('');
       delete root.dataset.zoom;
       for (const el of [hero, why, audience, portalInk, portalBone, bgInk, bgBone]) el.removeAttribute('style');
     };

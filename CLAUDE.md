@@ -285,11 +285,16 @@ se pida cambiarlas.
   abierta a la vez. La abierta es un bloque plata (radio `--space-3`) con
   número, nombre grande, descripción y su figura de línea a la derecha (debajo
   del texto en móvil); las demás son filas con "+". Se abre con hover (mouse,
-  con 70ms de pausa) o foco (teclado), siempre una sola; en táctil cada
-  fila se abre y se cierra con un toque por su cuenta (abrir una no cierra las
-  otras, para que la fila tocada no se mueva bajo el dedo y sin mover el scroll
-  por JS, que en Safari de iPhone era brusco); la isla solo cambia
-  `is-active` y `aria-expanded`. La figura vive dentro del cuerpo plegable (sin
+  con 70ms de pausa), toque (táctil) o foco (teclado): siempre una sola
+  abierta. Todo se mueve en sincronía con la misma duración y curva
+  (`--svc-t` 450ms, `--svc-ease`): el bloque (fondo, radio, margen, alto
+  mínimo), el cuerpo (0fr → 1fr), el nombre (tamaño, margen y relleno) y el
+  número, que va dentro del nombre y se coloca con las propiedades registradas
+  `--svc-fs` y `--svc-lift` (`@property`), así sube de la línea base del
+  nombre a encima de él sin saltos. En táctil, al terminar la animación, un
+  único `scrollIntoView` suave deja la fila abierta a la vista (nunca se mueve
+  el scroll cuadro a cuadro desde JS: en Safari de iPhone se sentía brusco).
+  La isla solo cambia `is-active` y `aria-expanded`. La figura vive dentro del cuerpo plegable (sin
   `display:none`, que impide animar el trazo); en iOS el trazo por
   `stroke-dashoffset` se sustituye por un fundido (`@supports
   (-webkit-touch-callout: none)`), por un fallo conocido de WebKit con

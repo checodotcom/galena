@@ -58,9 +58,11 @@ const services = [
               aria-controls={`svc-body-${i}`}
               aria-expanded={i === 0 ? 'true' : 'false'}
             >
-              <span class="svc__idx">{String(i + 1).padStart(2, '0')}</span>
-              <span class="svc__name">{service.name}</span>
-              <span class="svc__plus" aria-hidden="true" />
+              <span class="svc__name">
+                <span class="svc__idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                {service.name}
+                <span class="svc__plus" aria-hidden="true" />
+              </span>
             </button>
           </h3>
           <div class="svc__body" id={`svc-body-${i}`}>
@@ -177,22 +179,23 @@ const services = [
       items.forEach((item, i) => setOpen(item, i === index));
     };
 
-    // En táctil cada fila se abre y se cierra por su cuenta: abrir una no
-    // cierra las otras. Así la fila tocada nunca se mueve bajo el dedo (lo
-    // de arriba no se encoge) y no hace falta mover el scroll por JS, que en
-    // Safari de iPhone se sentía brusco.
+    // En táctil, abrir una fila sube la de arriba al cerrarse: al terminar la
+    // animación, un solo desplazamiento nativo suave deja la fila abierta a la
+    // vista (nunca se mueve el scroll cuadro a cuadro desde JS).
     const touch = matchMedia('(hover: none)');
 
     items.forEach((item, i) => {
       const button = item.querySelector<HTMLElement>('.svc__btn');
       button?.addEventListener('click', () => {
-        if (touch.matches) setOpen(item, !item.classList.contains('is-active'));
-        else activate(i);
+        activate(i);
+        if (touch.matches) {
+          window.setTimeout(() => item.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 480);
+        }
       });
       // Solo el foco de teclado abre la fila (un toque o un clic ya la abren
       // con su propio evento); así Tab no reacomoda la página sin querer.
       button?.addEventListener('focus', () => {
-        if (!touch.matches && button.matches(':focus-visible')) activate(i);
+        if (button.matches(':focus-visible')) activate(i);
       });
       // Con mouse se abre al pasar, con una pausa corta para no abrir filas
       // de paso. Con la fila abierta, la lista no se mueve bajo el puntero

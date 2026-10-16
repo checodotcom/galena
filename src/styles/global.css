@@ -1099,13 +1099,40 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   border-top: 1px solid var(--hairline);
 }
 
+/* Todo movimiento de abrir y cerrar usa la misma duración y curva
+   (--svc-t, --svc-ease): así el bloque, el número, el nombre, el cuerpo y la
+   figura se mueven en sincronía. --svc-fs (tamaño del nombre) y --svc-lift
+   (cuánto sube el número) son propiedades registradas para poder animarse;
+   el número se coloca con ellas, así sigue al nombre en cada cuadro. */
+@property --svc-fs {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 28px;
+}
+
+@property --svc-lift {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
 .svc__item {
+  --svc-t: 450ms;
+  --svc-ease: var(--ease-in-out);
+
   position: relative;
+  min-height: 0;
   border-bottom: 1px solid var(--hairline);
+  /* Al abrir con un toque, el scroll deja el bloque a la vista sin tapar el
+     header ni la barra flotante de Safari. */
+  scroll-margin-top: calc(var(--header-height) + var(--space-3));
+  scroll-margin-bottom: var(--space-12);
   transition:
-    background-color 400ms var(--ease-out),
-    margin 400ms var(--ease-out),
-    border-radius 400ms var(--ease-out);
+    background-color var(--svc-t) var(--svc-ease),
+    border-color var(--svc-t) var(--svc-ease),
+    border-radius var(--svc-t) var(--svc-ease),
+    margin var(--svc-t) var(--svc-ease),
+    min-height var(--svc-t) var(--svc-ease);
 }
 
 .svc__item.is-active {
@@ -1123,9 +1150,7 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
 }
 
 .svc__btn {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr) auto;
-  align-items: baseline;
+  display: block;
   width: 100%;
   padding: var(--space-2) 0;
   border: 0;
@@ -1135,36 +1160,53 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: color 300ms var(--ease-out);
+  transition:
+    padding var(--svc-t) var(--svc-ease),
+    color var(--svc-t) var(--svc-ease);
 }
 
-.svc__idx {
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-}
-
+/* Nombre: cerrado deja a la izquierda el hueco del número; abierto lo
+   ocupa todo, sube el borde para que quepa el número encima y crece. */
 .svc__name {
-  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  --svc-fs: clamp(1.75rem, 4vw, 2.75rem);
+
+  position: relative;
+  display: block;
+  margin-top: 0;
+  padding-left: 3rem;
+  padding-right: 2rem;
+  font-size: var(--svc-fs);
   overflow-wrap: break-word;
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
+  transition:
+    --svc-fs var(--svc-t) var(--svc-ease),
+    --svc-lift var(--svc-t) var(--svc-ease),
+    margin-top var(--svc-t) var(--svc-ease),
+    padding-left var(--svc-t) var(--svc-ease);
 }
 
-/* Animar el tamaño del texto obliga a recalcular el layout en cada cuadro;
-   en táctil el cambio es instantáneo (el cuerpo sí se anima). */
-@media (hover: hover) {
-  .svc__name {
-    transition: font-size 400ms var(--ease-out);
-  }
+/* Número: dentro del nombre y colocado respecto a él. Cerrado, en la línea
+   base del nombre (0.9em del nombre menos 0.85 de su propio tamaño de 12px);
+   abierto, 28px más arriba, encima del nombre. */
+.svc__idx {
+  position: absolute;
+  top: calc(var(--svc-fs) * 0.9 - 0.6375rem - var(--svc-lift));
+  left: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
 }
 
-/* "+" dibujado con dos líneas: se desvanece en la fila abierta. */
+/* "+" dibujado con dos líneas, a la derecha: se desvanece en la fila abierta. */
 .svc__plus {
-  position: relative;
+  position: absolute;
+  top: calc(var(--svc-fs) * 0.55 - 7px);
+  right: 0;
   width: 14px;
   height: 14px;
-  transition: opacity 300ms var(--ease-out);
+  transition: opacity var(--svc-t) var(--svc-ease);
 }
 
 .svc__plus::before,
@@ -1189,33 +1231,21 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
 }
 
 .is-active .svc__btn {
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-2);
   padding: var(--space-4) var(--space-3) 0;
   color: var(--ink);
+  cursor: default;
 }
 
 .is-active .svc__name {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  --svc-fs: clamp(2rem, 5vw, 3.5rem);
+  --svc-lift: calc(var(--svc-fs) * 0.9 - 0.6375rem + 1.75rem);
+
+  margin-top: 1.75rem;
+  padding-left: 0;
 }
 
 .is-active .svc__plus {
-  display: none;
-}
-
-/* En táctil la fila abierta también se cierra con un toque: el "+" pasa a
-   "−" en la esquina de su bloque. */
-@media (hover: none) {
-  .is-active .svc__plus {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-3);
-    display: block;
-  }
-
-  .is-active .svc__plus::after {
-    display: none;
-  }
+  opacity: 0;
 }
 
 /* Cuerpo: crece de 0 a su alto (0fr → 1fr). Cerrado se oculta del todo
@@ -1225,8 +1255,8 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   grid-template-rows: 0fr;
   visibility: hidden;
   transition:
-    grid-template-rows 450ms var(--ease-in-out),
-    visibility 0s linear 450ms;
+    grid-template-rows var(--svc-t) var(--svc-ease),
+    visibility 0s linear var(--svc-t);
 }
 
 .is-active .svc__body {
@@ -1238,6 +1268,13 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
 .svc__inner {
   min-height: 0;
   overflow: hidden;
+  opacity: 0;
+  transition: opacity 250ms ease-out;
+}
+
+.is-active .svc__inner {
+  opacity: 1;
+  transition-delay: 200ms;
 }
 
 .svc__text {
@@ -1455,8 +1492,15 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   }
 
   .svc__btn {
-    grid-template-columns: 4rem minmax(0, 1fr) auto;
     padding-block: var(--space-3);
+  }
+
+  .svc__name {
+    padding-left: 4rem;
+  }
+
+  .is-active .svc__name {
+    padding-left: 0;
   }
 
   .is-active .svc__btn {
@@ -4335,8 +4379,11 @@ body:has(.site-menu[open]) .site-header__home {
   .cta-split__icon,
   .cta-split__icon svg,
   .svc__item,
-  .svc__body,
+  .svc__btn,
   .svc__name,
+  .svc__plus,
+  .svc__body,
+  .svc__inner,
   .service__figure,
   .cursor,
   .cursor__dot,

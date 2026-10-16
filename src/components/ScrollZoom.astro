@@ -1,0 +1,249 @@
+---
+// Escenas con zoom al hacer scroll (Hero → Por qué Galena → Para quién), solo
+// desde 900px de ancho y 700px de alto, y sin movimiento reducido. Es una
+// isla de la home: el scroll no baja el contenido, avanza una cámara.
+//
+// - La pista (.zoom) solo da recorrido de scroll; el escenario (.zoom__stage)
+//   es sticky y las tres secciones van apiladas dentro.
+// - El JS convierte el scroll en un progreso 0→1 (suavizado con lerp) y
+//   escribe transform y opacity de cada escena; la coreografía vive aquí.
+// - Cruce 1: el círculo negro del hero se agranda hasta llenar la pantalla y
+//   se vuelve el fondo tinta de "Por qué Galena". Cruce 2: un círculo hueso
+//   nace de la cifra "10" y se vuelve el fondo de "Para quién".
+// - Sin JS, en móvil o con movimiento reducido las tres son secciones
+//   normales, una tras otra. Todo el contenido está siempre en el DOM.
+---
+
+<!-- Antes de pintar la pista: decide si el CSS de escenas aplica (misma
+     consulta que la del script de abajo), para que no haya salto de layout. -->
+<script is:inline>
+  if (matchMedia('(min-width: 900px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)').matches) {
+    document.documentElement.dataset.zoom = '';
+  }
+</script>
+
+<script>
+  const QUERY = '(min-width: 900px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)';
+  // Tramos del progreso (0→1 sobre toda la pista).
+  // El primer cruce arranca casi al fijarse el escenario (sin tramo muerto
+  // al llegar al hero) y las mesetas son cortas: el movimiento no se detiene.
+  const T1 = [0.03, 0.38]; // Hero → Por qué Galena
+  const T2 = [0.5, 0.8]; // Por qué Galena → Para quién
+  const HOLD = { hero: 0.015, why: 0.44, audience: 0.9 }; // centro de cada meseta
+  const EASE = 0.085; // lerp por cuadro a 60fps: menor = más inercia
+
+  const root = document.documentElement;
+  const track = document.querySelector<HTMLElement>('.zoom');
+  const stage = track?.querySelector<HTMLElement>('.zoom__stage');
+  const hero = stage?.querySelector<HTMLElement>('.hero');
+  const why = stage?.querySelector<HTMLElement>('.why');
+  const audience = stage?.querySelector<HTMLElement>('.audience');
+  const portalInk = stage?.querySelector<HTMLElement>('.zoom__portal--ink');
+  const portalBone = stage?.querySelector<HTMLElement>('.zoom__portal--bone');
+  const bgInk = stage?.querySelector<HTMLElement>('.zoom__bg--ink');
+  const bgBone = stage?.querySelector<HTMLElement>('.zoom__bg--bone');
+  const dot = hero?.querySelector<HTMLElement>('.hero__dot');
+  // El foco del segundo cruce es la cifra enorme: el círculo hueso nace de ella.
+  const focal = why?.querySelectorAll<HTMLElement>('.why__item')[1]?.querySelector<HTMLElement>('.why__value');
+
+  if (track && stage && hero && why && audience && portalInk && portalBone && bgInk && bgBone && dot && focal) {
+    const mq = matchMedia(QUERY);
+    const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+    const map = (v: number, a: number, b: number, c: number, d: number) => c + (d - c) * clamp((v - a) / (b - a));
+    const cube = (t: number) => t * t * t;
+    // Entra y sale suave (smoothstep): arranque y llegada sin tirones.
+    const soft = (t: number) => t * t * (3 - 2 * t);
+    const mapSoft = (v: number, a: number, b: number, c: number, d: number) =>
+      c + (d - c) * soft(clamp((v - a) / (b - a)));
+
+    let running = false;
+    let raf = 0;
+    let current = 0;
+    let target = 0;
+    let max = 1;
+    let last = 0;
+    let zoomed = false;
+    let inked = false;
+    let S1 = 40;
+    let S2 = 40;
+    let resizeTimer = 0;
+
+    // Escala con la que un círculo de diámetro d, centrado en (cx, cy), cubre
+    // todo el escenario (la esquina más lejana manda).
+    const coverScale = (cx: number, cy: number, d: number) => {
+      const w = stage.clientWidth;
+      const h = stage.clientHeight;
+      const far = Math.max(Math.hypot(cx, cy), Math.hypot(w - cx, cy), Math.hypot(cx, h - cy), Math.hypot(w - cx, h - cy));
+      return (far / (d / 2)) * 1.05;
+    };
+
+    // Centro de un elemento en coordenadas del escenario, sin transform
+    // (las escenas se miden en reposo).
+    const centerOf = (el: HTMLElement, scene: HTMLElement) => {
+      const prev = scene.style.transform;
+      scene.style.transform = 'none';
+      const s = stage.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      scene.style.transform = prev;
+      return { cx: r.left - s.left + r.width / 2, cy: r.top - s.top + r.height / 2, d: r.width };
+    };
+
+    // Círculo del hero: se mide con la animación ya en pausa (la clase
+    // is-zoomed la detiene), así el portal nace exactamente donde está.
+    const measureDot = () => {
+      const { cx, cy, d } = centerOf(dot, hero);
+      portalInk.style.width = portalInk.style.height = `${d}px`;
+      portalInk.style.left = `${cx - d / 2}px`;
+      portalInk.style.top = `${cy - d / 2}px`;
+      hero.style.transformOrigin = `${cx}px ${cy}px`;
+      S1 = coverScale(cx, cy, d);
+    };
+
+    const measureFocal = () => {
+      const { cx, cy } = centerOf(focal, why);
+      const d = 48;
+      portalBone.style.width = portalBone.style.height = `${d}px`;
+      portalBone.style.left = `${cx - d / 2}px`;
+      portalBone.style.top = `${cy - d / 2}px`;
+      why.style.transformOrigin = `${cx}px ${cy}px`;
+      S2 = coverScale(cx, cy, d);
+    };
+
+    const readTarget = () => {
+      max = Math.max(1, track.offsetHeight - innerHeight);
+      target = clamp(-track.getBoundingClientRect().top / max);
+    };
+
+    const setInk = (on: boolean) => {
+      if (on) root.dataset.toneOverride = 'ink';
+      else delete root.dataset.toneOverride;
+      dispatchEvent(new Event('tone-override'));
+    };
+
+    const render = (p: number) => {
+      const u = map(p, T1[0], T1[1], 0, 1);
+      const v = map(p, T2[0], T2[1], 0, 1);
+
+      // Hero: el círculo se queda quieto y se agranda; el resto se aleja
+      // desde él y se desvanece.
+      const isZoomed = u > 0;
+      if (isZoomed !== zoomed) {
+        zoomed = isZoomed;
+        stage.classList.toggle('is-zoomed', isZoomed);
+        if (isZoomed) measureDot();
+      }
+      hero.style.opacity = String(1 - mapSoft(u, 0, 0.55, 0, 1));
+      hero.style.transform = isZoomed ? `scale(${1 + 3 * Math.pow(u, 1.5)})` : '';
+      portalInk.style.opacity = isZoomed ? '1' : '0';
+      portalInk.style.transform = `scale(${1 + (S1 - 1) * cube(clamp(u / 0.7))})`;
+      bgInk.style.opacity = u >= 0.7 ? '1' : '0';
+
+      // Por qué Galena: entra cuando el círculo ya cubre y sale al cruce 2.
+      const whyIn = mapSoft(u, 0.7, 0.97, 0, 1);
+      const whyOut = 1 - mapSoft(v, 0.05, 0.55, 0, 1);
+      why.style.opacity = String(whyIn * whyOut);
+      why.style.transform = `scale(${v > 0 ? 1 + 2 * Math.pow(v, 1.5) : mapSoft(u, 0.7, 1, 0.6, 1)})`;
+      portalBone.style.opacity = v > 0 ? '1' : '0';
+      portalBone.style.transform = `scale(${v > 0 ? S2 * cube(clamp(v / 0.75)) : 0})`;
+      bgBone.style.opacity = v >= 0.75 ? '1' : '0';
+
+      // Para quién.
+      audience.style.opacity = String(mapSoft(v, 0.72, 0.97, 0, 1));
+      audience.style.transform = `scale(${mapSoft(v, 0.72, 1, 0.6, 1)})`;
+
+      // Header en tinta (con el logo en hueso) mientras el fondo es tinta:
+      // desde que el círculo del hero llega al header hasta que el círculo
+      // hueso lo alcanza.
+      const ink = u >= 0.52 && v < 0.55;
+      if (ink !== inked) {
+        inked = ink;
+        setInk(ink);
+      }
+
+      // Solo la escena en reposo recibe clics.
+      const active = p < (HOLD.hero + HOLD.why) / 2 ? hero : p < (HOLD.why + HOLD.audience) / 2 ? why : audience;
+      for (const scene of [hero, why, audience]) scene.style.pointerEvents = scene === active ? 'auto' : 'none';
+    };
+
+    const frame = (now: number) => {
+      // El factor se ajusta al tiempo real entre cuadros: la inercia es la
+      // misma a 60 y a 120Hz.
+      const dt = last ? Math.min(now - last, 50) : 16.67;
+      last = now;
+      current += (target - current) * (1 - Math.pow(1 - EASE, dt / 16.67));
+      if (Math.abs(target - current) < 0.0002) {
+        current = target;
+        raf = 0;
+        last = 0;
+      } else {
+        raf = requestAnimationFrame(frame);
+      }
+      render(current);
+    };
+
+    // El scroll solo marca el objetivo; un único bucle rAF escribe el DOM y
+    // se detiene en reposo.
+    const onScroll = () => {
+      readTarget();
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+
+    const remeasure = () => {
+      zoomed = false;
+      inked = false;
+      stage.classList.remove('is-zoomed');
+      readTarget();
+      measureFocal();
+      current = target;
+      render(current);
+    };
+
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(remeasure, 150);
+    };
+
+    // Con el foco en una escena que no está en su meseta (Tab), el scroll
+    // va hasta ella.
+    const onFocusIn = (event: FocusEvent) => {
+      const scene = (event.target as Element).closest<HTMLElement>('.hero, .why, .audience');
+      if (!scene || scene.style.pointerEvents === 'auto') return;
+      const key = scene === hero ? 'hero' : scene === why ? 'why' : 'audience';
+      const top = track.getBoundingClientRect().top + scrollY;
+      scrollTo({ top: top + HOLD[key] * max, behavior: 'instant' });
+    };
+
+    const start = () => {
+      if (running) return;
+      running = true;
+      root.dataset.zoom = '';
+      remeasure();
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('resize', onResize);
+      stage.addEventListener('focusin', onFocusIn);
+      // Las fuentes cambian las medidas del texto.
+      document.fonts?.ready.then(() => running && remeasure());
+    };
+
+    const stop = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+      raf = 0;
+      removeEventListener('scroll', onScroll);
+      removeEventListener('resize', onResize);
+      stage.removeEventListener('focusin', onFocusIn);
+      stage.classList.remove('is-zoomed');
+      if (inked) setInk(false);
+      inked = false;
+      delete root.dataset.zoom;
+      for (const el of [hero, why, audience, portalInk, portalBone, bgInk, bgBone]) el.removeAttribute('style');
+    };
+
+    // Al cambiar el tamaño o la preferencia de movimiento, el efecto se
+    // enciende o se apaga sin recargar.
+    const sync = () => (mq.matches ? start() : stop());
+    mq.addEventListener('change', sync);
+    sync();
+  }
+</script>

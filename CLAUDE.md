@@ -100,6 +100,34 @@ aprobadas a "cero JS por defecto"; no se agrega otro JS global sin proponerlo.
   `forced-colors`, flecha nativa. En táctil no hay cursor: solo un círculo
   breve (500ms) donde se toca un enlace o botón.
 
+**Escenas con zoom (solo la home).** `ScrollZoom.astro` convierte Hero →
+Por qué Galena → Para quién en tres escenas apiladas dentro de un escenario
+`sticky` (`.zoom` / `.zoom__stage`); el scroll no baja el contenido, avanza
+una cámara.
+
+- Solo desde 900px de ancho y 700px de alto, sin `prefers-reduced-motion` y
+  con JS: un `<script is:inline>` marca `html[data-zoom]` antes de pintar y
+  el CSS de escenas cuelga de ese atributo. Si no aplica, son tres secciones
+  normales una tras otra. El contenido siempre está en el DOM.
+- El JS convierte el scroll en progreso 0→1 (lerp 0.085 por cuadro a 60fps, ajustado al tiempo real, un solo bucle rAF
+  que se detiene en reposo) y escribe `transform` y `opacity`. La
+  coreografía (tramos `T1` y `T2`, mesetas) vive en el script.
+- Cruce 1: el círculo negro del hero se detiene y se agranda hasta ser el
+  fondo tinta de "Por qué Galena" (texto en hueso). Cruce 2: un círculo hueso
+  nace de la cifra "10" y se vuelve el fondo de "Para quién". Los
+  fondos van en capas propias que no escalan.
+- Solo la escena en reposo recibe clics; con el foco (Tab) en otra, el scroll
+  va a su meseta. Pista de `600svh`; si se agrega o quita una escena, hay que
+  ajustar la altura y los tramos.
+- Mientras el fondo es tinta, el header toma el tono `ink` (fondo tinta,
+  logo y botones en hueso): ScrollZoom pone `html[data-tone-override]` y
+  HeaderTone lo respeta (evento `tone-override`). El logo hueso es una
+  segunda imagen apilada que se funde con la de tinta.
+- El botón que rebota de "Para quién" rebota desde el borde inferior del
+  header, no por debajo.
+- Tokens derivados para la escena tinta: `--bone-soft` (hueso 70%) y
+  `--bone-hairline` (hueso 25%).
+
 **Scroll suave (Lenis).** `SmoothScroll.astro` carga `lenis` en todas las
 páginas.
 
@@ -152,7 +180,9 @@ para el peso usado en el titular.
 - Versalitas de interfaz (botón, pie): `letter-spacing: 0.12em`, `text-transform: uppercase`.
 
 **Logo:** `/public/galena-logo-negro.svg`. Es un logotipo tipográfico, no un
-ícono. Reglas: nunca lo recolorees fuera de `--ink`, nunca lo deformes, nunca lo
+ícono. Reglas: nunca lo recolorees fuera de `--ink` (única excepción: sobre
+fondo tinta va `/public/galena-logo-hueso.svg`, el mismo trazo en `--bone`,
+en el header durante la escena "Por qué Galena" del zoom), nunca lo deformes, nunca lo
 metas en una caja o círculo, y respeta un área de protección equivalente a la
 altura de la "G" en los cuatro lados.
 
@@ -204,13 +234,17 @@ se pida cambiarlas.
   (hueso arriba a la derecha y abajo a la izquierda); un círculo negro
   rebota como logo de DVD dentro del bloque de abajo) → Por qué Galena
   (`WhyGalena.astro`: "+6 años", "10 días hábiles", "1 sola agencia" en
-  cifras grandes entre líneas finas) → Servicios → Para
+  cifras grandes entre líneas finas: el "10" ocupa toda una parte y los
+  otros dos van debajo, mitad y mitad; en el zoom, el "10" a la izquierda
+  y los otros dos apilados a la derecha) → Para
   quién (clínicas por WhatsApp, redes y teléfono; línea de
   pérdida → ganancia; botón dividido `.cta-split` a `/planes`, que desde tablet
   rebota por toda la sección como el logo de un DVD, a velocidad
-  constante, y se detiene con el mouse o el foco encima) → Proceso (timeline) → Cierre plata ("Platícanos sobre tu clínica") →
+  constante, y se detiene con el mouse o el foco encima) → Servicios → Proceso (timeline) → Cierre plata ("Platícanos sobre tu clínica") →
   Nosotros → Preguntas frecuentes. Cada sección es un componente en
-  `src/components/`.
+  `src/components/`. Hero, Por qué Galena y Para quién son las escenas del
+  zoom de scroll (ver "Escenas con zoom"), por eso Para quién va antes de
+  Servicios.
 - `/planes` (antes `/servicios`, que redirige 301 en `worker/index.js`):
   3 planes con precios en pesos mexicanos más IVA (números en el arreglo
   `plans` de `planes.astro`, formateados con `Intl.NumberFormat('es-MX')`;

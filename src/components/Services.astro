@@ -100,22 +100,25 @@ const services = [
               )}
               {service.figure === 'chat' && (
                 <>
-                  <rect x="30" y="48" width="100" height="60" rx="16" pathLength="1" />
-                  <path d="M52 108L46 122L68 108" pathLength="1" />
-                  {/* Cabeza de bot en el globo de la izquierda: el que responde. */}
-                  <rect x="64" y="70" width="32" height="22" rx="6" pathLength="1" />
-                  <path d="M80 70V63" pathLength="1" />
-                  <circle cx="80" cy="61" r="2" pathLength="1" />
+                  {/* Globo del bot arriba y el de los tres puntos abajo, sin
+                      tocarse: ni los bordes ni las colas se cruzan (el de
+                      abajo flota ±4px y queda espacio de sobra). */}
+                  <rect x="30" y="28" width="100" height="52" rx="16" pathLength="1" />
+                  <path d="M52 80L46 94L68 80" pathLength="1" />
+                  {/* Cabeza de bot en el globo de arriba: el que responde. */}
+                  <rect x="64" y="46" width="32" height="22" rx="6" pathLength="1" />
+                  <path d="M80 46V39" pathLength="1" />
+                  <circle cx="80" cy="37" r="2" pathLength="1" />
                   <g class="service__motion service__motion--blink">
-                    <circle class="service__dot" cx="73" cy="81" r="2.5" />
-                    <circle class="service__dot" cx="87" cy="81" r="2.5" />
+                    <circle class="service__dot" cx="73" cy="57" r="2.5" />
+                    <circle class="service__dot" cx="87" cy="57" r="2.5" />
                   </g>
                   <g class="service__motion service__motion--float">
-                    <rect x="70" y="98" width="100" height="56" rx="16" pathLength="1" />
-                    <path d="M148 154L154 168L132 154" pathLength="1" />
-                    <circle cx="104" cy="126" r="3" pathLength="1" />
-                    <circle cx="120" cy="126" r="3" pathLength="1" />
-                    <circle cx="136" cy="126" r="3" pathLength="1" />
+                    <rect x="70" y="108" width="100" height="52" rx="16" pathLength="1" />
+                    <path d="M148 160L154 174L132 160" pathLength="1" />
+                    <circle cx="104" cy="134" r="3" pathLength="1" />
+                    <circle cx="120" cy="134" r="3" pathLength="1" />
+                    <circle cx="136" cy="134" r="3" pathLength="1" />
                   </g>
                 </>
               )}

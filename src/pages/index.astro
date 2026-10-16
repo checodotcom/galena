@@ -8,6 +8,7 @@ import Audience from '../components/Audience.astro';
 import ClosingCta from '../components/ClosingCta.astro';
 import About from '../components/About.astro';
 import Faq from '../components/Faq.astro';
+import ScrollZoom from '../components/ScrollZoom.astro';
 
 const title = 'Galena — Sitios y automatizaciones para clínicas';
 const description =
@@ -64,6 +65,14 @@ const blinds = 15;
     </div>
   </div>
 
+  <!-- Pista del zoom: Hero → Por qué Galena → Para quién (ver ScrollZoom.astro).
+       Sin el efecto son tres secciones normales, una tras otra. -->
+  <ScrollZoom />
+  <div class="zoom">
+    <div class="zoom__stage">
+      <span class="zoom__bg zoom__bg--ink" aria-hidden="true"></span>
+      <span class="zoom__bg zoom__bg--bone" aria-hidden="true"></span>
+
   <section class="hero" data-header-tone="silver">
     <div class="hero__content">
       <h1 class="hero__title">Tu clínica, atendiendo aunque no estés.</h1>
@@ -96,11 +105,17 @@ const blinds = 15;
 
   </section>
 
-  <WhyGalena />
+      <span class="zoom__portal zoom__portal--ink" aria-hidden="true"></span>
+
+      <WhyGalena />
+
+      <span class="zoom__portal zoom__portal--bone" aria-hidden="true"></span>
+
+      <Audience />
+    </div>
+  </div>
 
   <Services />
-
-  <Audience />
 
   <ProcessTimeline />
 

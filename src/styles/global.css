@@ -25,6 +25,10 @@
   --ink-ghost: rgba(20, 20, 20, 0.25);
   --hairline: rgba(20, 20, 20, 0.14);
   --scrim: rgba(20, 20, 20, 0.4);
+  /* Hueso sobre fondo tinta (solo la escena "Por qué Galena" del zoom). */
+  --bone-soft: rgba(228, 223, 214, 0.7);
+  --bone-hairline: rgba(228, 223, 214, 0.25);
+
   /* Detrás del menú: la página pasa casi a negro y el panel manda. */
   --scrim-strong: rgba(20, 20, 20, 0.75);
 
@@ -237,8 +241,22 @@ html.lenis body {
   }
 }
 
+/* Header sobre fondo tinta (escena "Por qué Galena" del zoom, ScrollZoom
+   fuerza el tono): fondo tinta, logo y botones en hueso. */
+.site-header[data-tone='ink'] {
+  background-color: var(--ink);
+  border-bottom-color: var(--bone-hairline);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .site-header[data-tone='ink'] {
+    background-color: rgb(20 20 20 / 0.8);
+  }
+}
+
 /* El logo mide 19–26px; el enlace llega a 44px de alto de área táctil. */
 .site-header__home {
+  position: relative;
   display: flex;
   align-items: center;
   min-height: 44px;
@@ -252,6 +270,46 @@ html.lenis body {
   display: block;
   width: auto;
   height: clamp(19px, 5.4vw, 22px);
+}
+
+/* Dos logos apilados (tinta y hueso) que se funden según el tono. Es el
+   mismo trazo en el otro color de la marca, nunca otro. */
+.site-header__logo--bone {
+  position: absolute;
+  inset: 0 auto 0 0;
+  margin-block: auto;
+  opacity: 0;
+}
+
+.site-header[data-tone-ready] .site-header__logo {
+  transition: opacity 400ms var(--ease-out);
+}
+
+.site-header[data-tone='ink'] .site-header__logo {
+  opacity: 0;
+}
+
+.site-header[data-tone='ink'] .site-header__logo--bone {
+  opacity: 1;
+}
+
+.site-header[data-tone='ink'] :is(.contact, .menu-button) {
+  border-color: var(--bone-hairline);
+  color: var(--bone);
+}
+
+@media (hover: hover) {
+  .site-header[data-tone='ink'] :is(.contact, .menu-button):hover {
+    border-color: var(--bone);
+    background-color: var(--bone);
+    color: var(--ink);
+  }
+}
+
+.site-header[data-tone='ink'] :is(.contact, .menu-button):is(:focus-visible, :active) {
+  border-color: var(--bone);
+  background-color: var(--bone);
+  color: var(--ink);
 }
 
 /* CONTACT y el botón de menú. El contenedor recupera los clics (el header
@@ -707,68 +765,280 @@ html.lenis body {
    encabezado: eyebrow + título grande. */
 
 /* ---------- Por qué Galena ----------
-   Tres datos entre líneas finas: uno debajo del otro en móvil, en tres
-   columnas desde tablet. Sin aire abajo: Servicios ya lo pone arriba. */
+   Fuera del zoom (móvil, tablet, pantallas bajas): el "10" ocupa toda una
+   parte y los otros dos datos van debajo, mitad y mitad, como en la escena
+   del zoom (ahí se redefine sobre fondo tinta). Sin aire abajo: Servicios ya
+   lo pone arriba. */
 .why {
   padding: var(--section-pad) var(--gutter) 0;
 }
 
 .why__list {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   container-type: inline-size;
   margin: 0;
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
 }
 
 .why__item {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding-block: var(--space-5);
+  padding: var(--space-4) var(--space-3) var(--space-4) 0;
+}
+
+/* Los datos de abajo: cada uno en su mitad. */
+.why__item:nth-child(1) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.why__item:nth-child(3) {
+  grid-column: 2;
+  grid-row: 2;
+  padding-left: var(--space-3);
+  padding-right: 0;
+  border-left: 1px solid var(--hairline);
+}
+
+/* El "10": una parte completa, con la cifra enorme y su frase debajo. */
+.why__item:nth-child(2) {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  gap: var(--space-6);
+  padding: var(--space-5) 0;
   border-bottom: 1px solid var(--hairline);
 }
 
-/* Cada cifra en una línea y las tres del mismo tamaño: se mide contra el
-   ancho de la lista (cqi). "1 sola agencia", la más larga, mide ~7em. */
+/* Las cifras de abajo pueden partirse en dos líneas ("1 sola / agencia")
+   para caber en media columna. */
 .why__value {
-  font-size: clamp(2rem, 11cqi, 4rem);
-  white-space: nowrap;
+  font-size: clamp(1.5rem, 6.5cqi, 3.5rem);
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1.1;
+  text-wrap: balance;
+}
+
+.why__item:nth-child(2) .why__value {
+  font-size: clamp(9rem, 58cqi, 20rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
 }
 
 .why__text {
   max-width: 32ch;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--ink-soft);
 }
 
+.why__item:nth-child(2) .why__text {
+  max-width: 16ch;
+  font-size: clamp(1.25rem, 5.5cqi, 2rem);
+  font-weight: 200;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
 @media (min-width: 768px) {
-  .why__list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-bottom: 1px solid var(--hairline);
-  }
-
-  .why__value {
-    font-size: clamp(2rem, 3.4cqi, 4rem);
-  }
-
   .why__item {
-    padding: var(--space-6) var(--space-4);
-    border-bottom: 0;
+    padding: var(--space-5) var(--space-5) var(--space-5) 0;
   }
 
-  .why__item:first-child {
-    padding-left: 0;
+  .why__item:nth-child(3) {
+    padding-left: var(--space-5);
+    padding-right: 0;
   }
 
-  .why__item + .why__item {
-    border-left: 1px solid var(--hairline);
+  .why__item:nth-child(2) {
+    padding: var(--space-6) 0;
   }
+
+  .why__text {
+    font-size: 1.125rem;
+  }
+}
+
+/* ---------- Escenas con zoom (ScrollZoom.astro) ----------
+   Hero → Por qué Galena → Para quién. Solo cuando el script marca
+   html[data-zoom] (desde 900px de ancho y 700px de alto, sin movimiento
+   reducido); si no, estos tres son secciones normales y esto no aplica. La
+   pista da el recorrido de scroll y el escenario sticky guarda las escenas
+   apiladas. Transform y opacity los escribe el script. */
+
+.zoom__bg,
+.zoom__portal {
+  display: none;
+}
+
+html[data-zoom] .zoom {
+  /* 3 escenas, 2 cruces y mesetas cortas: 5 pantallas de recorrido más la
+     que ocupa el escenario. Más recorrido = movimiento más pausado. */
+  height: 600svh;
+}
+
+html[data-zoom] .zoom__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  background-color: var(--silver);
+}
+
+html[data-zoom] .zoom__stage > :is(.hero, .why, .audience) {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+}
+
+html[data-zoom] .zoom__stage > :is(.why, .audience) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--header-clearance) var(--gutter);
+}
+
+/* Para quién: la frase a la izquierda, como en la rejilla normal (el
+   align-items: end de la rejilla la mandaría a la derecha en una columna). */
+html[data-zoom] .zoom__stage > .audience {
+  align-items: flex-start;
+}
+
+/* Fondos a pantalla completa en capas propias: no escalan, así nunca se ve
+   un rectángulo flotando mientras una escena crece. */
+html[data-zoom] .zoom__bg {
+  display: block;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+html[data-zoom] .zoom__bg--ink {
+  background-color: var(--ink);
+}
+
+html[data-zoom] .zoom__bg--bone {
+  background-color: var(--bone);
+}
+
+/* Los círculos que se agrandan hasta llenar la pantalla (tamaño y posición
+   los pone el script). */
+html[data-zoom] .zoom__portal {
+  display: block;
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+html[data-zoom] .zoom__portal--ink {
+  background-color: var(--ink);
+}
+
+html[data-zoom] .zoom__portal--bone {
+  background-color: var(--bone);
+  transform: scale(0);
+}
+
+/* Al arrancar el cruce, el círculo del hero se detiene donde está y lo
+   reemplaza el portal; el hero deja de rebotar mientras dura el cruce. */
+html[data-zoom] .zoom__stage.is-zoomed :is(.hero__orbit, .hero__dot) {
+  animation-play-state: paused;
+}
+
+html[data-zoom] .zoom__stage.is-zoomed .hero__dot {
+  visibility: hidden;
+}
+
+/* Para quién: el botón que rebota llega al borde del header y rebota ahí,
+   sin meterse debajo (la caja de rebote empieza donde termina el header). */
+html[data-zoom] .audience__aside {
+  top: var(--header-height);
+}
+
+/* "Por qué Galena" sobre fondo tinta. */
+html[data-zoom] .why {
+  color: var(--bone);
+}
+
+html[data-zoom] .why__text {
+  color: var(--bone-soft);
+}
+
+/* En la escena, "10 días hábiles" es el protagonista: una cifra enorme en la
+   mitad izquierda con su frase abajo, y los otros dos datos apilados a la
+   derecha, pegados abajo. Fuera del zoom la lista sigue en tres columnas. */
+html[data-zoom] .zoom__stage > .why {
+  padding: calc(var(--header-height) + var(--space-6)) var(--gutter) var(--space-6);
+}
+
+html[data-zoom] .why__list {
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  grid-template-rows: 1fr auto auto;
+  border: 0;
+}
+
+html[data-zoom] .why__item {
+  padding: var(--space-4) 0 var(--space-4) var(--space-6);
+  border: 0;
+  border-top: 1px solid var(--bone-hairline);
+}
+
+html[data-zoom] .why__item:last-child {
+  border-bottom: 1px solid var(--bone-hairline);
+}
+
+html[data-zoom] .why__item:nth-child(1) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+html[data-zoom] .why__item:nth-child(3) {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+html[data-zoom] .why__item:nth-child(2) {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  justify-content: space-between;
+  padding: 0 var(--space-6) 0 0;
+  border: 0;
+  border-right: 1px solid var(--bone-hairline);
+}
+
+html[data-zoom] .why__value {
+  font-size: 3.5rem;
+}
+
+html[data-zoom] .why__text {
+  max-width: 34ch;
+  font-size: 1.125rem;
+}
+
+/* La cifra: se mide contra el alto de la pantalla para que quepa a 700px
+   y llene a 1080px. */
+html[data-zoom] .why__item:nth-child(2) .why__value {
+  font-size: clamp(10rem, 54svh, 32rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+}
+
+html[data-zoom] .why__item:nth-child(2) .why__text {
+  max-width: 16ch;
+  font-size: clamp(1.5rem, 3.6svh, 2.25rem);
+  font-weight: 200;
+  line-height: 1.2;
+  color: var(--bone);
 }
 
 .services,

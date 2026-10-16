@@ -21,8 +21,12 @@
       // elementFromPoint devuelve lo que pasa por debajo de su borde inferior.
       const y = header.getBoundingClientRect().bottom + 1;
       const below = document.elementFromPoint(innerWidth / 2, y);
+      // ScrollZoom fuerza el tono tinta mientras el fondo de la página es
+      // tinta (no hay una sección real debajo que lo declare).
       const tone =
-        below?.closest<HTMLElement>('[data-header-tone]')?.dataset.headerTone ?? 'bone';
+        document.documentElement.dataset.toneOverride ??
+        below?.closest<HTMLElement>('[data-header-tone]')?.dataset.headerTone ??
+        'bone';
 
       if (header.dataset.tone !== tone) header.dataset.tone = tone;
     };
@@ -41,5 +45,6 @@
 
     addEventListener('scroll', queue, { passive: true });
     addEventListener('resize', queue);
+    addEventListener('tone-override', queue);
   }
 </script>

@@ -775,12 +775,28 @@ html.lenis body {
    encabezado: eyebrow + título grande. */
 
 /* ---------- Por qué Galena ----------
-   Fuera del zoom (móvil, tablet, pantallas bajas): el "10" ocupa toda una
-   parte y los otros dos datos van debajo, mitad y mitad, como en la escena
-   del zoom (ahí se redefine sobre fondo tinta). Sin aire abajo: Servicios ya
-   lo pone arriba. */
+   Sobre fondo tinta con texto hueso. Con zoom (casi siempre) es la escena 2
+   y el fondo lo ponen las capas del escenario; sin zoom (movimiento
+   reducido, sin JS, móvil en horizontal) es una sección normal con su propio
+   fondo tinta. Fuera de la escena de escritorio, el "10" ocupa toda una parte
+   y los otros dos datos van debajo, mitad y mitad. */
 .why {
-  padding: var(--section-pad) var(--gutter) 0;
+  position: relative;
+  isolation: isolate;
+  padding: var(--section-pad) var(--gutter) var(--space-8);
+  color: var(--bone);
+}
+
+.why::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--ink);
+}
+
+html[data-zoom] .why::before {
+  display: none;
 }
 
 .why__list {
@@ -790,8 +806,8 @@ html.lenis body {
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
+  border-top: 1px solid var(--bone-hairline);
+  border-bottom: 1px solid var(--bone-hairline);
 }
 
 .why__item {
@@ -812,7 +828,7 @@ html.lenis body {
   grid-row: 2;
   padding-left: var(--space-3);
   padding-right: 0;
-  border-left: 1px solid var(--hairline);
+  border-left: 1px solid var(--bone-hairline);
 }
 
 /* El "10": una parte completa, con la cifra enorme y su frase debajo. */
@@ -821,7 +837,7 @@ html.lenis body {
   grid-row: 1;
   gap: var(--space-6);
   padding: var(--space-5) 0;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--bone-hairline);
 }
 
 /* Las cifras de abajo pueden partirse en dos líneas ("1 sola / agencia")
@@ -845,7 +861,7 @@ html.lenis body {
   max-width: 32ch;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: var(--ink-soft);
+  color: var(--bone-soft);
 }
 
 .why__item:nth-child(1) .why__text {
@@ -853,7 +869,7 @@ html.lenis body {
   font-size: clamp(1.25rem, 5.5cqi, 2rem);
   font-weight: 200;
   line-height: 1.2;
-  color: var(--ink);
+  color: var(--bone);
 }
 
 /* En 320 y 360px "1 sola agencia" pasa a dos líneas: las dos cifras de abajo
@@ -885,8 +901,8 @@ html.lenis body {
 
 /* ---------- Escenas con zoom (ScrollZoom.astro) ----------
    Hero → Por qué Galena → Para quién. Solo cuando el script marca
-   html[data-zoom] (desde 900px de ancho y 700px de alto, sin movimiento
-   reducido); si no, estos tres son secciones normales y esto no aplica. La
+   html[data-zoom] (desde 560px de alto, sin movimiento reducido; móvil y
+   escritorio); si no, estos tres son secciones normales y esto no aplica. La
    pista da el recorrido de scroll y el escenario sticky guarda las escenas
    apiladas. Transform y opacity los escribe el script. */
 
@@ -896,15 +912,24 @@ html.lenis body {
 }
 
 html[data-zoom] .zoom {
-  /* 3 escenas, 2 cruces y mesetas cortas: 5 pantallas de recorrido más la
-     que ocupa el escenario. Más recorrido = movimiento más pausado. */
-  height: 600svh;
+  /* 3 escenas, 2 cruces y mesetas cortas. En móvil la pista es más corta:
+     con el dedo, 6 pantallas se sienten largas. Más recorrido = movimiento
+     más pausado. */
+  height: 480svh;
 }
 
+@media (min-width: 900px) {
+  html[data-zoom] .zoom {
+    height: 600svh;
+  }
+}
+
+/* 100lvh: en Safari de iPhone la barra inferior flota sobre la página; con
+   lvh el escenario llega hasta abajo y no cambia de alto al hacer scroll. */
 html[data-zoom] .zoom__stage {
   position: sticky;
   top: 0;
-  height: 100svh;
+  height: 100lvh;
   overflow: hidden;
   background-color: var(--silver);
 }
@@ -915,6 +940,25 @@ html[data-zoom] .zoom__stage > :is(.hero, .why, .audience) {
   will-change: transform, opacity;
 }
 
+/* Capas, de abajo arriba: fondos, "Para quién", hero, tinta (círculo y
+   fondo sólido) y "Por qué Galena". Así, en el segundo cruce, la tinta se
+   cierra encima de "Para quién" y lo deja ver. */
+html[data-zoom] .zoom__stage > .audience {
+  z-index: 1;
+}
+
+html[data-zoom] .zoom__stage > .hero {
+  z-index: 2;
+}
+
+html[data-zoom] :is(.zoom__portal--ink, .zoom__bg--ink) {
+  z-index: 3;
+}
+
+html[data-zoom] .zoom__stage > .why {
+  z-index: 4;
+}
+
 html[data-zoom] .zoom__stage > :is(.why, .audience) {
   display: flex;
   flex-direction: column;
@@ -922,10 +966,26 @@ html[data-zoom] .zoom__stage > :is(.why, .audience) {
   padding: var(--header-clearance) var(--gutter);
 }
 
-/* Para quién: la frase a la izquierda, como en la rejilla normal (el
-   align-items: end de la rejilla la mandaría a la derecha en una columna). */
+/* Para quién en la escena: la frase en la mitad de arriba, pegada a su
+   borde inferior, y el botón quieto, centrado en la mitad de abajo. */
 html[data-zoom] .zoom__stage > .audience {
-  align-items: flex-start;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  /* Sin relleno vertical: las dos filas son las mitades exactas de la
+     pantalla. El espacio del header va dentro de la primera. */
+  padding-block: 0;
+}
+
+html[data-zoom] .zoom__stage > .audience .section-intro {
+  padding-top: var(--header-clearance);
+}
+
+html[data-zoom] .zoom__stage > .audience .audience__aside {
+  align-self: center;
+  justify-self: center;
+  margin: 0;
 }
 
 /* Fondos a pantalla completa en capas propias: no escalan, así nunca se ve
@@ -945,24 +1005,32 @@ html[data-zoom] .zoom__bg--bone {
   background-color: var(--bone);
 }
 
-/* Los círculos que se agrandan hasta llenar la pantalla (tamaño y posición
-   los pone el script). */
+/* Los círculos que se agrandan hasta llenar la pantalla: capas del tamaño
+   del escenario recortadas con un círculo (clip-path) que el script mueve y
+   agranda; así el borde queda nítido a cualquier tamaño. */
 html[data-zoom] .zoom__portal {
   display: block;
   position: absolute;
-  border-radius: 50%;
+  inset: 0;
   opacity: 0;
   pointer-events: none;
-  will-change: transform;
+  clip-path: circle(0px at 50% 50%);
 }
 
 html[data-zoom] .zoom__portal--ink {
   background-color: var(--ink);
 }
 
-html[data-zoom] .zoom__portal--bone {
-  background-color: var(--bone);
-  transform: scale(0);
+
+/* Por qué Galena en móvil y tablet (escena 2): la misma maqueta de la
+   sección normal, centrada en la pantalla; el "10" se limita por el alto
+   para que todo quepa en teléfonos bajos. */
+html[data-zoom] .zoom__stage > .why {
+  padding: calc(var(--header-height) + var(--space-4)) var(--gutter) var(--space-4);
+}
+
+html[data-zoom] .why__item:nth-child(1) .why__value {
+  font-size: min(clamp(9rem, 58cqi, 20rem), 24svh);
 }
 
 /* Al arrancar el cruce, el círculo del hero se detiene donde está y lo
@@ -975,12 +1043,6 @@ html[data-zoom] .zoom__stage.is-zoomed .hero__dot {
   visibility: hidden;
 }
 
-/* Para quién: el botón que rebota llega al borde del header y rebota ahí,
-   sin meterse debajo (la caja de rebote empieza donde termina el header). */
-html[data-zoom] .audience__aside {
-  top: var(--header-height);
-}
-
 /* "Por qué Galena" sobre fondo tinta. */
 html[data-zoom] .why {
   color: var(--bone);
@@ -990,73 +1052,75 @@ html[data-zoom] .why__text {
   color: var(--bone-soft);
 }
 
-/* En la escena, "10 días hábiles" es el protagonista: una cifra enorme en la
-   mitad izquierda con su frase abajo, y los otros dos datos apilados a la
-   derecha, pegados abajo. Fuera del zoom la lista sigue en tres columnas. */
-html[data-zoom] .zoom__stage > .why {
-  padding: calc(var(--header-height) + var(--space-6)) var(--gutter) var(--space-6);
-}
+@media (min-width: 900px) {
+  /* Escritorio: "10 días hábiles" es el protagonista, una cifra enorme en la
+     mitad izquierda con su frase abajo, y los otros dos datos apilados a la
+     derecha, pegados abajo. */
+  html[data-zoom] .zoom__stage > .why {
+    padding: calc(var(--header-height) + var(--space-6)) var(--gutter) var(--space-6);
+  }
 
-html[data-zoom] .why__list {
-  flex: 1;
-  min-height: 0;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  grid-template-rows: 1fr auto auto;
-  border: 0;
-}
+  html[data-zoom] .why__list {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-rows: 1fr auto auto;
+    border: 0;
+  }
 
-html[data-zoom] .why__item {
-  padding: var(--space-4) 0 var(--space-4) var(--space-6);
-  border: 0;
-  border-top: 1px solid var(--bone-hairline);
-}
+  html[data-zoom] .why__item {
+    padding: var(--space-4) 0 var(--space-4) var(--space-6);
+    border: 0;
+    border-top: 1px solid var(--bone-hairline);
+  }
 
-html[data-zoom] .why__item:last-child {
-  border-bottom: 1px solid var(--bone-hairline);
-}
+  html[data-zoom] .why__item:last-child {
+    border-bottom: 1px solid var(--bone-hairline);
+  }
 
-html[data-zoom] .why__item:nth-child(2) {
-  grid-column: 2;
-  grid-row: 2;
-}
+  html[data-zoom] .why__item:nth-child(2) {
+    grid-column: 2;
+    grid-row: 2;
+  }
 
-html[data-zoom] .why__item:nth-child(3) {
-  grid-column: 2;
-  grid-row: 3;
-}
+  html[data-zoom] .why__item:nth-child(3) {
+    grid-column: 2;
+    grid-row: 3;
+  }
 
-html[data-zoom] .why__item:nth-child(1) {
-  grid-column: 1;
-  grid-row: 1 / span 3;
-  justify-content: space-between;
-  padding: 0 var(--space-6) 0 0;
-  border: 0;
-  border-right: 1px solid var(--bone-hairline);
-}
+  html[data-zoom] .why__item:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    justify-content: space-between;
+    padding: 0 var(--space-6) 0 0;
+    border: 0;
+    border-right: 1px solid var(--bone-hairline);
+  }
 
-html[data-zoom] .why__value {
-  font-size: 3.5rem;
-}
+  html[data-zoom] .why__value {
+    font-size: 3.5rem;
+  }
 
-html[data-zoom] .why__text {
-  max-width: 34ch;
-  font-size: 1.125rem;
-}
+  html[data-zoom] .why__text {
+    max-width: 34ch;
+    font-size: 1.125rem;
+  }
 
-/* La cifra: se mide contra el alto de la pantalla para que quepa a 700px
-   y llene a 1080px. */
-html[data-zoom] .why__item:nth-child(1) .why__value {
-  font-size: clamp(10rem, 54svh, 32rem);
-  line-height: 0.8;
-  letter-spacing: -0.04em;
-}
+  /* La cifra: se mide contra el alto de la pantalla para que quepa a 700px
+     y llene a 1080px. */
+  html[data-zoom] .why__item:nth-child(1) .why__value {
+    font-size: clamp(10rem, 54svh, 32rem);
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+  }
 
-html[data-zoom] .why__item:nth-child(1) .why__text {
-  max-width: 16ch;
-  font-size: clamp(1.5rem, 3.6svh, 2.25rem);
-  font-weight: 200;
-  line-height: 1.2;
-  color: var(--bone);
+  html[data-zoom] .why__item:nth-child(1) .why__text {
+    max-width: 16ch;
+    font-size: clamp(1.5rem, 3.6svh, 2.25rem);
+    font-weight: 200;
+    line-height: 1.2;
+    color: var(--bone);
+  }
 }
 
 .services,
@@ -1643,66 +1707,6 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   scale: 0.97;
 }
 
-/* Para quién, desde tablet con mouse (en táctil no hay hover para detenerlo
-   y taparía la frase sin que se pueda pausar): el botón rebota por toda la sección como el
-   logo de un DVD, a velocidad constante, y puede pasar sobre la frase. Su
-   caja (.audience__aside) cubre la sección y es contenedor de tamaño, así
-   cqw/cqh miden el área libre. El eje X va en el <div> y el Y en el
-   enlace, cada uno lineal de ida y vuelta con duraciones distintas: juntos
-   dan el rebote en diagonal sin frenar en las esquinas. Se detiene con el
-   mouse o el foco encima, para poder atraparlo. Sin movimiento, o en
-   móvil, queda en su lugar. */
-@media (min-width: 768px) and (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .audience {
-    position: relative;
-  }
-
-  .audience__aside {
-    position: absolute;
-    inset: var(--space-4) var(--gutter);
-    z-index: 1;
-    display: block;
-    margin: 0;
-    container-type: size;
-    pointer-events: none;
-  }
-
-  .audience__aside > div {
-    width: max-content;
-    pointer-events: auto;
-    /* El retraso negativo lo hace arrancar abajo a la derecha (~85% en X,
-       ~85% en Y), lejos de la frase y del centro. */
-    animation: audience-bounce-x 14s linear -12s infinite alternate;
-  }
-
-  .audience__aside .cta-split {
-    animation: audience-bounce-y 9.5s linear -8s infinite alternate;
-  }
-
-  .audience__aside > div:has(:hover, :focus-visible),
-  .audience__aside > div:has(:hover, :focus-visible) .cta-split {
-    animation-play-state: paused;
-  }
-}
-
-@keyframes audience-bounce-x {
-  from {
-    translate: 0 0;
-  }
-  to {
-    translate: calc(100cqw - 100%) 0;
-  }
-}
-
-@keyframes audience-bounce-y {
-  from {
-    translate: 0 0;
-  }
-  to {
-    translate: 0 calc(100cqh - 100%);
-  }
-}
-
 .audience__text,
 .about__text {
   max-width: 42ch;
@@ -1748,7 +1752,10 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   padding-inline: var(--space-6);
 }
 
-/* ---------- Preguntas frecuentes ---------- */
+/* ---------- Preguntas frecuentes ----------
+   Acordeón igual que Servicios (.svc): cada respuesta es un grid 0fr → 1fr con
+   la misma duración y curva (--faq-t, --faq-ease). Con clic o toque se abre
+   una; abrir otra cierra la anterior. Sin JS (<noscript>) se ven todas. */
 
 .faq__list {
   max-width: 56rem;
@@ -1756,7 +1763,40 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
 }
 
 .faq__item {
+  --faq-t: 450ms;
+  --faq-ease: var(--ease-in-out);
+
   border-bottom: 1px solid var(--hairline);
+  /* Al abrir con un toque, el scroll deja la pregunta a la vista sin tapar el
+     header ni la barra flotante de Safari. */
+  scroll-margin-top: calc(var(--header-height) + var(--space-3));
+  scroll-margin-bottom: var(--space-12);
+  transition:
+    background-color var(--faq-t) var(--faq-ease),
+    border-color var(--faq-t) var(--faq-ease),
+    border-radius var(--faq-t) var(--faq-ease),
+    margin var(--faq-t) var(--faq-ease),
+    padding var(--faq-t) var(--faq-ease);
+}
+
+/* La abierta es un bloque plata. Su borde inferior se oculta, igual que el
+   de la fila de arriba, para que el bloque no tenga líneas pegadas. */
+.faq__item.is-active {
+  margin-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border-bottom-color: transparent;
+  border-radius: var(--space-3);
+  background-color: var(--silver);
+}
+
+.faq__item:has(+ .is-active) {
+  border-bottom-color: transparent;
+}
+
+.faq__head {
+  margin: 0;
+  /* Solo se cargan los pesos 200 y 400: sin esto el <h3> se veía en negrita. */
+  font-weight: 400;
 }
 
 .faq__question {
@@ -1764,17 +1804,26 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  width: 100%;
   min-height: 44px;
-  padding-block: var(--space-3);
+  margin: 0;
+  padding: var(--space-3) 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   font-weight: 200;
   line-height: 1.3;
-  list-style: none;
+  text-align: left;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--faq-t) var(--faq-ease);
 }
 
-.faq__question::-webkit-details-marker {
-  display: none;
+.faq__item.is-active .faq__question {
+  color: var(--ink);
+  cursor: default;
 }
 
 /* Más/menos con dos líneas de 1px: indica que la fila se abre, no decora.
@@ -1799,10 +1848,40 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
 
 .faq__sign::after {
   rotate: 90deg;
+  transition: rotate var(--faq-t) var(--faq-ease);
 }
 
-.faq__item[open] .faq__sign::after {
+.faq__item.is-active .faq__sign::after {
   rotate: 0deg;
+}
+
+/* Cuerpo: crece de 0 a su alto (0fr → 1fr). Cerrado se oculta del todo
+   (visibility) para que el lector de pantalla y Tab no lo vean. */
+.faq__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--faq-t) var(--faq-ease),
+    visibility 0s linear var(--faq-t);
+}
+
+.faq__item.is-active .faq__body {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.faq__inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 250ms ease-out;
+}
+
+.faq__item.is-active .faq__inner {
+  opacity: 1;
+  transition-delay: 200ms;
 }
 
 .faq__answer {
@@ -1811,54 +1890,7 @@ html[data-zoom] .why__item:nth-child(1) .why__text {
   padding-bottom: var(--space-4);
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--ink-soft);
-}
-
-/* Abrir y cerrar suave. En todos los navegadores la respuesta entra con un
-   desvanecido y un leve deslizamiento (@starting-style). Donde se puede
-   animar la altura hasta "auto" (interpolate-size), además el panel se
-   despliega y se pliega en 500ms; en el resto la altura cambia directo. */
-@media (prefers-reduced-motion: no-preference) {
-  .faq__sign::after {
-    transition: rotate 400ms var(--ease-in-out);
-  }
-
-  .faq__item[open] .faq__answer {
-    transition:
-      opacity 500ms var(--ease-out) 100ms,
-      translate 500ms var(--ease-out) 100ms;
-  }
-
-  @starting-style {
-    .faq__item[open] .faq__answer {
-      opacity: 0;
-      translate: 0 calc(-1 * var(--space-1));
-    }
-  }
-
-  @supports (interpolate-size: allow-keywords) and selector(::details-content) {
-    .faq__list {
-      interpolate-size: allow-keywords;
-    }
-
-    .faq__item::details-content {
-      block-size: 0;
-      overflow: clip;
-      transition:
-        block-size 500ms var(--ease-in-out),
-        content-visibility 500ms allow-discrete;
-    }
-
-    .faq__item[open]::details-content {
-      block-size: auto;
-    }
-
-    /* Al cerrar, el texto se desvanece mientras el panel se pliega. */
-    .faq__item:not([open]) .faq__answer {
-      opacity: 0;
-      transition: opacity 300ms var(--ease-out);
-    }
-  }
+  color: var(--ink);
 }
 
 /* ---------- Proceso: timeline ligado al scroll ----------
@@ -3839,8 +3871,7 @@ body:has(.site-menu[open]) .site-header__home {
 
     /* El paso se enciende cuando el centro de su círculo cruza la mitad. */
     .step__marker,
-    .step__name,
-    .step__text {
+    .step__body {
       animation-fill-mode: both, forwards;
       animation-timing-function: linear;
       animation-timeline: --step, scroll(root);
@@ -3854,8 +3885,9 @@ body:has(.site-menu[open]) .site-header__home {
       animation-name: step-marker-on, step-marker-end;
     }
 
-    .step__name,
-    .step__text {
+    /* El texto se atenúa en el contenedor y no en .step__name/.step__text:
+       Reveal ya anima la opacidad de esos hijos y una animación les ganaría. */
+    .step__body {
       animation-name: step-text-on, step-text-end;
     }
 
@@ -3919,8 +3951,7 @@ body:has(.site-menu[open]) .site-header__home {
 
 @keyframes step-text-on {
   from {
-    /* --ink-soft y no más tenue: apagado, el texto sigue pasando AA. */
-    color: var(--ink-soft);
+    opacity: 0.25;
   }
 }
 
@@ -3962,7 +3993,7 @@ body:has(.site-menu[open]) .site-header__home {
 
 @keyframes step-text-end {
   to {
-    color: var(--ink);
+    opacity: 1;
   }
 }
 
@@ -4384,6 +4415,11 @@ body:has(.site-menu[open]) .site-header__home {
   .svc__plus,
   .svc__body,
   .svc__inner,
+  .faq__item,
+  .faq__question,
+  .faq__sign::after,
+  .faq__body,
+  .faq__inner,
   .service__figure,
   .cursor,
   .cursor__dot,

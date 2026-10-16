@@ -1,7 +1,13 @@
 ---
-// Preguntas frecuentes con <details> nativos: sin JS, y name="faq" hace que
-// solo una respuesta esté abierta a la vez. Copy en borrador, pendiente de
-// aprobación.
+// Preguntas frecuentes: lista tipo acordeón, igual que Servicios. Cada pregunta
+// es un botón con aria-expanded que abre su respuesta (un bloque plata con
+// grid 0fr → 1fr). Se abre con clic, toque o teclado (Enter y Espacio); con
+// mouse también al pasar (pausa de 70ms) y se cierra al salir (gracia de
+// 120ms). Un clic la fija: ya no se cierra al salir. Solo una abierta a la vez
+// y todas empiezan cerradas. La isla de abajo solo cambia la clase is-active y
+// aria-expanded. Todo el estilo está en global.css. Sin JS (<noscript>) se ven
+// todas abiertas.
+// Copy en borrador, pendiente de aprobación.
 const questions = [
   {
     q: '¿Cuánto tardan en tener listo mi proyecto?',
@@ -32,17 +38,114 @@ const questions = [
     <h2 class="section-title" id="faq-title">Lo que suelen preguntarnos</h2>
   </div>
 
-  <div class="faq__list" data-reveal-group>
+  <!-- La lista va dentro de un <div> del grupo: Reveal reemplaza la transición
+       de los hijos directos, y los ítems necesitan la suya para abrirse. -->
+  <div data-reveal-group>
+  <div class="faq__list">
     {
-      questions.map((item) => (
-        <details class="faq__item" name="faq">
-          <summary class="faq__question">
-            <span>{item.q}</span>
-            <span class="faq__sign" aria-hidden="true" />
-          </summary>
-          <p class="faq__answer">{item.a}</p>
-        </details>
+      questions.map((item, i) => (
+        <div class="faq__item">
+          <h3 class="faq__head">
+            <button
+              class="faq__question"
+              type="button"
+              id={`faq-q-${i}`}
+              aria-controls={`faq-a-${i}`}
+              aria-expanded="false"
+            >
+              {item.q}
+              <span class="faq__sign" aria-hidden="true" />
+            </button>
+          </h3>
+          <div class="faq__body" id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`}>
+            <div class="faq__inner">
+              <p class="faq__answer">{item.a}</p>
+            </div>
+          </div>
+        </div>
       ))
     }
   </div>
+  </div>
+
+  <!-- Sin JS no hay forma de abrir una respuesta: se muestran todas abiertas. -->
+  <noscript>
+    <style>
+      .faq__body { grid-template-rows: 1fr; visibility: visible; }
+      .faq__inner { opacity: 1; }
+      .faq__sign { display: none; }
+      .faq__question { cursor: default; }
+    </style>
+  </noscript>
 </section>
+
+<script>
+  const section = document.querySelector<HTMLElement>('.faq');
+  const list = section?.querySelector<HTMLElement>('.faq__list');
+
+  if (section && list) {
+    const items = [...list.querySelectorAll<HTMLElement>('.faq__item')];
+
+    const setOpen = (item: HTMLElement, on: boolean) => {
+      item.classList.toggle('is-active', on);
+      item.querySelector('.faq__question')?.setAttribute('aria-expanded', String(on));
+    };
+
+    // En táctil, al abrir una respuesta la de arriba puede cerrarse y subir el
+    // contenido: al terminar la animación, un solo desplazamiento nativo suave
+    // deja la pregunta a la vista (nunca se mueve el scroll cuadro a cuadro).
+    const touch = matchMedia('(hover: none)');
+
+    // Hover (solo mouse). Solo se cierra al salir la que abrió el hover
+    // (hoverItem); si se abrió con clic o teclado, queda fija.
+    let intent = 0;
+    let grace = 0;
+    let hoverItem: HTMLElement | null = null;
+
+    items.forEach((item) => {
+      const button = item.querySelector<HTMLElement>('.faq__question');
+      button?.addEventListener('click', () => {
+        clearTimeout(intent);
+        // Clic sobre la abierta por hover: se fija en vez de cerrarse.
+        if (hoverItem === item) {
+          hoverItem = null;
+          return;
+        }
+        hoverItem = null;
+        const open = !item.classList.contains('is-active');
+        items.forEach((other) => setOpen(other, other === item && open));
+        if (open && touch.matches) {
+          window.setTimeout(() => item.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 480);
+        }
+      });
+
+      item.addEventListener('pointerenter', (event) => {
+        if (event.pointerType !== 'mouse') return;
+        clearTimeout(grace);
+        clearTimeout(intent);
+        if (item.classList.contains('is-active')) {
+          // Ya abierta (fija o de vuelta): solo cierra la que abrió el hover.
+          if (hoverItem && hoverItem !== item) {
+            setOpen(hoverItem, false);
+            hoverItem = null;
+          }
+          return;
+        }
+        intent = window.setTimeout(() => {
+          items.forEach((other) => setOpen(other, other === item));
+          hoverItem = item;
+        }, 70);
+      });
+
+      item.addEventListener('pointerleave', (event) => {
+        if (event.pointerType !== 'mouse') return;
+        clearTimeout(intent);
+        if (hoverItem !== item) return;
+        grace = window.setTimeout(() => {
+          setOpen(item, false);
+          hoverItem = null;
+        }, 120);
+      });
+    });
+  }
+</script>

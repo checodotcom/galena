@@ -105,31 +105,52 @@ Por qué Galena → Para quién en tres escenas apiladas dentro de un escenario
 `sticky` (`.zoom` / `.zoom__stage`); el scroll no baja el contenido, avanza
 una cámara.
 
-- Solo desde 900px de ancho y 700px de alto, sin `prefers-reduced-motion` y
-  con JS: un `<script is:inline>` marca `html[data-zoom]` antes de pintar y
-  el CSS de escenas cuelga de ese atributo. Si no aplica, son tres secciones
-  normales una tras otra. El contenido siempre está en el DOM.
+- En móvil y en escritorio: desde 560px de alto, sin `prefers-reduced-motion`
+  y con JS. Un `<script is:inline>` marca `html[data-zoom]` antes de pintar y
+  el CSS de escenas cuelga de ese atributo. Si no aplica (movimiento
+  reducido, sin JS, móvil en horizontal), son tres secciones normales una tras
+  otra. El contenido siempre está en el DOM.
+- El escenario mide `100lvh` (la barra flotante de Safari no lo encoge) y el
+  progreso se calcula con su alto, no con `innerHeight`; un cambio de alto
+  menor a 160px sin cambio de ancho (la barra del navegador al hacer scroll)
+  no vuelve a medir. Pista: `480svh` en móvil y `600svh` desde 900px. En
+  táctil el lerp es 0.3 (el dedo ya trae inercia); con mouse, 0.085.
+- La tinta es una capa del tamaño del escenario recortada con
+  `clip-path: circle()` que el script agranda y luego cierra: el
+  borde queda nítido a cualquier tamaño (escalar un círculo pequeño lo dejaba
+  borroso en el teléfono).
+- La bola del hero sigue rebotando mientras el hero está en pantalla; se
+  detiene justo cuando el scroll empieza a agrandarla.
+- "Por qué Galena" en la escena: desde 900px, el "10" a la izquierda y los
+  otros dos apilados a la derecha; abajo de 900px, la maqueta de la sección
+  normal (el "10" arriba, los otros dos mitad y mitad), con el "10" limitado
+  a `24svh` para caber en teléfonos bajos.
 - El JS convierte el scroll en progreso 0→1 (lerp 0.085 por cuadro a 60fps, ajustado al tiempo real, un solo bucle rAF
   que se detiene en reposo) y escribe `transform` y `opacity`. La
   coreografía (tramos `T1` y `T2`, mesetas) vive en el script.
 - Cruce 1: el círculo negro del hero se detiene y se agranda hasta ser el
-  fondo tinta de "Por qué Galena" (texto en hueso). Cruce 2: un círculo hueso
-  nace de la cifra "10" y se vuelve el fondo de "Para quién". Los
-  fondos van en capas propias que no escalan.
+  fondo tinta de "Por qué Galena" (texto en hueso). Cruce 2: la sección
+  negra se cierra en círculo hacia la cifra "10" (la tinta y su contenido,
+  recortados con el mismo círculo) y deja ver "Para quién" en hueso, que ya
+  está debajo. Los fondos van en capas propias que no escalan.
 - Solo la escena que se ve (la de más opacidad, si pasa de la mitad) recibe
   clics; con el foco (Tab) en otra, el scroll va a su meseta. Al cambiar el
   tamaño de la ventana se conserva el progreso, y si se cruza el umbral de
-  900×700 el efecto se apaga limpio (sin estilos de escena colgados). Pista de `600svh`; si se agrega o quita una escena, hay que
-  ajustar la altura y los tramos.
+  560px de alto el efecto se apaga limpio (sin estilos de escena colgados).
+  Si se agrega o quita una escena, hay que ajustar la altura de la pista y
+  los tramos.
 - El header toma el tono `ink` (fondo tinta, logo y botones en hueso) solo
   cuando el círculo negro ya cubre la franja del header (se calcula con la
-  geometría, no con el progreso), y vuelve a hueso cuando el círculo hueso la
-  cubre; en medio se queda plata: ScrollZoom pone `html[data-tone-override]` y
+  geometría, no con el progreso), y vuelve a hueso cuando la tinta que se
+  cierra deja de cubrirla; en medio se queda plata: ScrollZoom pone `html[data-tone-override]` y
   HeaderTone lo respeta (evento `tone-override`). El logo hueso es una
   segunda imagen apilada que se funde con la de tinta.
-- El botón que rebota de "Para quién" rebota desde el borde inferior del
-  header, no por debajo. Solo rebota con mouse (`hover: hover`): en tablet
-  táctil se queda en su lugar, porque no habría cómo detenerlo.
+- "Para quién" en la escena: dos filas que son las mitades exactas de la
+  pantalla; la frase pegada al borde inferior de la de arriba y el botón
+  quieto, centrado en la de abajo.
+- Sin zoom, "Por qué Galena" es una sección normal con fondo tinta
+  (`.why::before`) y texto hueso; lleva `data-header-tone="ink"` para que el
+  header se ponga tinta al pasar por ella.
 - Tokens derivados para la escena tinta: `--bone-soft` (hueso 70%) y
   `--bone-hairline` (hueso 25%).
 
@@ -245,9 +266,7 @@ se pida cambiarlas.
   otros dos van debajo, mitad y mitad; en el zoom, el "10" a la izquierda
   y los otros dos apilados a la derecha) → Para
   quién (clínicas por WhatsApp, redes y teléfono; línea de
-  pérdida → ganancia; botón dividido `.cta-split` a `/planes`, que desde tablet
-  rebota por toda la sección como el logo de un DVD, a velocidad
-  constante, y se detiene con el mouse o el foco encima) → Servicios → Proceso (timeline) → Cierre plata ("Platícanos sobre tu clínica") →
+  pérdida → ganancia; botón dividido `.cta-split` a `/planes`, quieto) → Servicios → Proceso (timeline) → Cierre plata ("Platícanos sobre tu clínica") →
   Nosotros → Preguntas frecuentes. Cada sección es un componente en
   `src/components/`. Hero, Por qué Galena y Para quién son las escenas del
   zoom de scroll (ver "Escenas con zoom"), por eso Para quién va antes de
@@ -306,6 +325,20 @@ se pida cambiarlas.
   en pantalla (`data-onscreen`). Sin JS (`<noscript>`) se ven todas abiertas.
   La lista va dentro de un `<div data-reveal-group>`: Reveal reemplaza las
   transiciones de los hijos directos.
+- Proceso: el texto de cada paso (`.step__body`) está al 25% de opacidad
+  hasta que la línea llega a su punto, y entonces pasa a 100% junto con el
+  punto (mismo `view-timeline`). Sin soporte o con movimiento reducido, todo
+  visible. La opacidad va en `.step__body` y no en sus hijos, porque Reveal
+  ya controla la opacidad de los hijos.
+- Preguntas frecuentes (`Faq.astro`): el mismo mecanismo que Servicios
+  (botón con `aria-expanded`, cuerpo `0fr → 1fr`, bloque plata con radio
+  `--space-3`, 450ms), para que abra igual en desktop y en iPhone. Se abre
+  con clic, toque o teclado, y con mouse también al pasar (pausa de 70ms,
+  como Servicios); al salir se cierra tras 120ms de gracia, que se cancela
+  si el puntero vuelve o pasa a otra fila (entonces solo cambia la abierta).
+  Un clic la fija: ya no se cierra al salir, solo al volver a tocarla o al
+  abrir otra. Una abierta con teclado tampoco se cierra al salir. Una a la
+  vez. En táctil no hay hover. Sin JS, todas abiertas.
 
 **Interacción**
 - Enlaces internos siempre con barra final (`/planes/`, `/cotizar/`): son

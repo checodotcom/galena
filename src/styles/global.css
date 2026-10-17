@@ -990,11 +990,14 @@ html[data-zoom] .zoom__stage > .audience .audience__aside {
 
 /* Fondos a pantalla completa en capas propias: no escalan, así nunca se ve
    un rectángulo flotando mientras una escena crece. */
+/* Solo pintan: el fondo tinta va encima del hero (capa 3) y, aunque esté
+   transparente, sin esto se quedaría con los clics de sus botones. */
 html[data-zoom] .zoom__bg {
   display: block;
   position: absolute;
   inset: 0;
   opacity: 0;
+  pointer-events: none;
 }
 
 html[data-zoom] .zoom__bg--ink {

@@ -113,7 +113,8 @@ una cámara.
 - El escenario mide `100lvh` (la barra flotante de Safari no lo encoge) y el
   progreso se calcula con su alto, no con `innerHeight`; un cambio de alto
   menor a 160px sin cambio de ancho (la barra del navegador al hacer scroll)
-  no vuelve a medir. Pista: `480svh` en móvil y `600svh` desde 900px. En
+  no vuelve a medir. Pista: `446svh` en móvil y `555svh` desde 900px (tras el último cruce
+  solo queda un respiro de 3%, no una meseta larga). En
   táctil el lerp es 0.3 (el dedo ya trae inercia); con mouse, 0.085.
 - La tinta es una capa del tamaño del escenario recortada con
   `clip-path: circle()` que el script agranda y luego cierra: el
@@ -121,6 +122,11 @@ una cámara.
   borroso en el teléfono).
 - La bola del hero sigue rebotando mientras el hero está en pantalla; se
   detiene justo cuando el scroll empieza a agrandarla.
+- El primer cruce empieza en el instante en que el escenario se fija (sin
+  tramo muerto) y el círculo crece de forma geométrica (`S1^t`, y el hero
+  `4^u`): el zoom se percibe a ritmo parejo desde el primer pixel. Con la
+  curva cúbica anterior casi no se movía al principio y se sentía como un
+  freno al llegar al final del hero.
 - "Por qué Galena" en la escena: desde 900px, el "10" a la izquierda y los
   otros dos apilados a la derecha; abajo de 900px, la maqueta de la sección
   normal (el "10" arriba, los otros dos mitad y mitad), con el "10" limitado
@@ -337,8 +343,10 @@ se pida cambiarlas.
   descripción crece, revisar que siga cabiendo. La figura se traza cada vez
   que su fila se abre, con la animación `service-draw`, que al terminar quita
   el guion (`stroke-dasharray: none`): con `pathLength` y non-scaling-stroke
-  el guion se mide mal y dejaba abiertas las esquinas donde empieza cada
-  forma. Con mouse, solo se mueve mientras el cursor está sobre
+  el guion se mide en la escala del viewBox (200) pero se pinta en
+  pantalla, así que su largo es `--svc-dash` (ancho de la figura / 200,
+  desde `--svc-fig`) y no 1; con 1, en figuras de más de 200px faltaba el
+  final de cada línea y aparecía de golpe al terminar. Con mouse, solo se mueve mientras el cursor está sobre
   la lista y al salir se pausa donde iba; en táctil, mientras la sección está
   en pantalla (`data-onscreen`). Sin JS (`<noscript>`) se ven todas abiertas.
   La lista va dentro de un `<div data-reveal-group>`: Reveal reemplaza las

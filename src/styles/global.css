@@ -915,12 +915,12 @@ html[data-zoom] .zoom {
   /* 3 escenas, 2 cruces y mesetas cortas. En móvil la pista es más corta:
      con el dedo, 6 pantallas se sienten largas. Más recorrido = movimiento
      más pausado. */
-  height: 480svh;
+  height: 446svh;
 }
 
 @media (min-width: 900px) {
   html[data-zoom] .zoom {
-    height: 600svh;
+    height: 555svh;
   }
 }
 
@@ -1358,8 +1358,15 @@ html[data-zoom] .why__text {
    se pliega y se oculta con él (visibility) sin usar display:none, que
    impediría que el trazo se anime al abrir. */
 .service__figure {
+  /* Con non-scaling-stroke el guion se mide en la escala del viewBox
+     (200) pero se pinta en pantalla: un guion de pathLength 1 cubre solo
+     200/ancho de la línea. --svc-dash (ancho / 200) es el guion que la
+     cubre completa a cualquier tamaño; en 220px, con 1, faltaba el último
+     9% de cada forma y aparecía de golpe al terminar. */
+  --svc-fig: 150px;
+  --svc-dash: calc(var(--svc-fig) / 200);
   display: block;
-  width: 150px;
+  width: var(--svc-fig);
   margin: 0 auto var(--space-4);
   overflow: visible;
   fill: none;
@@ -1392,8 +1399,8 @@ html[data-zoom] .why__text {
    primera vez (data-seen) también, para que la primera se dibuje al
    llegar. Movimiento reducido: aparece completa sin dibujarse. */
 .service__figure * {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  stroke-dasharray: var(--svc-dash);
+  stroke-dashoffset: var(--svc-dash);
 }
 
 /* Trazada, la línea va sin guion: con pathLength y non-scaling-stroke el
@@ -1405,8 +1412,8 @@ html[data-zoom] .why__text {
 }
 
 .services:not([data-seen]) .service__figure * {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  stroke-dasharray: var(--svc-dash);
+  stroke-dashoffset: var(--svc-dash);
 }
 
 .service__figure :is(.service__date, .service__motion--flow, .service__dot) {
@@ -1507,12 +1514,12 @@ html[data-zoom] .why__text {
 
 @keyframes service-draw {
   from {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
+    stroke-dasharray: var(--svc-dash);
+    stroke-dashoffset: var(--svc-dash);
   }
 
   99.9% {
-    stroke-dasharray: 1;
+    stroke-dasharray: var(--svc-dash);
     stroke-dashoffset: 0;
   }
 
@@ -1610,7 +1617,7 @@ html[data-zoom] .why__text {
     position: absolute;
     top: 50%;
     right: var(--space-8);
-    width: clamp(160px, 17vw, 220px);
+    --svc-fig: clamp(160px, 17vw, 220px);
     margin: 0;
     translate: 0 -50%;
   }

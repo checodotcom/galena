@@ -2,6 +2,8 @@
 // junto a cada campo, estados del botón Enviar (enviando → palomita) y el
 // mensaje final. Lo importan las islas ContactDialog.astro y ContactPage.astro.
 
+import { enhanceSelect } from './flying-select.js';
+
 const MIN_LOADING_MS = 2000;
 const CONTACT_EMAIL = 'hola@galena.agency';
 const MESSAGES = {
@@ -19,6 +21,10 @@ export function enhanceContactForm(form) {
   const controls = [...form.querySelectorAll('input, select, textarea')].filter(
     (control) => control.name !== 'website',
   );
+
+  // El desplegable de Plan: lista propia con disolución en píxeles. Debajo
+  // sigue el <select> real, que es el que se valida y se envía.
+  form.querySelectorAll('select').forEach(enhanceSelect);
 
   // Con JS, los errores se muestran junto a cada campo (CSS) en lugar del globo
   // del navegador. Sin JS esta línea no corre y la validación nativa sigue.

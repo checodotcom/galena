@@ -390,6 +390,17 @@ se pida cambiarlas.
   - la lógica de envío en `src/scripts/contact-form.js` (errores con
     `aria-invalid`, animación de Enviar);
   - la casilla obligatoria del aviso de privacidad (`ConsentField.astro`).
+- El desplegable de Plan (`src/scripts/flying-select.js`, lo carga
+  `contact-form.js`, así que sirve en el diálogo y en `/cotizar`) es un
+  combobox propio sobre el `<select>` real, que queda oculto y es el que se
+  valida y se envía; sin JS se ve el nativo. Efecto de "flying dropdown": el
+  panel se disuelve en píxeles (máscara canvas → `mask-image`, celdas de 6px
+  con umbral por fila más azar): al abrir aparece de arriba hacia abajo, al
+  cerrar se deshace de abajo hacia el campo, y al elegir el texto del campo
+  se descifra letra por letra. Con `prefers-reduced-motion` no hay animación.
+  Teclado completo (flechas, Home/End, Enter/Espacio, Esc, letras) y
+  `aria-activedescendant`. Se sincroniza con `select.value = …` por código y
+  con `form.reset()`.
 - "Quiero este plan" preselecciona el plan en el diálogo (`data-plan`); los
   demás botones no tocan el plan ya elegido.
 - Validación alineada con el Worker: `pattern` de correo igual a

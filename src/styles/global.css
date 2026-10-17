@@ -3148,6 +3148,89 @@ select.field__input {
   stroke-linejoin: round;
 }
 
+/* Desplegable de Plan (src/scripts/flying-select.js). El botón hereda el
+   estilo del campo; el panel es una lista que se disuelve en píxeles con una
+   máscara que pone el script (mask-image), no con CSS. Sin sombra: lo separa
+   un borde fino y su fondo opaco. */
+.select__button {
+  display: block;
+  text-align: left;
+  cursor: pointer;
+}
+
+.select__button.is-placeholder {
+  color: var(--ink-soft);
+}
+
+.select__button:disabled {
+  cursor: default;
+}
+
+.select-wrap__chevron {
+  transition: transform 400ms var(--ease-in-out);
+}
+
+.select-wrap.is-open .select-wrap__chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.select__panel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  left: 0;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  border: 1px solid var(--hairline);
+  border-radius: var(--space-3);
+  background-color: var(--bone);
+}
+
+.select__panel[hidden] {
+  display: none;
+}
+
+.select__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-1) var(--space-5) var(--space-1) var(--space-2);
+  border-radius: var(--space-2);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.select__option.is-active {
+  background-color: var(--silver);
+  color: var(--ink);
+}
+
+.select__option[aria-selected='true'] {
+  color: var(--ink);
+}
+
+/* Marca de la opción elegida: una palomita de 1px dibujada con bordes. */
+.select__option[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  width: 5px;
+  height: 10px;
+  border: solid var(--ink);
+  border-width: 0 1px 1px 0;
+  transform: translateY(-65%) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .select-wrap__chevron {
+    transition: none;
+  }
+}
+
 /* Error por campo, sin JS: :user-invalid se activa cuando la persona ya tocó
    el campo. data-checked lo pone la isla tras un intento de envío, para que
    también se marquen los campos que nunca se tocaron. */

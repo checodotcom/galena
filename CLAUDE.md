@@ -335,7 +335,10 @@ se pida cambiarlas.
   `pathLength` + `vector-effect: non-scaling-stroke`. Todas las filas abiertas miden lo mismo
   (`min-height: 19rem`) para que la lista no se mueva bajo el puntero: si una
   descripción crece, revisar que siga cabiendo. La figura se traza cada vez
-  que su fila se abre. Con mouse, solo se mueve mientras el cursor está sobre
+  que su fila se abre, con la animación `service-draw`, que al terminar quita
+  el guion (`stroke-dasharray: none`): con `pathLength` y non-scaling-stroke
+  el guion se mide mal y dejaba abiertas las esquinas donde empieza cada
+  forma. Con mouse, solo se mueve mientras el cursor está sobre
   la lista y al salir se pausa donde iba; en táctil, mientras la sección está
   en pantalla (`data-onscreen`). Sin JS (`<noscript>`) se ven todas abiertas.
   La lista va dentro de un `<div data-reveal-group>`: Reveal reemplaza las

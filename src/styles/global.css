@@ -1396,11 +1396,16 @@ html[data-zoom] .why__text {
   stroke-dashoffset: 1;
 }
 
+/* Trazada, la línea va sin guion: con pathLength y non-scaling-stroke el
+   navegador mide mal el guion y dejaba un hueco donde empieza cada forma
+   (esquinas abiertas). El guion solo existe mientras se dibuja. */
 .is-active .service__figure * {
+  stroke-dasharray: none;
   stroke-dashoffset: 0;
 }
 
 .services:not([data-seen]) .service__figure * {
+  stroke-dasharray: 1;
   stroke-dashoffset: 1;
 }
 
@@ -1440,8 +1445,12 @@ html[data-zoom] .why__text {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .is-active .service__figure * {
-    transition: stroke-dashoffset 1400ms var(--ease-in-out) 150ms;
+  /* Solo las formas trazadas; los grupos y puntos con movimiento propio
+     conservan su animación. Al final el guion se quita (ver arriba). */
+  @supports not (-webkit-touch-callout: none) {
+    .services[data-seen] .is-active .service__figure :is(rect, path, circle):not(.service__motion, .service__dot) {
+      animation: service-draw 1400ms var(--ease-in-out) 150ms both;
+    }
   }
 
   .is-active .service__figure :is(.service__date, .service__motion--flow, .service__dot) {
@@ -1493,6 +1502,23 @@ html[data-zoom] .why__text {
     .services:not([data-onscreen]) .service__motion {
       animation-play-state: paused;
     }
+  }
+}
+
+@keyframes service-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  99.9% {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
   }
 }
 

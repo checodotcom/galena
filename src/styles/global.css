@@ -2820,39 +2820,41 @@ main {
   color: var(--ink-soft);
 }
 
+/* El precio va después de lo que incluye y se empuja al pie: aunque las
+   listas midan distinto, los tres precios quedan a la misma altura. */
 .plan__pricing {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  margin-top: auto;
 }
 
+/* La unidad va a la derecha de la cifra en dos renglones (MXN arriba,
+   "/ mes + IVA" abajo), con el renglón de abajo sobre la línea base de la
+   cifra (last baseline). */
 .plan__price {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  /* Si cifra y unidad (MXN / año + IVA) no caben juntas, la unidad baja. */
+  align-items: last baseline;
+  /* Si no caben juntas (anual en tarjetas angostas), la unidad baja. */
   gap: var(--space-1) var(--space-2);
   margin: 0;
 }
 
 .plan__amount {
   white-space: nowrap;
-  font-size: clamp(2.5rem, 8vw, 4rem);
+  /* Medio paso áureo (× √φ ≈ 1.272) sobre el nombre del plan, en todos los
+     tamaños: 28 → 36px en móvil, 40 → 50px en desktop. Un paso completo (φ)
+     se veía demasiado grande. */
+  font-size: clamp(2.25rem, 6.3vw, 3.125rem);
   font-weight: 200;
   line-height: 1;
   letter-spacing: -0.01em;
 }
 
-/* A 1024-1099px las tres tarjetas son angostas y "$96,970" a 4rem se pasa del
-   relleno por unos píxeles. */
-@media (min-width: 1024px) and (max-width: 1099px) {
-  .plan__amount {
-    font-size: 3.5rem;
-  }
-}
-
 .plan__unit {
   white-space: nowrap;
+  line-height: 1.4;
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -2865,6 +2867,10 @@ main {
 .plan__unit--annual,
 .plan__savings {
   display: none;
+}
+
+.plan__unit > span {
+  display: block;
 }
 
 .pricing-page:has(#period-annual:checked) .plan__amount--monthly,
@@ -3830,6 +3836,65 @@ body:has(.site-menu[open]) .site-header__home {
   .plans {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Las tres tarjetas comparten filas (encabezado, lista, precio, botón):
+     así los precios empiezan a la misma altura aunque "Implementación única"
+     ocupe una línea en una tarjeta y dos en otra. Empujarlos al pie los
+     alineaba por abajo, y la cifra quedaba desfasada. */
+  @supports (grid-template-rows: subgrid) {
+    .plan {
+      display: grid;
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+    }
+
+    .plan__pricing {
+      margin-top: 0;
+    }
+  }
+
+  /* Tarjetas más compactas en vertical: que quepan completas bajo el header
+     en una pantalla de 900px de alto. */
+  .plan {
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+  }
+
+  .plan__head {
+    gap: var(--space-1);
+  }
+
+  .plan__pricing {
+    gap: var(--space-1);
+  }
+
+  .plan-cta {
+    min-height: 48px;
+  }
+
+  .plan__list {
+    line-height: 1.5;
+  }
+
+  /* Hasta 1199px las tres tarjetas son angostas: menos relleno lateral
+     para que la unidad quepa junto a la cifra. */
+  @media (max-width: 1199px) {
+    .plan {
+      padding-inline: var(--space-3);
+    }
+  }
+
+  /* Laptops con poca altura: un escalón más apretado, solo en el aire. */
+  @media (max-height: 920px) {
+    .plan {
+      gap: var(--space-3);
+      padding-block: var(--space-4);
+    }
+
+    .plan__list li {
+      padding-block: var(--space-1);
+    }
   }
 
   /* Para quién: frase a la izquierda; texto y botón a la derecha, abajo. */

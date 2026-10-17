@@ -301,7 +301,19 @@ se pida cambiarlas.
 - Entrada suave, una sola vez: `Reveal.astro` + `data-reveal-group`; los
   hijos del grupo entran en cascada. Un grupo no debe tener como hijo directo
   un botón o enlace con transición propia (se envuelve en un `<div>`).
-- Tarjetas de planes: radio `--space-3`; menos relleno en móvil.
+- Tarjetas de planes: orden número, nombre, descripción, lo que incluye,
+  precio mensual, implementación y botón; desde 1024px las tres tarjetas
+  comparten filas con `subgrid` (encabezado, lista, precio, botón), así los
+  precios y los botones empiezan a la misma altura aunque un texto se parta
+  en más líneas en una tarjeta; en el carrusel móvil el precio va al pie
+  (`margin-top: auto`). La unidad va a la derecha de la cifra en dos
+  renglones ("MXN" y "/ mes + IVA"), con el de abajo sobre la línea base de
+  la cifra (`align-items: last baseline`); si no cabe (anual entre 1024 y
+  ~1080px), baja bajo la cifra. Radio
+  `--space-3`; menos relleno en móvil. Desde
+  1024px se compactan en vertical para caber completas bajo el header, con un
+  escalón más apretado si la ventana mide 920px de alto o menos (solo cambia
+  el aire, no la tipografía). A 1280×800 o menos todavía se cortan un poco.
 - Servicios (`Services.astro`): lista tipo acordeón con una especialidad
   abierta a la vez. La abierta es un bloque plata (radio `--space-3`) con
   número, nombre grande, descripción y su figura de línea a la derecha (debajo

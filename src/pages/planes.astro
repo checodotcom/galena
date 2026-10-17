@@ -119,12 +119,19 @@ const plans = [
                 <p class="plan__tagline">{plan.tagline}</p>
               </div>
 
+              <div class="plan__includes">
+                <p class="plan__includes-label">{plan.includesLabel}</p>
+                <ul class="plan__list">
+                  {plan.includes.map((item) => <li>{item}</li>)}
+                </ul>
+              </div>
+
               <div class="plan__pricing">
                 <p class="plan__price">
                   <span class="plan__amount plan__amount--monthly">{mxn(plan.monthly)}</span>
                   <span class="plan__amount plan__amount--annual">{mxn(plan.annual)}</span>
-                  <span class="plan__unit plan__unit--monthly">MXN / mes + IVA</span>
-                  <span class="plan__unit plan__unit--annual">MXN / año + IVA</span>
+                  <span class="plan__unit plan__unit--monthly">MXN <span>/ mes + IVA</span></span>
+                  <span class="plan__unit plan__unit--annual">MXN <span>/ año + IVA</span></span>
                 </p>
                 <p class="plan__savings">Ahorras {mxn(plan.savings)} MXN al año</p>
                 <p class="plan__setup">
@@ -141,13 +148,6 @@ const plans = [
               >
                 {plan.cta}
               </button>
-
-              <div class="plan__includes">
-                <p class="plan__includes-label">{plan.includesLabel}</p>
-                <ul class="plan__list">
-                  {plan.includes.map((item) => <li>{item}</li>)}
-                </ul>
-              </div>
             </article>
           ))
         }

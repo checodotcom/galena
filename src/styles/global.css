@@ -2730,7 +2730,8 @@ main {
 
 .period__note {
   margin: 0;
-  font-size: 0.875rem;
+  /* Medio paso áureo sobre 14px (× √φ ≈ 17.8px). */
+  font-size: 1.125rem;
   color: var(--ink-soft);
 }
 
@@ -3889,11 +3890,6 @@ body:has(.site-menu[open]) .site-header__home {
   @media (max-height: 920px) {
     .plan {
       gap: var(--space-3);
-      padding-block: var(--space-4);
-    }
-
-    .plan__list li {
-      padding-block: var(--space-1);
     }
   }
 

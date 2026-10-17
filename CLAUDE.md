@@ -311,9 +311,10 @@ se pida cambiarlas.
   la cifra (`align-items: last baseline`); si no cabe (anual entre 1024 y
   ~1080px), baja bajo la cifra. Radio
   `--space-3`; menos relleno en móvil. Desde
-  1024px se compactan en vertical para caber completas bajo el header, con un
-  escalón más apretado si la ventana mide 920px de alto o menos (solo cambia
-  el aire, no la tipografía). A 1280×800 o menos todavía se cortan un poco.
+  1024px se compactan en vertical para caber completas bajo el header, y si la
+  ventana mide 920px de alto o menos solo se cierra el espacio entre bloques
+  (la lista conserva su aire: apretarla más se veía peor). Caben desde
+  ~860px de alto; a 800px o menos se cortan un poco.
 - Servicios (`Services.astro`): lista tipo acordeón con una especialidad
   abierta a la vez. La abierta es un bloque plata (radio `--space-3`) con
   número, nombre grande, descripción y su figura de línea a la derecha (debajo

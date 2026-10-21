@@ -280,9 +280,14 @@ se pida cambiarlas.
   zoom de scroll (ver "Escenas con zoom"), por eso Para quién va antes de
   Servicios.
 - `/planes` (antes `/servicios`, que redirige 301 en `worker/index.js`):
-  3 planes con precios en pesos mexicanos más IVA (números en el arreglo
+  3 planes (Inicial, Crecimiento, Élite; los nombres también están en los
+  selectores de `ContactDialog`/`ContactPage` y en `PLAN_LABELS` del Worker)
+  con precios en pesos mexicanos más IVA (números en el arreglo
   `plans` de `planes.astro`, formateados con `Intl.NumberFormat('es-MX')`;
-  anual = 10 mensualidades; WhatsApp Business incluido, sin costo extra), interruptor mensual/anual sin JS (`:has()`),
+  anual = 10 mensualidades; partieron de la lista en USD (147/500, 225/1000,
+  597/1699) a 18.44 pesos por dólar (21-oct-2026) y se ajustaron a mano:
+  mensualidades 2,897 / 4,797 / 8,697; implementaciones 9,197 / 18,397 /
+  28,979; WhatsApp Business incluido, sin costo extra), interruptor mensual/anual sin JS (`:has()`),
   carrusel con scroll-snap en móvil.
 - `/cotizar` (antes `/contacto`, que redirige 301 en `worker/index.js`):
   "Hablemos" + formulario. En el menú y el header se llama "Cotizar".

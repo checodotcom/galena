@@ -5,7 +5,7 @@ import { EmailMessage } from 'cloudflare:email';
 
 const FROM = 'formulario@galena.agency';
 const MAX = { name: 120, email: 200, company: 120, message: 5000 };
-const PLAN_LABELS = { '01': '01 Sitio Inteligente', '02': '02 Crecimiento', '03': '03 IA Total' };
+const PLAN_LABELS = { '01': '01 Inicial', '02': '02 Crecimiento', '03': '03 Élite' };
 // Sin espacios, saltos de línea ni < > ": seguro para usarlo en Reply-To.
 const EMAIL_PATTERN = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 

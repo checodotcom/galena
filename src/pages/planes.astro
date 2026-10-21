@@ -9,17 +9,20 @@ const description =
   'Elige el plan de Galena para tu clínica: sitio web, agenda, recordatorios y reseñas. Sin contratos forzosos, sin cargos escondidos.';
 
 // Precios en pesos mexicanos, sin IVA. Anual = 10 mensualidades (2 de descuento).
+// Partieron de la lista en USD (147/500, 225/1000, 597/1699) al tipo de cambio
+// de 18.44 del 21-oct-2026 y se ajustaron a mano: las mensualidades 2,897 /
+// 4,797 / 8,697 y la implementación del plan 03 (28,979) las fijó el dueño.
 const mxn = (amount: number) => `$${new Intl.NumberFormat('es-MX').format(amount)}`;
 
 const plans = [
   {
     index: '01',
-    name: 'Sitio Inteligente',
+    name: 'Inicial',
     tagline: 'Para empezar a captar en línea',
-    monthly: 2697,
-    annual: 26970,
-    savings: 5394,
-    setup: 6197,
+    monthly: 2897,
+    annual: 28970,
+    savings: 5794,
+    setup: 9197,
     cta: 'Quiero este plan',
     featured: false,
     includesLabel: 'Incluye',
@@ -35,14 +38,14 @@ const plans = [
     index: '02',
     name: 'Crecimiento',
     tagline: 'Para llenar la agenda y subir reseñas',
-    monthly: 5897,
-    annual: 58970,
-    savings: 11794,
-    setup: 9997,
+    monthly: 4797,
+    annual: 47970,
+    savings: 9594,
+    setup: 18397,
     cta: 'Quiero este plan →',
     featured: true,
     badge: 'Recomendado',
-    includesLabel: 'Todo lo de Sitio Inteligente, más',
+    includesLabel: 'Todo lo de Inicial, más',
     includes: [
       'Hasta 5 páginas en tu sitio web',
       'Chat en el sitio conectado a WhatsApp Business',
@@ -54,12 +57,12 @@ const plans = [
   },
   {
     index: '03',
-    name: 'IA Total',
+    name: 'Élite',
     tagline: 'Para atender 24/7 sin contratar',
-    monthly: 9697,
-    annual: 96970,
-    savings: 19394,
-    setup: 15697,
+    monthly: 8697,
+    annual: 86970,
+    savings: 17394,
+    setup: 28979,
     cta: 'Quiero este plan',
     featured: false,
     includesLabel: 'Todo lo de Crecimiento, más',
